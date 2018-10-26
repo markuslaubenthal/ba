@@ -8,6 +8,10 @@ class VertexPolygon {
   protected ArrayList<Vertex> outline;
   protected String text = "";
 
+  public VertexPolygon() {
+    VertexPolygon("");
+  }
+
   public VertexPolygon(String text) {
     outline = new ArrayList<Vertex>();
     this.text = text;
