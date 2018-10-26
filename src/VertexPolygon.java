@@ -8,6 +8,11 @@ class VertexPolygon {
   protected ArrayList<Vertex> outline;
   protected String text = "";
 
+
+  public VertexPolygon() {
+    outline = new ArrayList<Vertex>();
+  }
+
   public VertexPolygon(String text) {
     outline = new ArrayList<Vertex>();
     this.text = text;
@@ -71,7 +76,7 @@ class VertexPolygon {
     x = x / outline.size();
     y = y / outline.size();
     Text t = new Text();
-    t.setFont(new Font(20));
+    t.setFont(new Font(40));
     t.setText(this.text);
     t.setX(x);
     t.setY(y);
