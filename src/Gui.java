@@ -63,24 +63,16 @@ public class Gui {
             point.setCenterY(event.getSceneY());
             vertex.x = event.getSceneX();
             vertex.y = event.getSceneY();
-
-            layer3CS.getChildren().clear();
-            for(VertexPolygon poly : polygonListe) {
-              poly.drawPolygon(layer3CS);
-            }
-            
+            drawPolygons();
           }
         }
       });
       point.setOnMousePressed(new EventHandler<MouseEvent>() {
         public void handle(MouseEvent event) {
           if(creatingNewPolygon && !newPolygon.contains(vertex)){
-            // Hole das neueste Polygon aus der Liste.
             newPolygon.addVertex(vertex);
             point.setFill(Color.LAWNGREEN);
           }
-          // IF WE ARE CREATING A NEW POLYGON
-          // ADD TO POLYGON LIST
         }
       });
       layer4CS.getChildren().add(point);
@@ -108,21 +100,26 @@ public class Gui {
       public void handle(ActionEvent event) {
         if(!creatingNewPolygon) {
           creatingNewPolygon = true;
-          newPolygon = new VertexPolygon();
+          newPolygon = new VertexPolygon(String.valueOf(polygonListe.size()));
           btn.setText("End Polygon");
         } else {
           polygonListe.add(newPolygon);
           newPolygon.colorizeVertecies(0,0,0,1);
-          layer3CS.getChildren().clear();
-          for(VertexPolygon poly : polygonListe) {
-            poly.drawPolygon(layer3CS);
-          }
+          drawPolygons();
           creatingNewPolygon = false;
           btn.setText("New Polygon");
         }
       }
     });
     layer1UI.getChildren().add(btn);
+  }
+
+  public void drawPolygons(){
+    layer3CS.getChildren().clear();
+    for(VertexPolygon poly : polygonListe) {
+      poly.drawPolygon(layer3CS);
+      poly.drawText(layer3CS);
+    }
   }
 
 }

@@ -2,9 +2,9 @@ class Test {
   public static void main(String[] args) {
     polygonTest();
   }
-  
+
   public static void polygonTest() {
-    Polygon x = new Polygon();
+    VertexPolygon x = new VertexPolygon("");
     x.addVertex(new Vertex(0, 0));
     x.addVertex(new Vertex(3, 20));
     x.addVertex(new Vertex(17, 15));
