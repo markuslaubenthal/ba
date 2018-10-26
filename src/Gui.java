@@ -17,15 +17,20 @@ import java.util.List;
 
 
 public class Gui {
-  HBox layer0 = new HBox();
-  VBox layer1UI = new VBox();
-  Pane layer1CS = new Pane();
-  Pane layer2CS = new Pane();
-  Pane layer3CS = new Pane();
-  Pane layer4CS = new Pane();
-  Scene scene = new Scene(layer0, 1300, 800);
+  int windowHeight = 800;
+  int windowWidth =  1300;
+  int vertexBoxHeight = 800;
+  int vertexBoxWidth = 1000;
+  HBox rootContainer = new HBox();
+  VBox uiContainer = new VBox();
 
-  List<VertexPolygon> polygonListe = new ArrayList<>();
+  Pane vertexLayer = new Pane();
+  Pane edgeLayer = new Pane();
+  Pane emptyLayer = new Pane();
+
+  Scene scene = new Scene(rootContainer, windowWidth, windowHeight);
+
+  List<VertexPolygon> polygonList = new ArrayList<>();
 
   Boolean creatingNewPolygon = false;
   VertexPolygon newPolygon;
@@ -34,11 +39,10 @@ public class Gui {
     stage.setScene(scene);
     addButtons();
     setupKlickToAddVertex();
-    layer0.getChildren().add(layer1CS);
-    layer0.getChildren().add(layer1UI);
-    layer1CS.getChildren().add(layer2CS);
-    layer1CS.getChildren().add(layer3CS);
-    layer1CS.getChildren().add(layer4CS);
+    rootContainer.getChildren().add(emptyLayer);
+    rootContainer.getChildren().add(uiContainer);
+    emptyLayer.getChildren().add(edgeLayer);
+    emptyLayer.getChildren().add(vertexLayer);
   }
 
   public void addVertex(double x, double y){
@@ -64,11 +68,11 @@ public class Gui {
             vertex.x = event.getSceneX();
             vertex.y = event.getSceneY();
 
-            layer3CS.getChildren().clear();
-            for(VertexPolygon poly : polygonListe) {
-              poly.drawPolygon(layer3CS);
+            edgeLayer.getChildren().clear();
+            for(VertexPolygon poly : polygonList) {
+              poly.drawPolygon(edgeLayer);
             }
-            
+
           }
         }
       });
@@ -83,7 +87,7 @@ public class Gui {
           // ADD TO POLYGON LIST
         }
       });
-      layer4CS.getChildren().add(point);
+      vertexLayer.getChildren().add(point);
     }
   }
 
@@ -91,15 +95,15 @@ public class Gui {
     Rectangle r = new Rectangle();
     r.setX(0);
     r.setY(0);
-    r.setWidth(1000);
-    r.setHeight(800);
+    r.setWidth(vertexBoxWidth);
+    r.setHeight(vertexBoxHeight);
     r.setFill(Color.color(0,0,0,0));
     r.setOnMousePressed(new EventHandler<MouseEvent>() {
       public void handle(MouseEvent event) {
         addVertex(event.getX(), event.getY());
       }
     });
-    layer4CS.getChildren().add(r);
+    vertexLayer.getChildren().add(r);
   }
 
   public void addButtons(){
@@ -111,18 +115,18 @@ public class Gui {
           newPolygon = new VertexPolygon();
           btn.setText("End Polygon");
         } else {
-          polygonListe.add(newPolygon);
+          polygonList.add(newPolygon);
           newPolygon.colorizeVertecies(0,0,0,1);
-          layer3CS.getChildren().clear();
-          for(VertexPolygon poly : polygonListe) {
-            poly.drawPolygon(layer3CS);
+          edgeLayer.getChildren().clear();
+          for(VertexPolygon poly : polygonList) {
+            poly.drawPolygon(edgeLayer);
           }
           creatingNewPolygon = false;
           btn.setText("New Polygon");
         }
       }
     });
-    layer1UI.getChildren().add(btn);
+    uiContainer.getChildren().add(btn);
   }
 
 }
