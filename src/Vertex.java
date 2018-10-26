@@ -1,3 +1,5 @@
+import javafx.scene.shape.Circle;
+
 /**
  * @author Markus Laubenthal
  * @author Lennard Alms
@@ -6,7 +8,14 @@
 public class Vertex {
     public double x;
     public double y;
+    public Circle point;
 
+    public Vertex(double x, double y, Circle point) {
+        this.x = x;
+        this.y = y;
+        this.point = point;
+    }
+    
     public Vertex(double x, double y) {
         this.x = x;
         this.y = y;

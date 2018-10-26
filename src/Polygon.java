@@ -1,20 +1,21 @@
 import java.util.ArrayList;
+import javafx.scene.paint.Color;
 
 class Polygon {
   protected ArrayList<Vertex> outline;
-  
+
   public Polygon() {
     outline = new ArrayList<Vertex>();
   }
-  
+
   public void addVertex(Vertex v) {
     outline.add(v);
   }
-  
-  public boolean cointains(Vertex v) {
+
+  public boolean contains(Vertex v) {
     return outline.contains(v);
   }
-  
+
   /**
    * Gaußsche Trapezformel
    * @method getAreaSize
@@ -34,5 +35,11 @@ class Polygon {
     area += last.x * first.y - last.y * first.x;
     area /= 2;
     return Math.abs(area);
+  }
+
+  public void colorize(double r, double g, double b, double opacity) {
+    for(Vertex v : outline){
+      v.point.setFill(Color.color(r,g,b,opacity));
+    }
   }
 }

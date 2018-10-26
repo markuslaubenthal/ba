@@ -25,8 +25,10 @@ public class Gui {
   Pane layer4CS = new Pane();
   Scene scene = new Scene(layer0, 1300, 800);
 
-  List<Vertex> vertexList = new ArrayList<>();
-  Boolean newPolygon = false;
+  List<Polygon> polygonListe = new ArrayList<>();
+
+  Boolean creatingNewPolygon = false;
+  Polygon newPolygon;
 
   public Gui(Stage stage) {
     stage.setScene(scene);
@@ -40,32 +42,43 @@ public class Gui {
   }
 
   public void addVertex(double x, double y){
-    Vertex vertex = new Vertex();
-    Circle point = new Circle();
-    point.setCenterX(x);
-    point.setCenterY(y);
-    point.setRadius(6.0);
+    if(creatingNewPolygon){
+      Circle point = new Circle();
+      Vertex vertex = new Vertex(x, y, point);
 
-    point.setOnMouseDragged(new EventHandler<MouseEvent>() {
-      public void handle(MouseEvent event) {
-        double deltaX = Math.abs(point.getCenterX() - event.getSceneX());
-        double deltaY = Math.abs(point.getCenterY() - event.getSceneY());
-        if(deltaX + deltaY > 2){
-          point.setCenterX(event.getSceneX());
-          point.setCenterY(event.getSceneY());
-          //vertexList.get(position).x = event.getSceneX();
-          //vertexList.get(position).y = event.getSceneY();
+      // Hole das neueste Polygon aus der Liste.
+      newPolygon.addVertex(vertex);
+
+      point.setCenterX(x);
+      point.setCenterY(y);
+      point.setRadius(6.0);
+      point.setFill(Color.LAWNGREEN);
+
+      point.setOnMouseDragged(new EventHandler<MouseEvent>() {
+        public void handle(MouseEvent event) {
+          double deltaX = Math.abs(point.getCenterX() - event.getSceneX());
+          double deltaY = Math.abs(point.getCenterY() - event.getSceneY());
+          if(deltaX + deltaY > 2){
+            point.setCenterX(event.getSceneX());
+            point.setCenterY(event.getSceneY());
+            vertex.x = event.getSceneX();
+            vertex.y = event.getSceneY();
+          }
         }
-      }
-    });
-    point.setOnMousePressed(new EventHandler<MouseEvent>() {
-      public void handle(MouseEvent event) {
-        // IF WE ARE CREATING A NEW POLYGON
-        // ADD TO POLYGON LIST
-        point.setFill(Color.LAWNGREEN);
-      }
-    });
-    layer3CS.getChildren().add(point);
+      });
+      point.setOnMousePressed(new EventHandler<MouseEvent>() {
+        public void handle(MouseEvent event) {
+          if(creatingNewPolygon && !newPolygon.contains(vertex)){
+            // Hole das neueste Polygon aus der Liste.
+            newPolygon.addVertex(vertex);
+            point.setFill(Color.LAWNGREEN);
+          }
+          // IF WE ARE CREATING A NEW POLYGON
+          // ADD TO POLYGON LIST
+        }
+      });
+      layer3CS.getChildren().add(point);
+    }
   }
 
   public void setupKlickToAddVertex(){
@@ -82,16 +95,20 @@ public class Gui {
     });
     layer4CS.getChildren().add(r);
   }
+  
   public void addButtons(){
     Button btn = new Button("New Polygon");
     btn.setOnAction(new EventHandler<ActionEvent>() {
       public void handle(ActionEvent event) {
-        if(!newPolygon) {
+        if(!creatingNewPolygon) {
+          creatingNewPolygon = true;
+          newPolygon = new Polygon();
           btn.setText("End Polygon");
-          newPolygon = true;
         } else {
+          polygonListe.add(newPolygon);
+          newPolygon.colorize(0,0,0,1);
+          creatingNewPolygon = false;
           btn.setText("New Polygon");
-          newPolygon = false;
         }
       }
     });
