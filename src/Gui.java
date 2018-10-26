@@ -25,10 +25,10 @@ public class Gui {
   Pane layer4CS = new Pane();
   Scene scene = new Scene(layer0, 1300, 800);
 
-  List<Polygon> polygonListe = new ArrayList<>();
+  List<VertexPolygon> polygonListe = new ArrayList<>();
 
   Boolean creatingNewPolygon = false;
-  Polygon newPolygon;
+  VertexPolygon newPolygon;
 
   public Gui(Stage stage) {
     stage.setScene(scene);
@@ -37,8 +37,8 @@ public class Gui {
     layer0.getChildren().add(layer1CS);
     layer0.getChildren().add(layer1UI);
     layer1CS.getChildren().add(layer2CS);
-    layer2CS.getChildren().add(layer3CS);
-    layer3CS.getChildren().add(layer4CS);
+    layer1CS.getChildren().add(layer3CS);
+    layer1CS.getChildren().add(layer4CS);
   }
 
   public void addVertex(double x, double y){
@@ -63,6 +63,12 @@ public class Gui {
             point.setCenterY(event.getSceneY());
             vertex.x = event.getSceneX();
             vertex.y = event.getSceneY();
+
+            layer3CS.getChildren().clear();
+            for(VertexPolygon poly : polygonListe) {
+              poly.drawPolygon(layer3CS);
+            }
+            
           }
         }
       });
@@ -77,7 +83,7 @@ public class Gui {
           // ADD TO POLYGON LIST
         }
       });
-      layer3CS.getChildren().add(point);
+      layer4CS.getChildren().add(point);
     }
   }
 
@@ -95,18 +101,22 @@ public class Gui {
     });
     layer4CS.getChildren().add(r);
   }
-  
+
   public void addButtons(){
     Button btn = new Button("New Polygon");
     btn.setOnAction(new EventHandler<ActionEvent>() {
       public void handle(ActionEvent event) {
         if(!creatingNewPolygon) {
           creatingNewPolygon = true;
-          newPolygon = new Polygon();
+          newPolygon = new VertexPolygon();
           btn.setText("End Polygon");
         } else {
           polygonListe.add(newPolygon);
-          newPolygon.colorize(0,0,0,1);
+          newPolygon.colorizeVertecies(0,0,0,1);
+          layer3CS.getChildren().clear();
+          for(VertexPolygon poly : polygonListe) {
+            poly.drawPolygon(layer3CS);
+          }
           creatingNewPolygon = false;
           btn.setText("New Polygon");
         }
