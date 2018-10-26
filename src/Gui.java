@@ -14,6 +14,7 @@ import javafx.event.ActionEvent;
 import javafx.scene.input.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
+import javafx.scene.control.TextField;
 
 
 public class Gui {
@@ -34,10 +35,11 @@ public class Gui {
 
   Boolean creatingNewPolygon = false;
   VertexPolygon newPolygon;
+  VertexPolygon currentPolyToEdit = new VertexPolygon();
 
   public Gui(Stage stage) {
     stage.setScene(scene);
-    addButtons();
+    addUserInteraction();
     setupKlickToAddVertex();
     rootContainer.getChildren().add(emptyLayer);
     rootContainer.getChildren().add(uiContainer);
@@ -98,24 +100,68 @@ public class Gui {
     vertexLayer.getChildren().add(r);
   }
 
-  public void addButtons(){
-    Button btn = new Button("New Polygon");
-    btn.setOnAction(new EventHandler<ActionEvent>() {
+  public void addUserInteraction(){
+
+    TextField polygonTextField = new TextField();
+    uiContainer.getChildren().add(polygonTextField);
+
+    HBox navigationContainer = new HBox();
+    uiContainer.getChildren().add(navigationContainer);
+
+    Button prevBtn = new Button("prev");
+    Button updateBtn = new Button("update");
+    Button nextBtn = new Button("next");
+
+    prevBtn.setOnAction(new EventHandler<ActionEvent>() {
+      public void handle(ActionEvent event) {
+        int prevIndex = polygonList.lastIndexOf(currentPolyToEdit) - 1;
+        if(prevIndex >= 0){
+          currentPolyToEdit = polygonList.get(prevIndex);
+          polygonTextField.setText(currentPolyToEdit.getText());
+        }
+      }
+    });
+    updateBtn.setOnAction(new EventHandler<ActionEvent>() {
+      public void handle(ActionEvent event) {
+        currentPolyToEdit.setText(polygonTextField.getText());
+        drawPolygons();
+      }
+    });
+    nextBtn.setOnAction(new EventHandler<ActionEvent>() {
+      public void handle(ActionEvent event) {
+        int nextIndex = polygonList.lastIndexOf(currentPolyToEdit) + 1;
+        if(nextIndex < polygonList.size()){
+          currentPolyToEdit = polygonList.get(nextIndex);
+          polygonTextField.setText(currentPolyToEdit.getText());
+        }
+      }
+    });
+
+
+    navigationContainer.getChildren().add(prevBtn);
+    navigationContainer.getChildren().add(updateBtn);
+    navigationContainer.getChildren().add(nextBtn);
+
+
+    Button newPolyBtn = new Button("New Polygon");
+    newPolyBtn.setOnAction(new EventHandler<ActionEvent>() {
       public void handle(ActionEvent event) {
         if(!creatingNewPolygon) {
           creatingNewPolygon = true;
           newPolygon = new VertexPolygon(String.valueOf(polygonList.size()));
-          btn.setText("End Polygon");
+          newPolyBtn.setText("End Polygon");
         } else {
           polygonList.add(newPolygon);
           newPolygon.colorizeVertecies(0,0,0,1);
           drawPolygons();
           creatingNewPolygon = false;
-          btn.setText("New Polygon");
+          currentPolyToEdit = newPolygon;
+          polygonTextField.setText(newPolygon.getText());
+          newPolyBtn.setText("New Polygon");
         }
       }
     });
-    uiContainer.getChildren().add(btn);
+    uiContainer.getChildren().add(newPolyBtn);
   }
 
   public void drawPolygons(){
