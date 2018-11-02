@@ -3,6 +3,10 @@ import javafx.stage.Stage;
 
 /**
  * Startet und initialisiert die GUI
+ *
+ *  java -cp packages/java-json.jar:target Test
+ *  startet die Anwendung
+ *
  */
 
 public class Main extends Application {

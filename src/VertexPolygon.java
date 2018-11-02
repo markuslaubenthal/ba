@@ -18,10 +18,6 @@ class VertexPolygon {
     this.text = text;
   }
 
-  public VertexPolygon() {
-    outline = new ArrayList<Vertex>();
-  }
-
   public ArrayList<Vertex> getOutline() {
     return outline;
   }

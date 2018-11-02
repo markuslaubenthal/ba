@@ -6,7 +6,7 @@ LIST := $(SRC:src/%.java=$(OUT)/%.class)
 all: $(LIST)
 
 $(OUT)/%.class: src/%.java | $(OUT)
-	javac -cp src/ -d $| $<
+	javac -cp packages/java-json.jar:src/ -d $| $<
 
 $(OUT):
 	@mkdir $@
