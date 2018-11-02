@@ -63,20 +63,31 @@ class VertexPolygon {
   }
 
   public void drawText(Pane textLayer){
-    double x = 0;
-    double y = 0;
+    double leftest = 1000;
+    double rightest = 0;
+    double highest = 1000;
+    double lowest = 0;
     for(Vertex v : outline){
-      x += v.x;
-      y += v.y;
+      leftest = Math.min(leftest, v.x);
+      rightest = Math.max(rightest, v.x);
+      highest = Math.min(highest, v.y);
+      lowest = Math.max(lowest, v.y);
     }
-    x = x / outline.size();
-    y = y / outline.size();
+    double voulume = (rightest - leftest) * (lowest - highest);
+    int fontsize = (int) (Math.sqrt(voulume/this.text.length()) * 0.7);
+
+    double x = leftest + (rightest - leftest) * (0.3 / 2);
+    double y = highest + fontsize + (lowest - highest) * (0.3 / 2);
+
     Text t = new Text();
-    t.setFont(new Font(40));
+    t.setFont(new Font(fontsize));
     t.setText(this.text);
+    t.setWrappingWidth((rightest-leftest) * 0.7);
+    t.setTextAlignment(TextAlignment.JUSTIFY);
     t.setX(x);
     t.setY(y);
     textLayer.getChildren().add(t);
+
   }
 
 
