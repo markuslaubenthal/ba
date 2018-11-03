@@ -24,11 +24,17 @@ class Test {
     x.addVertex(new Vertex(17, 15));
     x.addVertex(new Vertex(14, 15));
 
+    VertexPolygon y = new VertexPolygon();
+    y.addVertex(new Vertex(0 + 20, 0 + 20));
+    y.addVertex(new Vertex(3 + 20, 20 + 20));
+    y.addVertex(new Vertex(17 + 20, 15 + 20));
+    y.addVertex(new Vertex(14 + 20, 15 + 20));
+
     ArrayList<VertexPolygon> polygonList = new ArrayList<VertexPolygon>();
     polygonList.add(x);
+    polygonList.add(y);
 
     PolygonWriter writer = new PolygonWriter(polygonList);
-    writer.save();
-
+    // writer.save("test.txt");
   }
 }

@@ -2,6 +2,7 @@ import java.util.ArrayList;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONException;
+import java.io.PrintWriter;
 
 class PolygonWriter {
 
@@ -11,25 +12,25 @@ class PolygonWriter {
     this.polygonList = polygonList;
   }
 
-  public void save() {
+  public void save(String filename) {
     try {
-      saveForReal();
+      saveForReal(filename);
     }
     catch(Exception e) {
 
     }
   }
 
-  private void saveForReal() throws Exception {
+  private void saveForReal(String filename) throws Exception {
     JSONObject root = new JSONObject();
     JSONArray polygonObjects = new JSONArray();
 
     for(VertexPolygon p : polygonList) {
       JSONArray polygon = new JSONArray();
-      JSONObject vertex = new JSONObject();
       ArrayList<Vertex> outline = p.getOutline();
 
       for(int i = 0; i < outline.size(); i++) {
+        JSONObject vertex = new JSONObject();
         vertex.put("x", outline.get(i).x);
         vertex.put("y", outline.get(i).y);
         polygon.put(vertex);
@@ -38,8 +39,11 @@ class PolygonWriter {
       polygonObjects.put(polygon);
     }
 
-    root.put("polgyons", polygonObjects);
-    System.out.println(root.toString());
+    root.put("polygons", polygonObjects);
+    PrintWriter out = new PrintWriter(filename);
+    out.print(root.toString());
+    out.close();
+    // System.out.println(root.toString());
   }
 
 }
