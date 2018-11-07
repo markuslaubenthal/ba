@@ -91,10 +91,25 @@ class DefaultView {
         controller.handleNewButton();
       }
     });
+    Button saveButton = new Button("Save file...");
+    saveButton.setOnAction(new EventHandler<ActionEvent>() {
+      public void handle(ActionEvent event) {
+        controller.handleSaveButton();
+      }
+    });
+
+    Button loadButton = new Button("Load file...");
+    loadButton.setOnAction(new EventHandler<ActionEvent>() {
+      public void handle(ActionEvent event) {
+        controller.handleLoadButton();
+      }
+    });
 
     navigationContainer.getChildren().add(prevBtn);
     navigationContainer.getChildren().add(updateBtn);
     navigationContainer.getChildren().add(nextBtn);
+    navigationContainer.getChildren().add(saveButton);
+    navigationContainer.getChildren().add(loadButton);
     uiContainer.getChildren().add(newPolyBtn);
   }
 
@@ -104,6 +119,11 @@ class DefaultView {
       poly.drawPolygon(edgeLayer);
       poly.drawText(edgeLayer);
     }
+  }
+
+  public void clearVertices() {
+    vertexLayer.getChildren().clear();
+    addOnClickActionListenerOnDrawingArea();
   }
 
   public void drawPoint(Circle point) {
@@ -117,6 +137,5 @@ class DefaultView {
   public Button getNewPolyButton() {
     return newPolyBtn;
   }
-
 
 }

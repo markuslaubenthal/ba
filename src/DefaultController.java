@@ -31,9 +31,16 @@ class DefaultController {
   }
 
   public void addVertex(double x, double y) {
+    Vertex v = new Vertex(x, y);
+    addVertexPoint(v);
+  }
+
+  public void addVertexPoint(Vertex vertex) {
     if(creatingNewPolygon) {
       Circle point = new Circle();
-      Vertex vertex = new Vertex(x, y, point);
+      vertex.point = point;
+      double x = vertex.x;
+      double y = vertex.y;
 
       // Hole das neueste Polygon aus der Liste.
       newPolygon.addVertex(vertex);
@@ -108,6 +115,45 @@ class DefaultController {
       polygonTextField.setText(newPolygon.getText());
       Button newPolyBtn = view.getNewPolyButton();
       newPolyBtn.setText("New Polygon");
+    }
+  }
+
+  public void handleSaveButton() {
+    FileChooser fileChooser = new FileChooser();
+    File file = fileChooser.showSaveDialog(null);
+    if(file != null) {
+      PolygonWriter writer = new PolygonWriter(polygonList);
+      writer.save(file);
+    }
+  }
+
+  public void handleLoadButton() {
+    FileChooser fileChooser = new FileChooser();
+    File file = fileChooser.showOpenDialog(null);
+    if(file != null) {
+      PolygonReader reader = new PolygonReader(file);
+      ArrayList<VertexPolygon> _polygonList = reader.get();
+
+      ArrayList<Vertex> _vertexList = new ArrayList<Vertex>();
+
+      polygonList = new ArrayList<VertexPolygon>();
+      view.clearVertices();
+      for(VertexPolygon polygon : _polygonList) {
+        creatingNewPolygon = false;
+        handleNewButton();
+        for(Vertex v : polygon.getOutline()) {
+          if(!_vertexList.contains(v)) {
+            addVertexPoint(v);
+            _vertexList.add(v);
+          } else {
+            v = _vertexList.get(_vertexList.indexOf(v));
+            newPolygon.addVertex(v);
+          }
+        }
+        handleNewButton();
+      }
+
+      // view.drawPolygons(polygonList);
     }
   }
 }

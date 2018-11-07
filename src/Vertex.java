@@ -15,10 +15,15 @@ public class Vertex {
         this.y = y;
         this.point = point;
     }
-    
+
     public Vertex(double x, double y) {
         this.x = x;
         this.y = y;
+        point = null;
+    }
+
+    public void setPoint(Circle point) {
+      this.point = point;
     }
 
     /**
@@ -76,6 +81,15 @@ public class Vertex {
      */
     public double cross(Vertex vertex) {
         return this.y * vertex.x - this.x * vertex.y;
+    }
+
+    public boolean equals(Object v) {
+
+      if (v instanceof Vertex){
+          Vertex ptr = (Vertex) v;
+          if(ptr.x == this.x && ptr.y == this.y) return true;
+      }
+      return false;
     }
 
 }

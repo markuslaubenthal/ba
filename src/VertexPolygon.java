@@ -55,7 +55,9 @@ class VertexPolygon {
 
   public void drawPolygon(Pane polyLayer){
     Polygon poly = new Polygon();
-    for(Vertex v : outline) { poly.getPoints().addAll(new Double[] {v.x, v.y} ); }
+    for(Vertex v : outline) {
+      poly.getPoints().addAll(new Double[] {v.x, v.y} );
+    }
     poly.setFill(Color.color(0,0,0,0));
     poly.setStrokeWidth(2);
     poly.setStroke(Color.BLACK);

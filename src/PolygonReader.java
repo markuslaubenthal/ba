@@ -6,48 +6,31 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.FileInputStream;
 import java.io.BufferedReader;
-
-
-
-
-
-
+import java.io.File;
+import java.util.Scanner;
 
 class PolygonReader {
 
-  String filename;
+  File file;
 
-  public PolygonReader(String filename) {
-    this.filename = filename;
+  public PolygonReader(File file) {
+    this.file = file;
   }
 
   public ArrayList<VertexPolygon> get() {
     try {
-      return getForReal();
+      String content = readFile(file);
+      return stringToList(content);
     } catch(Exception e) {
-      System.out.println(e);
       return null;
     }
   }
 
-  public ArrayList<VertexPolygon> getForReal() throws Exception {
-    InputStream is = new FileInputStream(filename);
-    BufferedReader buf = new BufferedReader(new InputStreamReader(is));
-    String line = buf.readLine();
-    StringBuilder sb = new StringBuilder();
-
-    while(line != null){
-       sb.append(line).append("\n");
-       line = buf.readLine();
-    }
-
-    String fileAsString = sb.toString();
-
-
-    JSONObject jsonObj = new JSONObject(fileAsString);
-    System.out.println(jsonObj.toString());
+  private ArrayList<VertexPolygon> stringToList(String content) throws Exception {
+    JSONObject jsonObj = new JSONObject(content);
 
     JSONArray polygons = jsonObj.getJSONArray("polygons");
+
 
 
     ArrayList<VertexPolygon> polygonList = new ArrayList<VertexPolygon>();
@@ -56,7 +39,7 @@ class PolygonReader {
       VertexPolygon newPolygon = new VertexPolygon();
 
       for(int j = 0; j < polygon.length(); j++) {
-        JSONObject _vertex = polygon.getJSONObject(i);
+        JSONObject _vertex = polygon.getJSONObject(j);
         Vertex v = new Vertex(_vertex.getDouble("x"), _vertex.getDouble("y"));
         newPolygon.addVertex(v);
       }
@@ -65,6 +48,12 @@ class PolygonReader {
     }
 
     return polygonList;
+  }
+
+  public String readFile(File file) throws Exception {
+    String entireFileText = new Scanner(file)
+        .useDelimiter("\\A").next();
+    return (entireFileText);
   }
 
 }
