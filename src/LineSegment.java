@@ -1,0 +1,48 @@
+
+
+
+class LineSegment {
+  Vertex start;
+  Vertex end;
+
+
+  public LineSegment(Vertex start, Vertex end) {
+    this.start = start;
+    this.end = end;
+  }
+
+  public LineSegment(double x1, double y1, double x2, double y2) {
+    this(new Vertex(x1, y1), new Vertex(x2, y2));
+  }
+
+  boolean intersects(LineSegment l) {
+    return getLineIntersection(l, new Vertex(0, 0));
+  }
+
+  boolean getLineIntersection(LineSegment l, Vertex i) {
+    return getLineIntersection(this.start.x, this.start.y, this.end.x, this.end.y,
+      l.start.x, l.start.y, l.end.x, l.end.y, i);
+  }
+
+  boolean getLineIntersection(double p0_x, double p0_y, double p1_x, double p1_y,
+    double p2_x, double p2_y, double p3_x, double p3_y, Vertex i)
+  {
+      double s1_x, s1_y, s2_x, s2_y;
+      s1_x = p1_x - p0_x;     s1_y = p1_y - p0_y;
+      s2_x = p3_x - p2_x;     s2_y = p3_y - p2_y;
+
+      double s, t;
+      s = (-s1_y * (p0_x - p2_x) + s1_x * (p0_y - p2_y)) / (-s2_x * s1_y + s1_x * s2_y);
+      t = ( s2_x * (p0_y - p2_y) - s2_y * (p0_x - p2_x)) / (-s2_x * s1_y + s1_x * s2_y);
+
+      if (s >= 0 && s <= 1 && t >= 0 && t <= 1)
+      {
+          // Collision detected
+          i.x = p0_x + (t * s1_x);
+          i.y = p0_y + (t * s1_y);
+          return true;
+      }
+
+      return false; // No collision
+  }
+}

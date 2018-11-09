@@ -1,6 +1,7 @@
 import javafx.stage.Stage;
 import javafx.scene.Scene;
 import javafx.scene.shape.Circle;
+import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.layout.VBox;
 import javafx.scene.layout.HBox;
@@ -27,6 +28,7 @@ class DefaultView {
 
   Pane vertexLayer = new Pane();
   Pane edgeLayer = new Pane();
+  Pane backgroundLayer = new Pane();
   Pane emptyLayer = new Pane();
 
   TextField polygonTextField;
@@ -38,6 +40,7 @@ class DefaultView {
     controller = new DefaultController(this);
     root.getChildren().add(emptyLayer);
     root.getChildren().add(uiContainer);
+    emptyLayer.getChildren().add(backgroundLayer);
     emptyLayer.getChildren().add(edgeLayer);
     emptyLayer.getChildren().add(vertexLayer);
     addOnClickActionListenerOnDrawingArea();
@@ -70,6 +73,7 @@ class DefaultView {
     Button updateBtn = new Button("update");
     Button nextBtn = new Button("next");
     newPolyBtn = new Button("New Polygon");
+    Button scanBtn = new Button("Scan");
 
     prevBtn.setOnAction(new EventHandler<ActionEvent>() {
       public void handle(ActionEvent event) {
@@ -89,6 +93,11 @@ class DefaultView {
     newPolyBtn.setOnAction(new EventHandler<ActionEvent>() {
       public void handle(ActionEvent event) {
         controller.handleNewButton();
+      }
+    });
+    scanBtn.setOnAction(new EventHandler<ActionEvent>() {
+      public void handle(ActionEvent event) {
+        controller.handleScanButton();
       }
     });
     Button saveButton = new Button("Save file...");
@@ -111,6 +120,7 @@ class DefaultView {
     navigationContainer.getChildren().add(saveButton);
     navigationContainer.getChildren().add(loadButton);
     uiContainer.getChildren().add(newPolyBtn);
+    uiContainer.getChildren().add(scanBtn);
   }
 
   public void drawPolygons(ArrayList<VertexPolygon> polygonList) {
@@ -128,6 +138,30 @@ class DefaultView {
 
   public void drawPoint(Circle point) {
     vertexLayer.getChildren().add(point);
+  }
+
+  public void drawVertex(Vertex v) {
+    Circle point = new Circle();
+    point.setCenterX(v.x);
+    point.setCenterY(v.y);
+    point.setRadius(2.0);
+    point.setFill(Color.RED);
+    backgroundLayer.getChildren().add(point);
+  }
+
+  public void drawLine(Vertex s, Vertex t) {
+    Line line = new Line();
+    line.setStartX(s.x);
+    line.setStartY(s.y);
+    line.setEndX(t.x);
+    line.setEndY(t.y);
+    line.setFill(Color.RED);
+    line.setStrokeWidth(1);
+    backgroundLayer.getChildren().add(line);
+  }
+
+  public void dropBackground() {
+    backgroundLayer.getChildren().clear();
   }
 
   public TextField getPolygonTextField() {

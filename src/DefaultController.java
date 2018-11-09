@@ -14,7 +14,9 @@ import javafx.event.ActionEvent;
 import javafx.scene.input.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Collections;
 import javafx.scene.control.TextField;
+import java.util.Random;
 
 class DefaultController {
 
@@ -52,6 +54,7 @@ class DefaultController {
 
       point.setOnMouseDragged(new EventHandler<MouseEvent>() {
         public void handle(MouseEvent event) {
+          view.dropBackground();
           double deltaX = Math.abs(point.getCenterX() - event.getSceneX());
           double deltaY = Math.abs(point.getCenterY() - event.getSceneY());
           if(deltaX + deltaY > 2){
@@ -156,4 +159,71 @@ class DefaultController {
       // view.drawPolygons(polygonList);
     }
   }
+
+  public void handleScanButton() {
+    VertexPolygon example = polygonList.get(0);
+    scanPolygons();
+  }
+
+  public double findLeftest(VertexPolygon p) {
+    double leftest = 1000;
+    for(Vertex v : p.getOutline()) {
+      if(v.x < leftest) leftest = v.x;
+    }
+    return leftest;
+  }
+
+  public double findRightest(VertexPolygon p) {
+    double rightest = 0;
+    for(Vertex v : p.getOutline()) {
+      if(v.x > rightest) rightest = v.x;
+    }
+    return rightest;
+  }
+
+  public void scanPolygons() {
+    view.dropBackground();
+    for(VertexPolygon p : polygonList) {
+      scanPolygon(p);
+    }
+  }
+
+  public ArrayList<LineSegment> scanPolygon(VertexPolygon polygon) {
+    double rate = 13;
+    Random r = new Random();
+    rate *= 1.0f + (2.0f - 1.0f) * r.nextDouble();
+
+    for(double x = findLeftest(polygon); x < findRightest(polygon); x += rate) {
+      LineSegment line = new LineSegment(x, 0, x, 1000);
+      ArrayList<Vertex> outline = polygon.getOutline();
+      Vertex current = outline.get(0);
+      Vertex next = null;
+
+      ArrayList<Vertex> intersectionList = new ArrayList<Vertex>();
+      for(int i = 1; i < outline.size() + 1; i++) {
+        if(i == outline.size()) {
+          next = outline.get(0);
+        } else {
+          next = outline.get(i);
+        }
+
+        LineSegment l = new LineSegment(current, next);
+
+        Vertex intersection = new Vertex(0, 0);
+        if(line.getLineIntersection(l, intersection)) {
+          // System.out.println("Intersection: " + intersection.y);
+          view.drawVertex(intersection);
+          intersectionList.add(intersection);
+        }
+        current = next;
+      }
+      Collections.sort(intersectionList, new VertexYComparator());
+      for(int j = 0; j < intersectionList.size() - 1; j+=2) {
+        view.drawLine(intersectionList.get(j), intersectionList.get(j+1));
+      }
+    }
+
+    return new ArrayList<LineSegment>();
+  }
+
 }
