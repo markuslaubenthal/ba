@@ -2,8 +2,8 @@
 
 
 class LineSegment {
-  Vertex start;
-  Vertex end;
+  public Vertex start;
+  public Vertex end;
 
 
   public LineSegment(Vertex start, Vertex end) {
@@ -15,16 +15,20 @@ class LineSegment {
     this(new Vertex(x1, y1), new Vertex(x2, y2));
   }
 
-  boolean intersects(LineSegment l) {
+  public boolean intersects(LineSegment l) {
     return getLineIntersection(l, new Vertex(0, 0));
   }
 
-  boolean getLineIntersection(LineSegment l, Vertex i) {
+  public boolean getLineIntersection(LineSegment l, Vertex i) {
     return getLineIntersection(this.start.x, this.start.y, this.end.x, this.end.y,
       l.start.x, l.start.y, l.end.x, l.end.y, i);
   }
 
-  boolean getLineIntersection(double p0_x, double p0_y, double p1_x, double p1_y,
+  public double getHeight() {
+    return Math.abs(end.y - start.y);
+  }
+
+  public boolean getLineIntersection(double p0_x, double p0_y, double p1_x, double p1_y,
     double p2_x, double p2_y, double p3_x, double p3_y, Vertex i)
   {
       double s1_x, s1_y, s2_x, s2_y;

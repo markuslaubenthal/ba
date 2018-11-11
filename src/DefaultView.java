@@ -16,6 +16,7 @@ import javafx.scene.input.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
 import javafx.scene.control.TextField;
+import javafx.scene.text.*;
 
 
 class DefaultView {
@@ -155,9 +156,18 @@ class DefaultView {
     line.setStartY(s.y);
     line.setEndX(t.x);
     line.setEndY(t.y);
-    line.setFill(Color.RED);
     line.setStrokeWidth(1);
     backgroundLayer.getChildren().add(line);
+  }
+
+  public void drawRectangle(double left, double right, double top, double bottom) {
+    Rectangle r = new Rectangle();
+    r.setX(left);
+    r.setY(bottom);
+    r.setWidth(Math.abs(right - left));
+    r.setHeight(Math.abs(top - bottom));
+    r.setFill(Color.RED);
+    backgroundLayer.getChildren().add(r);
   }
 
   public void dropBackground() {
@@ -166,6 +176,10 @@ class DefaultView {
 
   public TextField getPolygonTextField() {
     return polygonTextField;
+  }
+
+  public void drawText(Text t) {
+    backgroundLayer.getChildren().add(t);
   }
 
   public Button getNewPolyButton() {

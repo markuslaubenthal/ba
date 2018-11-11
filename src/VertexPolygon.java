@@ -88,8 +88,7 @@ class VertexPolygon {
     t.setTextAlignment(TextAlignment.JUSTIFY);
     t.setX(x);
     t.setY(y);
-    textLayer.getChildren().add(t);
-
+    // textLayer.getChildren().add(t);
   }
 
 
