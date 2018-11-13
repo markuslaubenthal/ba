@@ -118,9 +118,9 @@ class DefaultView {
     navigationContainer.getChildren().add(prevBtn);
     navigationContainer.getChildren().add(updateBtn);
     navigationContainer.getChildren().add(nextBtn);
-    navigationContainer.getChildren().add(saveButton);
-    navigationContainer.getChildren().add(loadButton);
     uiContainer.getChildren().add(newPolyBtn);
+    uiContainer.getChildren().add(loadButton);
+    uiContainer.getChildren().add(saveButton);
     uiContainer.getChildren().add(scanBtn);
   }
 
