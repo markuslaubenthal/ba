@@ -130,6 +130,7 @@ class DefaultView {
       poly.drawPolygon(edgeLayer);
       poly.drawText(edgeLayer);
     }
+    controller.scanPolygons();
   }
 
   public void clearVertices() {
