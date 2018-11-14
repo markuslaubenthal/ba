@@ -9,6 +9,7 @@ public class Vertex {
     public double x;
     public double y;
     public Circle point;
+    public Boolean dragged = false;
 
     public Vertex(double x, double y, Circle point) {
         this.x = x;
@@ -24,6 +25,11 @@ public class Vertex {
 
     public void setPoint(Circle point) {
       this.point = point;
+    }
+
+    public boolean hasPoint(){
+      if(this.point != null) return true;
+      return false;
     }
 
     /**

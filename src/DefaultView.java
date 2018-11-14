@@ -6,6 +6,7 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.layout.VBox;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
+import javafx.scene.shape.Polygon;
 import java.io.*;
 import javafx.stage.FileChooser;
 import javafx.scene.paint.Color;
@@ -27,13 +28,19 @@ class DefaultView {
 
   VBox uiContainer = new VBox();
 
-  Pane vertexLayer = new Pane();
+  Pane mainLayer = new Pane();
   Pane edgeLayer = new Pane();
-  Pane backgroundLayer = new Pane();
+  Pane textLayer = new Pane();
   Pane emptyLayer = new Pane();
 
   TextField polygonTextField;
-  Button newPolyBtn;
+
+  Button prevBtn = new Button("prev");
+  Button updateBtn = new Button("update");
+  Button nextBtn = new Button("next");
+  Button newPolyBtn = new Button("New Polygon");
+  Button saveButton = new Button("Save file...");
+  Button loadButton = new Button("Load file...");
 
   DefaultController controller;
 
@@ -41,9 +48,9 @@ class DefaultView {
     controller = new DefaultController(this);
     root.getChildren().add(emptyLayer);
     root.getChildren().add(uiContainer);
-    emptyLayer.getChildren().add(backgroundLayer);
+    emptyLayer.getChildren().add(textLayer);
     emptyLayer.getChildren().add(edgeLayer);
-    emptyLayer.getChildren().add(vertexLayer);
+    emptyLayer.getChildren().add(mainLayer);
     addOnClickActionListenerOnDrawingArea();
     addUserInteraction();
   }
@@ -57,10 +64,40 @@ class DefaultView {
     r.setFill(Color.color(0,0,0,0));
     r.setOnMousePressed(new EventHandler<MouseEvent>() {
       public void handle(MouseEvent event) {
-        controller.addVertex(event.getX(), event.getY());
+        controller.addVertexAndPoint(event.getX(), event.getY());
       }
     });
-    vertexLayer.getChildren().add(r);
+    mainLayer.getChildren().add(r);
+  }
+
+  public void addPointToVertex(Vertex vertex) {
+    Circle point = new Circle();
+    vertex.point = point;
+    double x = vertex.x;
+    double y = vertex.y;
+    point.setCenterX(x);
+    point.setCenterY(y);
+    point.setRadius(6.0);
+
+    point.setOnMouseDragged(new EventHandler<MouseEvent>() {
+      public void handle(MouseEvent event) {
+        controller.handleMouseDragged(event, point, vertex);
+      }
+    });
+    point.setOnMousePressed(new EventHandler<MouseEvent>() {
+      public void handle(MouseEvent event) {
+        controller.handleMousePressed(point, vertex);
+      }
+    });
+    point.setOnMouseReleased(new EventHandler<MouseEvent>() { // need to rework
+      public void handle(MouseEvent event){
+        if(vertex.dragged){
+          refresh();
+          vertex.dragged = false;
+        }
+      }
+    });
+    drawPoint(point);
   }
 
   public void addUserInteraction(){
@@ -69,12 +106,6 @@ class DefaultView {
 
     HBox navigationContainer = new HBox();
     uiContainer.getChildren().add(navigationContainer);
-
-    Button prevBtn = new Button("prev");
-    Button updateBtn = new Button("update");
-    Button nextBtn = new Button("next");
-    newPolyBtn = new Button("New Polygon");
-    Button scanBtn = new Button("Scan");
 
     prevBtn.setOnAction(new EventHandler<ActionEvent>() {
       public void handle(ActionEvent event) {
@@ -96,19 +127,12 @@ class DefaultView {
         controller.handleNewButton();
       }
     });
-    scanBtn.setOnAction(new EventHandler<ActionEvent>() {
-      public void handle(ActionEvent event) {
-        controller.handleScanButton();
-      }
-    });
-    Button saveButton = new Button("Save file...");
     saveButton.setOnAction(new EventHandler<ActionEvent>() {
       public void handle(ActionEvent event) {
         controller.handleSaveButton();
       }
     });
 
-    Button loadButton = new Button("Load file...");
     loadButton.setOnAction(new EventHandler<ActionEvent>() {
       public void handle(ActionEvent event) {
         controller.handleLoadButton();
@@ -121,70 +145,88 @@ class DefaultView {
     uiContainer.getChildren().add(newPolyBtn);
     uiContainer.getChildren().add(loadButton);
     uiContainer.getChildren().add(saveButton);
-    uiContainer.getChildren().add(scanBtn);
   }
 
-  public void drawPolygons(ArrayList<VertexPolygon> polygonList) {
-    edgeLayer.getChildren().clear();
-    for(VertexPolygon poly : polygonList) {
-      poly.drawPolygon(edgeLayer);
-      poly.drawText(edgeLayer);
+  public void drawPolygon(VertexPolygon vertexPolygon){
+    Polygon poly = new Polygon();
+
+    for(Vertex v : vertexPolygon.getOutline()) {
+      poly.getPoints().addAll(new Double[] {v.x, v.y} );
     }
-    controller.scanPolygons();
+
+    poly.setFill(Color.color(0,0,0,0));
+    poly.setStrokeWidth(2);
+    poly.setStroke(Color.BLACK);
+    edgeLayer.getChildren().add(poly);
   }
 
-  public void clearVertices() {
-    vertexLayer.getChildren().clear();
+  public void drawUIPolygon(VertexPolygon vertexPolygon){
+    Polygon poly = new Polygon();
+
+    for(Vertex v : vertexPolygon.getOutline()) {
+      poly.getPoints().addAll(new Double[] {v.x, v.y} );
+    }
+
+    poly.setFill(Color.color(0,0,0,0));
+    poly.setStrokeWidth(0);
+
+    poly.setOnMousePressed(new EventHandler<MouseEvent>() {
+      public void handle(MouseEvent event) {
+        controller.updateTextfield(vertexPolygon);
+      }
+    });
+
+    mainLayer.getChildren().add(poly);
+  }
+
+  public void refreshDrag(){
+    ArrayList<VertexPolygon> polygonList = controller.polygonList;
+    edgeLayer.getChildren().clear();
+    textLayer.getChildren().clear();
+    for(VertexPolygon poly : polygonList) {
+      drawPolygon(poly);
+      poly.setTextStrategy(new ScanStrategy());
+      poly.drawText(textLayer);
+    }
+  }
+
+  public void refresh() {
+    ArrayList<VertexPolygon> polygonList = controller.polygonList;
+    mainLayer.getChildren().clear();
+    edgeLayer.getChildren().clear();
+    textLayer.getChildren().clear();
+    // add click functionality back in
     addOnClickActionListenerOnDrawingArea();
+    for(VertexPolygon poly : polygonList) {
+      //draw polygon twice. once for the UI once for the outline
+      drawUIPolygon(poly);
+      drawPolygon(poly);
+      //choose Strategy here
+      poly.setTextStrategy(new ScanStrategy());
+      poly.drawText(textLayer);
+    }
+    // insert points back in
+    for(VertexPolygon poly : polygonList) {
+      for(Vertex v : poly.outline){
+        v.point = null;
+      }
+    }
+    for(VertexPolygon poly : polygonList) {
+      for(Vertex v : poly.outline){
+        if(v.point == null) addPointToVertex(v);
+      }
+    }
   }
 
   public void drawPoint(Circle point) {
-    vertexLayer.getChildren().add(point);
-  }
-
-  public void drawVertex(Vertex v) {
-    Circle point = new Circle();
-    point.setCenterX(v.x);
-    point.setCenterY(v.y);
-    point.setRadius(2.0);
-    point.setFill(Color.RED);
-    backgroundLayer.getChildren().add(point);
-  }
-
-  public void drawLine(Vertex s, Vertex t) {
-    Line line = new Line();
-    line.setStartX(s.x);
-    line.setStartY(s.y);
-    line.setEndX(t.x);
-    line.setEndY(t.y);
-    line.setStrokeWidth(1);
-    backgroundLayer.getChildren().add(line);
-  }
-
-  public void drawRectangle(double left, double right, double top, double bottom) {
-    Rectangle r = new Rectangle();
-    r.setX(left);
-    r.setY(bottom);
-    r.setWidth(Math.abs(right - left));
-    r.setHeight(Math.abs(top - bottom));
-    r.setFill(Color.RED);
-    backgroundLayer.getChildren().add(r);
-  }
-
-  public void dropBackground() {
-    backgroundLayer.getChildren().clear();
+    mainLayer.getChildren().add(point);
   }
 
   public TextField getPolygonTextField() {
     return polygonTextField;
   }
 
-  public void drawText(Text t) {
-    backgroundLayer.getChildren().add(t);
-  }
-
   public Button getNewPolyButton() {
     return newPolyBtn;
   }
-
 }
