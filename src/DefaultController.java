@@ -28,6 +28,8 @@ class DefaultController {
   VertexPolygon currentPolyToEdit = new VertexPolygon();
   DefaultView view;
 
+  boolean polygonOpacityState = true;
+
 
   public DefaultController(DefaultView view) {
     this.view = view;
@@ -122,5 +124,12 @@ class DefaultController {
       view.refresh();
       updateTextfield(polygonList.get(0));
     }
+  }
+
+  public void handleOpacityButton() {
+    polygonOpacityState = !polygonOpacityState;
+    double opacity = polygonOpacityState ? 1.0 : 0.0;
+    view.setEdgeLayerOpacity(opacity);
+    view.setMainLayerOpacity(opacity);
   }
 }
