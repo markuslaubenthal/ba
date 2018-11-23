@@ -28,6 +28,10 @@ class LineSegment {
     return Math.abs(end.y - start.y);
   }
 
+  public double getWidth() {
+    return Math.abs(end.x - start.x);
+  }
+
   public boolean getLineIntersection(double p0_x, double p0_y, double p1_x, double p1_y,
     double p2_x, double p2_y, double p3_x, double p3_y, Vertex i)
   {

@@ -206,6 +206,23 @@ class DefaultView {
     edgeLayer.setOpacity(value);
   }
 
+  public void drawRectangle(double[] outline) {
+    double left = outline[0];
+    double right = outline[1];
+    double top = outline[2];
+    double bottom = outline[3];
+    Rectangle r = new Rectangle();
+    r.setX(left);
+    r.setY(top);
+    r.setWidth(Math.abs(right - left));
+    r.setHeight(Math.abs(bottom - top));
+    r.setFill(Color.color(0,0,0,0));
+    r.setStroke(Color.RED);
+    r.setStrokeWidth(1);
+    textLayer.getChildren().add(r);
+  }
+
+
   public void refresh() {
     ArrayList<VertexPolygon> polygonList = controller.polygonList;
     mainLayer.getChildren().clear();
@@ -217,6 +234,9 @@ class DefaultView {
       //draw polygon twice. once for the UI once for the outline
       drawUIPolygon(poly);
       drawPolygon(poly);
+      //drawRectangle(poly.getBoundingBox());
+      drawRectangle(poly.getLargestRectangle());
+
       //choose Strategy here
       poly.setTextStrategy(new ScanStrategy());
       poly.drawText(textLayer);

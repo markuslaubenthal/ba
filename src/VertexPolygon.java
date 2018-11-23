@@ -2,6 +2,7 @@ import java.util.ArrayList;
 import javafx.scene.paint.Color;
 import javafx.scene.layout.Pane;
 import javafx.scene.text.*;
+import java.util.Arrays;
 
 class VertexPolygon {
   protected ArrayList<Vertex> outline;
@@ -55,6 +56,72 @@ class VertexPolygon {
     }
   }
 
+  public double[] getLargestRectangle(){
+    double[] bounding = getBoundingBox();
+    double leftest = bounding[0] + 0.01;
+    double rightest = bounding[1] + 0.01;
+    double highest = bounding[2] + 0.01;
+    double lowest = bounding[3] + 0.01;
+    double bestArea = 0;
+    double[] biggestRectangle= new double[]{0,0,0,0};
+    for(double x = leftest; x <= rightest; x += 5){
+      for(double y = highest; y <= lowest; y += 5){
+        if(!vertexInPolygon(new Vertex(x,y))) continue;
+        for(double offset_x = 1; x + offset_x <= rightest; offset_x += 5){
+          for(double offset_y= 1; y + offset_y <= lowest; offset_y += 5){
+            //check nach schnitt mit poly
+            //wenn kein schnitt und fläche größer als altes dann replace
+            LineSegment top = new LineSegment(x, y, x + offset_x, y);
+            LineSegment left = new LineSegment(x, y, x, y + offset_y);
+            LineSegment right = new LineSegment(x + offset_x, y, x + offset_x, y + offset_y);
+            LineSegment bot = new LineSegment(x, y + offset_y, x + offset_x, y + offset_y);
+            boolean conflict = false;
+            for(int i = 0; i < outline.size(); i++){
+              LineSegment line = getLineSegment(i);
+              conflict = line.intersects(top) || line.intersects(bot) || line.intersects(left) || line.intersects(right);
+              if(conflict) break;
+            }
+            if(!conflict){
+              double area = bot.getWidth() * left.getHeight();
+              if(bestArea < area){
+                bestArea = area;
+                biggestRectangle = new double[]{x,x + offset_x,y,y + offset_y};
+              }
+            }
+          }
+        }
+      }
+    }
+    return biggestRectangle;
+  }
+
+  public boolean vertexInPolygon(Vertex v){
+    LineSegment verticalLine = new LineSegment(v, new Vertex(v.x, 0));
+    int intersectionCount = 0;
+    for(int i = 0; i < outline.size(); i++){
+      LineSegment line = getLineSegment(i);
+      if(line.intersects(verticalLine)) intersectionCount++;
+    }
+    if(intersectionCount % 2 == 0) return false;
+    return true;
+  }
+
+
+
+  public double[] getBoundingBox() {
+    double leftest = 1000;
+    double rightest = 0;
+    double highest = 1000;
+    double lowest = 0;
+    for(Vertex v : outline) {
+      if(v.x < leftest) leftest = v.x;
+      if(v.x > rightest) rightest = v.x;
+      if(v.y < highest) highest = v.y;
+      if(v.y > lowest) lowest = v.y;
+    }
+    return new double[]{leftest, rightest, highest, lowest};
+  }
+
 
 
   public void setTextStrategy(TextStrategy strategy){
@@ -75,10 +142,10 @@ class VertexPolygon {
       } else {
         end = outline.get(0);
       }
+      return new LineSegment(start, end);
     }
-    return new LineSegment(start, end);
+    return null;
   }
-  return null;
 
 
 }

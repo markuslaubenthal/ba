@@ -46,8 +46,6 @@ class ScanStrategy implements TextStrategy{
   public ArrayList<LineSegment> scanPolygon(VertexPolygon polygon) {
     fontsize = calculateFontSize(polygon);
     double rate = fontsize / 8;
-    //Random r = new Random();
-    // rate *= 1.0f + (2.0f - 1.0f) * r.nextDouble();
 
     ArrayList<LineSegment> lineSegmentList = new ArrayList<LineSegment>();
 
@@ -69,7 +67,6 @@ class ScanStrategy implements TextStrategy{
 
         Vertex intersection = new Vertex(0, 0);
         if(line.getLineIntersection(l, intersection)) {
-          // drawVertex(intersection);
           intersectionList.add(intersection);
         }
         current = next;
@@ -77,7 +74,6 @@ class ScanStrategy implements TextStrategy{
       Collections.sort(intersectionList, new VertexYComparator());
       for(int j = 0; j < intersectionList.size() - 1; j+=2) {
         lineSegmentList.add(new LineSegment(intersectionList.get(j), intersectionList.get(j+1)));
-        // view.drawLine(intersectionList.get(j), intersectionList.get(j+1));
       }
     }
 
@@ -91,12 +87,9 @@ class ScanStrategy implements TextStrategy{
     double usableSpace = calculateUsableSpace(lines, minHeight, minWidth);
     double rectangleWidth = usableSpace / p.getText().length() * 0.9;
 
-    // LineSegment current = lines.get(0);
-    // LineSegment next = lines.get(0);
     int endOffset = 0;
     int startOffset = findFirstUsableLineSegment(lines, 0, minHeight);
     while(startOffset < lines.size()) {
-      // endOffset = findLastUsableLineSegment(lines, startOffset + 1, minHeight);
       LineSegment start = lines.get(startOffset);
       LineSegment end = null;
 
@@ -121,7 +114,6 @@ class ScanStrategy implements TextStrategy{
       if(end != null) {
         double top = Math.min(start.end.y, end.end.y);
         double bot = Math.max(start.start.y, end.start.y);
-        // view.drawRectangle(start.start.x, start.start.x + rectangleWidth, top, bot);
 
         Text t = new Text();
         Font monospacedFont = Font.font("Courier New", FontWeight.NORMAL, minWidth);
@@ -143,27 +135,8 @@ class ScanStrategy implements TextStrategy{
       }
 
 
-      // LineSegment start = lines.get(startOffset);
-      // LineSegment end = lines.get(endOffset);
-      // System.out.println(space);
-      // if(space >= 1) {
-      //   double top = Math.min(start.end.y, end.end.y);
-      //   double bot = Math.max(start.start.y, end.start.y);
-      //   view.drawRectangle(start.start.x, end.start.x, top, bot);
-      // }
-      // startOffset = findFirstUsableLineSegment(lines, endOffset + 1, minHeight);
     }
 
-    // for(int i = 1; i < lines.size(); i++) {
-    //   LineSegment tmp = lines.get(i);
-    //   // if(tmp.start.x > next.start.x) {
-    //     next = tmp;
-    //     double top = Math.min(current.end.y, next.end.y);
-    //     double bot = Math.max(current.start.y, next.start.y);
-    //     view.drawRectangle(current.start.x, next.start.x, top, bot);
-    //     current = next;
-    //   // }
-    // }
   }
 
   public double calculateUsableSpace(ArrayList<LineSegment> lines, double minHeight, double minWidth) {
@@ -180,7 +153,6 @@ class ScanStrategy implements TextStrategy{
       LineSegment start = lines.get(startOffset);
       LineSegment end = lines.get(endOffset);
 
-      // int space = (int) (((double) (end.start.x - start.start.x)) / minWidth);
       double space = end.start.x - start.start.x;
       if(space >= minWidth)
         usableSpace += space;
@@ -190,15 +162,6 @@ class ScanStrategy implements TextStrategy{
     return usableSpace;
 
 
-    // LineSegment current = lines.get(0);
-    // for(int i = 1; i < lines.size(); i++) {
-    //   LineSegment next = lines.get(i);
-    //   height = Math.abs(line.start.y - line.end.y);
-    //   width = Math.abs(line.start.x - next.start.x);
-    //   if(height >= minHeight) {
-    //     if(offset == 0) offset += 1;
-    //   }
-    // }
   }
 
   public int findFirstUsableLineSegment(ArrayList<LineSegment> lines, int offset, double minHeight) {
@@ -230,42 +193,53 @@ class ScanStrategy implements TextStrategy{
     return ((rightest - leftest)/p.getText().length());
   }
 
-  public void drawVertex(Vertex v) {
-    Circle point = new Circle();
-    point.setCenterX(v.x);
-    point.setCenterY(v.y);
-    point.setRadius(2.0);
-    point.setFill(Color.RED);
-    textLayer.getChildren().add(point);
-  }
-
-  public void drawLine(Vertex s, Vertex t) {
-    Line line = new Line();
-    line.setStartX(s.x);
-    line.setStartY(s.y);
-    line.setEndX(t.x);
-    line.setEndY(t.y);
-    line.setStrokeWidth(1);
-    textLayer.getChildren().add(line);
-  }
-
-  public void drawRectangle(double left, double right, double top, double bottom) {
-    Rectangle r = new Rectangle();
-    r.setX(left);
-    r.setY(bottom);
-    r.setWidth(Math.abs(right - left));
-    r.setHeight(Math.abs(top - bottom));
-    r.setFill(Color.RED);
-    textLayer.getChildren().add(r);
-  }
-
-  public void dropBackground() {
-    textLayer.getChildren().clear();
-  }
 
 
-  public void drawText(Text t) {
-    textLayer.getChildren().add(t);
-  }
+
 
 }
+
+/*
+
+
+
+
+public void dropBackground() {
+  textLayer.getChildren().clear();
+}
+
+
+public void drawText(Text t) {
+  textLayer.getChildren().add(t);
+}
+
+
+public void drawVertex(Vertex v) {
+  Circle point = new Circle();
+  point.setCenterX(v.x);
+  point.setCenterY(v.y);
+  point.setRadius(2.0);
+  point.setFill(Color.RED);
+  textLayer.getChildren().add(point);
+}
+
+public void drawLine(Vertex s, Vertex t) {
+  Line line = new Line();
+  line.setStartX(s.x);
+  line.setStartY(s.y);
+  line.setEndX(t.x);
+  line.setEndY(t.y);
+  line.setStrokeWidth(1);
+  textLayer.getChildren().add(line);
+}
+
+public void drawRectangle(double left, double right, double top, double bottom) {
+  Rectangle r = new Rectangle();
+  r.setX(left);
+  r.setY(bottom);
+  r.setWidth(Math.abs(right - left));
+  r.setHeight(Math.abs(top - bottom));
+  r.setFill(Color.RED);
+  textLayer.getChildren().add(r);
+}
+ */
