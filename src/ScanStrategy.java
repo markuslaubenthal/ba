@@ -68,7 +68,7 @@ class ScanStrategy implements TextStrategy{
 
         Vertex intersection = new Vertex(0, 0);
         if(line.getLineIntersection(l, intersection)) {
-          drawVertex(intersection);
+          // drawVertex(intersection);
           intersectionList.add(intersection);
         }
         current = next;

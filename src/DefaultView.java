@@ -39,6 +39,7 @@ class DefaultView {
   Button updateBtn = new Button("update");
   Button nextBtn = new Button("next");
   Button newPolyBtn = new Button("New Polygon");
+  Button opacityButton = new Button("Toggle Opacity");
   Button saveButton = new Button("Save file...");
   Button loadButton = new Button("Load file...");
 
@@ -139,10 +140,17 @@ class DefaultView {
       }
     });
 
+    opacityButton.setOnAction(new EventHandler<ActionEvent>() {
+      public void handle(ActionEvent event) {
+        controller.handleOpacityButton();
+      }
+    });
+
     navigationContainer.getChildren().add(prevBtn);
     navigationContainer.getChildren().add(updateBtn);
     navigationContainer.getChildren().add(nextBtn);
     uiContainer.getChildren().add(newPolyBtn);
+    uiContainer.getChildren().add(opacityButton);
     uiContainer.getChildren().add(loadButton);
     uiContainer.getChildren().add(saveButton);
   }
@@ -188,6 +196,14 @@ class DefaultView {
       poly.setTextStrategy(new ScanStrategy());
       poly.drawText(textLayer);
     }
+  }
+
+  public void setMainLayerOpacity(double value) {
+    mainLayer.setOpacity(value);
+  }
+
+  public void setEdgeLayerOpacity(double value) {
+    edgeLayer.setOpacity(value);
   }
 
   public void refresh() {
