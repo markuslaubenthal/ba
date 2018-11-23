@@ -65,5 +65,20 @@ class VertexPolygon {
     strategy.drawText(this, textLayer);
   }
 
+  public LineSegment getLineSegment(int index) {
+    if(index < outline.size()) {
+      Vertex start;
+      Vertex end;
+      start = outline.get(index);
+      if(index + 1 < outline.size()) {
+        end = outline.get(index + 1);
+      } else {
+        end = outline.get(0);
+      }
+    }
+    return new LineSegment(start, end);
+  }
+  return null;
+
 
 }
