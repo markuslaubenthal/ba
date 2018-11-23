@@ -12,6 +12,7 @@ class ScanStrategy implements TextStrategy{
   double fontsize;
   Pane textLayer;
 
+
   public ScanStrategy(){
 
   }
@@ -123,7 +124,8 @@ class ScanStrategy implements TextStrategy{
         // view.drawRectangle(start.start.x, start.start.x + rectangleWidth, top, bot);
 
         Text t = new Text();
-        t.setFont(new Font(minWidth));
+        Font monospacedFont = Font.font("Courier New", FontWeight.NORMAL, minWidth);
+        t.setFont(monospacedFont);
         t.setText(p.getText().substring(letter, letter + 1));
         t.setX(start.start.x);
         t.setY(top);
