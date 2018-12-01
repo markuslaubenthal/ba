@@ -20,6 +20,7 @@ class ScanStrategy implements TextStrategy{
   }
 
   public void drawText(VertexPolygon poly, Pane textLayer){
+    /*
     polyArea = poly.getAreaSize();
 
     double approximationscore = 0;
@@ -63,7 +64,7 @@ class ScanStrategy implements TextStrategy{
     for(VertexPolygon letterBox : letterBoxes){
       drawLetter(letterBox); //lenny
     }
-
+    */
   }
 
   public void drawLetter(VertexPolygon letterBox){

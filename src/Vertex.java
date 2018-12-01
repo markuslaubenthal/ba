@@ -98,4 +98,8 @@ public class Vertex {
       return false;
     }
 
+    public String toString(){
+      return "x:" + this.x + ",y:" + this.y;
+    }
+
 }
