@@ -231,11 +231,30 @@ class DefaultView {
     // add click functionality back in
     addOnClickActionListenerOnDrawingArea();
     for(VertexPolygon poly : polygonList) {
+      // TODO
+      // geometry Poligon -> kleinere plys
+      // für kleine mache rest
+
+      ArrayList<Bottleneck> bottlenecks;
+      bottlenecks = Geometry.findBottleneckInPolygon(poly, 150);
+      for(Bottleneck b : bottlenecks) {
+        // ArrayList<VertexPolygon> newList;
+        VertexPolygon[] newList = Geometry.splitPolygon(poly, b);
+
+        for(VertexPolygon p : newList) {
+          drawUIPolygon(p);
+          drawPolygon(p);
+          // drawRectangle(p.getLargestRectangle());
+        }
+
+      }
+
+
       //draw polygon twice. once for the UI once for the outline
-      drawUIPolygon(poly);
-      drawPolygon(poly);
+      // drawUIPolygon(poly);
+      // drawPolygon(poly);
       //drawRectangle(poly.getBoundingBox());
-      drawRectangle(poly.getLargestRectangle());
+      //drawRectangle(poly.getLargestRectangle());
 
       //choose Strategy here
       poly.setTextStrategy(new ScanStrategy());

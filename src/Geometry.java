@@ -38,24 +38,26 @@ class Geometry {
           if(intersection.x == -1 && intersection.y == -1){
             if(v.y == edge.start.y) intersection = edge.start;
             else intersection = edge.end;
+            edgeTable.put(intersection.toString(), new LineSegment(intersection, intersection));
           } else {
             edgeTable.put(intersection.toString(), edge);
           }
+
           intersections.add(intersection);
         }
       }
       intersections.sort(new VertexXComparator());
-      for(int i = 0; i < intersections.size(); i += 2){
+      for(int i = 0; i < intersections.size() - 2; i += 2){
         if(intersections.get(i).equals(v) || intersections.get(i + 1).equals(v)) {
-          double width = Math.abs(intersections.get(i).x  - intersections.get(i + 1).x);
-          if(width < minWidth) {
+          double width = Math.abs(intersections.get(i).x - intersections.get(i + 1).x);
+          if(width < minWidth && width > 0) {
             if(intersections.get(i).equals(v)){
-              bottleneckList.add(new LineSegment(intersections.get(i), intersections.get(i + 1)), edgeTable.get(intersections.get(i + 1).toString()));
+              bottleneckList.add(new Bottleneck(new LineSegment(v, intersections.get(i + 1)), edgeTable.get(intersections.get(i + 1).toString())));
             } else {
-              bottleneckList.add(new LineSegment(intersections.get(i), intersections.get(i + 1)), edgeTable.get(intersections.get(i).toString()));
+              bottleneckList.add(new Bottleneck(new LineSegment(v, intersections.get(i)), edgeTable.get(intersections.get(i).toString())));
             }
           }
-          break;
+          // break;
         }
       }
     }
@@ -63,18 +65,49 @@ class Geometry {
   }
 
   public static ArrayList slicePolygon(VertexPolygon poly, ArrayList<Bottleneck> bottleneckList) {
-
+    return null;
   }
 
-  public static VertexPolygon[] SplitPolygon(VertexPolygon poly, Bottleneck bottleneck) {
-    ArrayList<VertexPolygon> outline = poly.getOutline();
-    int polyLineStart = outline.indexOf(bottleneck.polygonline.start);
-    int polyLineEnd = outline.indexOf(bottleneck.polygonline.end);
+  public static VertexPolygon[] splitPolygon(VertexPolygon poly, Bottleneck bottleneck) {
+    ArrayList<Vertex> outline = poly.getOutline();
+    int polyLineStart = outline.indexOf(bottleneck.polygonLine.start);
+    int polyLineEnd = outline.indexOf(bottleneck.polygonLine.end);
     int neckStart = outline.indexOf(bottleneck.neckLine.start);
     int neckEnd = outline.indexOf(bottleneck.neckLine.end);
-    if(neckStart != -1 && neckEnd != -1){
-      
+
+    VertexPolygon upper = new VertexPolygon();
+    VertexPolygon lower = new VertexPolygon();
+
+    Vertex v = outline.get(neckStart);
+    upper.addVertex(v);
+    lower.addVertex(v);
+    for(int i = 1; true; i++) {
+      int index = (neckStart + i) % outline.size();
+      v = outline.get(index);
+
+      upper.addVertex(v);
+      if(index == polyLineStart || index == polyLineEnd) {
+        if(!bottleneck.neckLine.end.equals(bottleneck.polygonLine.end)) {
+          upper.addVertex(bottleneck.neckLine.end);
+        }
+        break;
+      }
     }
+
+    for(int i = -1; true; i--) {
+      int index = (neckStart + i) % outline.size();
+      v = outline.get(index);
+
+      lower.addVertex(v);
+      if(index == polyLineStart || index == polyLineEnd) {
+        if(!bottleneck.neckLine.end.equals(bottleneck.polygonLine.end)) {
+          lower.addVertex(bottleneck.neckLine.end);
+        }
+        break;
+      }
+    }
+
+    return new VertexPolygon[]{upper, lower};
 
   }
 }

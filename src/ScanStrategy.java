@@ -127,7 +127,7 @@ class ScanStrategy implements TextStrategy{
         t.setTranslateY(-(minWidth * (scale - 1) / 2));
 
 
-        drawText(t);
+        // drawText(t);
         letter++;
 
       } else {
