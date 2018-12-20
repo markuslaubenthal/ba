@@ -37,8 +37,7 @@ public class Vertex {
      * @method distance
      */
     public double distance(Vertex v) {
-        double dist = sub(v).mag();
-        return dist;
+        return sub(v).mag();
     }
 
     /**

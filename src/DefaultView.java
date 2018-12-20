@@ -45,6 +45,8 @@ class DefaultView {
 
   DefaultController controller;
 
+  TextStrategy textStrategy = new SimpleStrategy();
+
   public DefaultView(Pane root) {
     controller = new DefaultController(this);
     root.getChildren().add(emptyLayer);
@@ -193,7 +195,7 @@ class DefaultView {
     textLayer.getChildren().clear();
     for(VertexPolygon poly : polygonList) {
       drawPolygon(poly);
-      poly.setTextStrategy(new ScanStrategy());
+      poly.setTextStrategy(textStrategy);
       poly.drawText(textLayer);
     }
   }
@@ -231,10 +233,17 @@ class DefaultView {
     // add click functionality back in
     addOnClickActionListenerOnDrawingArea();
     for(VertexPolygon poly : polygonList) {
+      ArrayList<LineSegment> bottleneckList = Geometry.findAllBottlenecksApprox(poly);
+      for(LineSegment line : bottleneckList){
+        Line l = new Line(line.start.x,line.start.y,line.end.x,line.end.y);
+        l.setStrokeWidth(1);
+        l.setStroke(Color.LIGHTBLUE);
+        textLayer.getChildren().add(l);
+      }
       // TODO
       // geometry Poligon -> kleinere plys
       // für kleine mache rest
-
+      /*
       ArrayList<Bottleneck> bottlenecks;
       bottlenecks = Geometry.findBottleneckInPolygon(poly, 150);
       for(Bottleneck b : bottlenecks) {
@@ -247,17 +256,17 @@ class DefaultView {
           // drawRectangle(p.getLargestRectangle());
         }
 
-      }
+      }*/
 
 
       //draw polygon twice. once for the UI once for the outline
-      // drawUIPolygon(poly);
-      // drawPolygon(poly);
+      drawUIPolygon(poly);
+      drawPolygon(poly);
       //drawRectangle(poly.getBoundingBox());
       //drawRectangle(poly.getLargestRectangle());
 
       //choose Strategy here
-      poly.setTextStrategy(new ScanStrategy());
+      poly.setTextStrategy(textStrategy);
       poly.drawText(textLayer);
     }
     // insert points back in

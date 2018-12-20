@@ -9,13 +9,13 @@ import javafx.scene.paint.Color;
 import java.util.Collections;
 
 
-class ScanStrategy implements TextStrategy{
+class NewScanStrategy implements TextStrategy{
   double fontsize;
   Pane textLayer;
   String text;
 
 
-  public ScanStrategy(){
+  public NewScanStrategy(){
 
   }
 
