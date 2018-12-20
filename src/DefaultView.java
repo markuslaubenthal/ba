@@ -43,7 +43,6 @@ class DefaultView {
   Button loadButton = new Button("Load file...");
   ComboBox<String> strategySelector = new ComboBox<String>();
 
-
   DefaultController controller;
 
   public DefaultView(Pane root) {
@@ -148,13 +147,14 @@ class DefaultView {
     });
 
     strategySelector.getItems().addAll(
-      "Strat 1",
-      "Strat 2",
-      "Strat 3"
+      "Default",
+      "Simple Strategy",
+      "Scan Strategy"
     );
+    strategySelector.setValue("Default");
     strategySelector.setOnAction(new EventHandler<ActionEvent>() {
       public void handle(ActionEvent event) {
-        controller.handleOpacityButton();
+        controller.handleStrategyDropDown();
       }
     });
 
@@ -193,7 +193,7 @@ class DefaultView {
 
     poly.setOnMousePressed(new EventHandler<MouseEvent>() {
       public void handle(MouseEvent event) {
-        controller.updateTextfield(vertexPolygon);
+        controller.selectPolygon(vertexPolygon);
       }
     });
 
@@ -206,7 +206,6 @@ class DefaultView {
     textLayer.getChildren().clear();
     for(VertexPolygon poly : polygonList) {
       drawPolygon(poly);
-      poly.setTextStrategy(new ScanStrategy());
       poly.drawText(textLayer);
     }
   }
@@ -245,32 +244,28 @@ class DefaultView {
     addOnClickActionListenerOnDrawingArea();
     for(VertexPolygon poly : polygonList) {
       // TODO
-      // geometry Poligon -> kleinere plys
+      // geometry Polygon -> kleinere plys
       // für kleine mache rest
 
-      ArrayList<Bottleneck> bottlenecks;
-      bottlenecks = Geometry.findBottleneckInPolygon(poly, 150);
-      for(Bottleneck b : bottlenecks) {
-        // ArrayList<VertexPolygon> newList;
-        VertexPolygon[] newList = Geometry.splitPolygon(poly, b);
-
-        for(VertexPolygon p : newList) {
-          drawUIPolygon(p);
-          drawPolygon(p);
-          // drawRectangle(p.getLargestRectangle());
-        }
-
-      }
+      // ArrayList<Bottleneck> bottlenecks;
+      // bottlenecks = Geometry.findBottleneckInPolygon(poly, 150);
+      // for(Bottleneck b : bottlenecks) {
+      //   VertexPolygon[] newList = Geometry.splitPolygon(poly, b);
+      //
+      //   for(VertexPolygon p : newList) {
+      //     drawUIPolygon(p);
+      //     drawPolygon(p);
+      //   }
+      //
+      // }
 
 
-      //draw polygon twice. once for the UI once for the outline
-      // drawUIPolygon(poly);
-      // drawPolygon(poly);
-      //drawRectangle(poly.getBoundingBox());
-      //drawRectangle(poly.getLargestRectangle());
+      // draw polygon twice. once for the UI once for the outline
+      drawUIPolygon(poly);
+      drawPolygon(poly);
+      // drawRectangle(poly.getBoundingBox());
+      // drawRectangle(poly.getLargestRectangle());
 
-      //choose Strategy here
-      poly.setTextStrategy(new ScanStrategy());
       poly.drawText(textLayer);
     }
     // insert points back in
@@ -292,6 +287,10 @@ class DefaultView {
 
   public TextField getPolygonTextField() {
     return polygonTextField;
+  }
+
+  public ComboBox getStrategyCombobox() {
+    return strategySelector;
   }
 
   public Button getNewPolyButton() {

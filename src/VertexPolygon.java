@@ -128,6 +128,10 @@ class VertexPolygon {
     this.strategy = strategy;
   }
 
+  public TextStrategy getStrategy() {
+    return strategy;
+  }
+
   public void drawText(Pane textLayer){
     strategy.drawText(this, textLayer);
   }
