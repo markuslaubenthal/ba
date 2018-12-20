@@ -10,15 +10,14 @@ import javafx.scene.shape.Polygon;
 import java.io.*;
 import javafx.stage.FileChooser;
 import javafx.scene.paint.Color;
-import javafx.scene.control.Button;
+import javafx.scene.control.*;
 import javafx.event.EventHandler;
 import javafx.event.ActionEvent;
 import javafx.scene.input.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
-import javafx.scene.control.TextField;
 import javafx.scene.text.*;
-
+import javafx.collections.ObservableList;
 
 class DefaultView {
   int drawingAreaHeight = 800;
@@ -42,6 +41,7 @@ class DefaultView {
   Button opacityButton = new Button("Toggle Opacity");
   Button saveButton = new Button("Save file...");
   Button loadButton = new Button("Load file...");
+  ComboBox<String> strategySelector = new ComboBox<String>();
 
   DefaultController controller;
 
@@ -148,6 +148,18 @@ class DefaultView {
       }
     });
 
+    strategySelector.getItems().addAll(
+      "Default",
+      "Simple Strategy",
+      "Scan Strategy"
+    );
+    strategySelector.setValue("Default");
+    strategySelector.setOnAction(new EventHandler<ActionEvent>() {
+      public void handle(ActionEvent event) {
+        controller.handleStrategyDropDown();
+      }
+    });
+
     navigationContainer.getChildren().add(prevBtn);
     navigationContainer.getChildren().add(updateBtn);
     navigationContainer.getChildren().add(nextBtn);
@@ -155,6 +167,7 @@ class DefaultView {
     uiContainer.getChildren().add(opacityButton);
     uiContainer.getChildren().add(loadButton);
     uiContainer.getChildren().add(saveButton);
+    uiContainer.getChildren().add(strategySelector);
   }
 
   public void drawPolygon(VertexPolygon vertexPolygon){
@@ -182,7 +195,7 @@ class DefaultView {
 
     poly.setOnMousePressed(new EventHandler<MouseEvent>() {
       public void handle(MouseEvent event) {
-        controller.updateTextfield(vertexPolygon);
+        controller.selectPolygon(vertexPolygon);
       }
     });
 
@@ -195,7 +208,6 @@ class DefaultView {
     textLayer.getChildren().clear();
     for(VertexPolygon poly : polygonList) {
       drawPolygon(poly);
-      poly.setTextStrategy(textStrategy);
       poly.drawText(textLayer);
     }
   }
@@ -241,32 +253,28 @@ class DefaultView {
         textLayer.getChildren().add(l);
       }
       // TODO
-      // geometry Poligon -> kleinere plys
+      // geometry Polygon -> kleinere plys
       // für kleine mache rest
-      /*
-      ArrayList<Bottleneck> bottlenecks;
-      bottlenecks = Geometry.findBottleneckInPolygon(poly, 150);
-      for(Bottleneck b : bottlenecks) {
-        // ArrayList<VertexPolygon> newList;
-        VertexPolygon[] newList = Geometry.splitPolygon(poly, b);
 
-        for(VertexPolygon p : newList) {
-          drawUIPolygon(p);
-          drawPolygon(p);
-          // drawRectangle(p.getLargestRectangle());
-        }
-
-      }*/
+      // ArrayList<Bottleneck> bottlenecks;
+      // bottlenecks = Geometry.findBottleneckInPolygon(poly, 150);
+      // for(Bottleneck b : bottlenecks) {
+      //   VertexPolygon[] newList = Geometry.splitPolygon(poly, b);
+      //
+      //   for(VertexPolygon p : newList) {
+      //     drawUIPolygon(p);
+      //     drawPolygon(p);
+      //   }
+      //
+      // }
 
 
-      //draw polygon twice. once for the UI once for the outline
+      // draw polygon twice. once for the UI once for the outline
       drawUIPolygon(poly);
       drawPolygon(poly);
-      //drawRectangle(poly.getBoundingBox());
-      //drawRectangle(poly.getLargestRectangle());
+      // drawRectangle(poly.getBoundingBox());
+      // drawRectangle(poly.getLargestRectangle());
 
-      //choose Strategy here
-      poly.setTextStrategy(textStrategy);
       poly.drawText(textLayer);
     }
     // insert points back in
@@ -288,6 +296,10 @@ class DefaultView {
 
   public TextField getPolygonTextField() {
     return polygonTextField;
+  }
+
+  public ComboBox getStrategyCombobox() {
+    return strategySelector;
   }
 
   public Button getNewPolyButton() {

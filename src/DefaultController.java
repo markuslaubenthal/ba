@@ -21,22 +21,18 @@ import java.util.Random;
 
 class DefaultController {
 
+  DefaultControllerState state = new DefaultControllerState();
   ArrayList<VertexPolygon> polygonList = new ArrayList<VertexPolygon>();
 
-  Boolean creatingNewPolygon = false;
   VertexPolygon newPolygon;
-  VertexPolygon currentPolyToEdit = new VertexPolygon();
   DefaultView view;
-
-  boolean polygonOpacityState = true;
-
 
   public DefaultController(DefaultView view) {
     this.view = view;
   }
 
   public void addVertexAndPoint(double x, double y) {
-    if(creatingNewPolygon){
+    if(state.isBuildingNewPolygon()) {
       Vertex v = new Vertex(x, y);
       view.addPointToVertex(v);
       v.point.setFill(Color.LAWNGREEN);
@@ -58,50 +54,51 @@ class DefaultController {
   }
 
   public void handleMousePressed(Circle point, Vertex vertex){
-    if(creatingNewPolygon && !newPolygon.contains(vertex)){
+    if(state.isBuildingNewPolygon() && !newPolygon.contains(vertex)) {
       newPolygon.addVertex(vertex);
       point.setFill(Color.LAWNGREEN);
     }
   }
 
   public void handlePreviousButton() {
-    int prevIndex = polygonList.lastIndexOf(currentPolyToEdit) - 1;
+    int prevIndex = polygonList.lastIndexOf(state.getSelectedPolygon()) - 1;
     if(prevIndex >= 0) {
-      updateTextfield(polygonList.get(prevIndex));
+      selectPolygon(polygonList.get(prevIndex));
     }
   }
 
   public void handleNextButton() {
-    int nextIndex = polygonList.lastIndexOf(currentPolyToEdit) + 1;
+    int nextIndex = polygonList.lastIndexOf(state.getSelectedPolygon()) + 1;
     if(nextIndex < polygonList.size()){
-      updateTextfield(polygonList.get(nextIndex));
+      selectPolygon(polygonList.get(nextIndex));
     }
   }
 
   public void handleUpdateButton() {
     TextField polygonTextField = view.getPolygonTextField();
-    currentPolyToEdit.setText(polygonTextField.getText());
+    state.getSelectedPolygon().setText(polygonTextField.getText());
     view.refresh();
   }
 
   public void handleNewButton() {
-    if(!creatingNewPolygon) {
-      creatingNewPolygon = true;
+    if(!state.isBuildingNewPolygon()) {
+      state.startBuildingNewPolygon();
       newPolygon = new VertexPolygon(String.valueOf(polygonList.size())+String.valueOf(polygonList.size())+String.valueOf(polygonList.size())+String.valueOf(polygonList.size()));
+      newPolygon.setTextStrategy(StrategyFactory.getStrategy(StrategyFactory.Default));
       view.getNewPolyButton().setText("End Polygon");
     } else {
       polygonList.add(newPolygon);
       view.refresh();
-      updateTextfield(newPolygon);
+      selectPolygon(newPolygon);
       view.getNewPolyButton().setText("New Polygon");
-      creatingNewPolygon = false;
+      state.stopBuildingNewPolygon();
     }
   }
 
-  public void updateTextfield(VertexPolygon poly){
-    currentPolyToEdit = poly;
-    TextField polygonTextField = view.getPolygonTextField();
-    polygonTextField.setText(poly.getText());
+  public void selectPolygon(VertexPolygon poly) {
+    state.setSelectedPolygon(poly);
+    view.getPolygonTextField().setText(poly.getText());
+    view.getStrategyCombobox().setValue(StrategyFactory.getName(poly.getStrategy()));
   }
 
   public void handleSaveButton() {
@@ -119,17 +116,25 @@ class DefaultController {
     if(file != null) {
       PolygonReader reader = new PolygonReader(file);
       polygonList = reader.get();
+      for(int i = 0; i < polygonList.size(); i++) {
+        polygonList.get(i).setTextStrategy(StrategyFactory.getStrategy(StrategyFactory.Default));
+      }
       newPolygon = null;
-      creatingNewPolygon = false;
+      state.stopBuildingNewPolygon();
       view.refresh();
-      updateTextfield(polygonList.get(0));
+      selectPolygon(polygonList.get(0));
     }
   }
 
   public void handleOpacityButton() {
-    polygonOpacityState = !polygonOpacityState;
-    double opacity = polygonOpacityState ? 1.0 : 0.0;
+    double opacity = state.togglePolygonOpacity() ? 1.0 : 0.0;
     view.setEdgeLayerOpacity(opacity);
     view.setMainLayerOpacity(opacity);
+  }
+
+  public void handleStrategyDropDown() {
+    String strategy = (String) view.getStrategyCombobox().getValue();
+    state.getSelectedPolygon().setTextStrategy(StrategyFactory.getStrategy(strategy));
+    view.refresh();
   }
 }

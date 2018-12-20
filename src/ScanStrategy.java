@@ -14,7 +14,7 @@ class ScanStrategy implements TextStrategy{
 
 
   public ScanStrategy(){
-
+    System.out.println("Scan Strategy Constructor");
   }
 
   public void drawText(VertexPolygon poly, Pane textLayer){
@@ -125,9 +125,8 @@ class ScanStrategy implements TextStrategy{
         double scale = Math.abs(top - bot) / minWidth;
         t.setScaleY(scale);
         t.setTranslateY(-(minWidth * (scale - 1) / 2));
+        textLayer.getChildren().add(t);
 
-
-        // drawText(t);
         letter++;
 
       } else {
