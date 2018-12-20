@@ -82,7 +82,7 @@ class Geometry {
     upper.addVertex(v);
     lower.addVertex(v);
     for(int i = 1; true; i++) {
-      int index = (neckStart + i) % outline.size();
+      int index = Math.floorMod((neckStart + i), outline.size());
       v = outline.get(index);
 
       upper.addVertex(v);
@@ -95,7 +95,7 @@ class Geometry {
     }
 
     for(int i = -1; true; i--) {
-      int index = (neckStart + i) % outline.size();
+      int index = Math.floorMod((neckStart + i), outline.size());
       v = outline.get(index);
 
       lower.addVertex(v);
