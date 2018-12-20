@@ -10,15 +10,14 @@ import javafx.scene.shape.Polygon;
 import java.io.*;
 import javafx.stage.FileChooser;
 import javafx.scene.paint.Color;
-import javafx.scene.control.Button;
+import javafx.scene.control.*;
 import javafx.event.EventHandler;
 import javafx.event.ActionEvent;
 import javafx.scene.input.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
-import javafx.scene.control.TextField;
 import javafx.scene.text.*;
-
+import javafx.collections.ObservableList;
 
 class DefaultView {
   int drawingAreaHeight = 800;
@@ -42,6 +41,8 @@ class DefaultView {
   Button opacityButton = new Button("Toggle Opacity");
   Button saveButton = new Button("Save file...");
   Button loadButton = new Button("Load file...");
+  ComboBox<String> strategySelector = new ComboBox<String>();
+
 
   DefaultController controller;
 
@@ -146,6 +147,17 @@ class DefaultView {
       }
     });
 
+    strategySelector.getItems().addAll(
+      "Strat 1",
+      "Strat 2",
+      "Strat 3"
+    );
+    strategySelector.setOnAction(new EventHandler<ActionEvent>() {
+      public void handle(ActionEvent event) {
+        controller.handleOpacityButton();
+      }
+    });
+
     navigationContainer.getChildren().add(prevBtn);
     navigationContainer.getChildren().add(updateBtn);
     navigationContainer.getChildren().add(nextBtn);
@@ -153,6 +165,7 @@ class DefaultView {
     uiContainer.getChildren().add(opacityButton);
     uiContainer.getChildren().add(loadButton);
     uiContainer.getChildren().add(saveButton);
+    uiContainer.getChildren().add(strategySelector);
   }
 
   public void drawPolygon(VertexPolygon vertexPolygon){

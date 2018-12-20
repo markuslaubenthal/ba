@@ -132,4 +132,8 @@ class DefaultController {
     view.setEdgeLayerOpacity(opacity);
     view.setMainLayerOpacity(opacity);
   }
+
+  public void handleStrategyDropDown() {
+    
+  }
 }
