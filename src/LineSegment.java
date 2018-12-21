@@ -53,4 +53,7 @@ class LineSegment {
 
       return false; // No collision
   }
+  public String toString(){
+    return "start:x:" + this.start.x + ",y:" + this.start.y + "end:x:" + this.end.x + ",y:" + this.end.y;
+  }
 }

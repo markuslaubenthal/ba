@@ -1,5 +1,8 @@
 import java.util.ArrayList;
 import java.util.Hashtable;
+import java.util.Comparator;
+import java.util.Collections;
+
 class Geometry {
 
   public static double getAreaSizeOfPolygon(VertexPolygon p) {
@@ -24,32 +27,17 @@ class Geometry {
     area /= 2;
     return Math.abs(area);
   }
-  /*
-  public static ArrayList<Bottleneck> findBottleneckInPolygon2(VertexPolygon poly) {
-    ArrayList<Vertex> outline = poly.getOutline();
-    ArrayList<Vertex> _outline = new ArrayList<Vertex>();
-    for(Vertex v : outline){
-      for(int i = 0; i < outline.size; i++){
-          LineSegment edge = poly.getLineSegment(i);
-          LineSegment tmpOrthogonal = new LineSegment(edge.start.y, -1 * edge.start.x, edge.end.y, -1 * edge.end.x);
-          Vertex direction = tmpOrthogonal.start.sub(orthogonal.end);
-          direction = direction.mult(1/direction.mag()).mult(1000);
-          LineSegment orthogonal = new LineSegment(v.add(direction), v.add(direction.mult(-1)));
 
-      }
-    }
 
-  }*/
-
-  
   public static ArrayList<LineSegment> findAllBottlenecksApprox(VertexPolygon poly) {
     double[] boundingBox = poly.getBoundingBox();
     double diagonal = new Vertex(boundingBox[0],boundingBox[3]).sub(new Vertex(boundingBox[1],boundingBox[2])).mag();
 
-    double minWidth = 4 * Math.sqrt(diagonal);
-    double minArea = 0.33 * poly.getAreaSize();
+    double minWidth = 0.2 * diagonal;
+    double minArea =  0.2 * poly.getAreaSize();
 
     Hashtable<String,LineSegment> edgeTable = new Hashtable<String,LineSegment>();
+    Hashtable<String,Double> scoreTable = new Hashtable<String,Double>();
     ArrayList<Vertex> pointList = buildOutlinePoints(poly,edgeTable);
     ArrayList<LineSegment> bottleneckList = new ArrayList<LineSegment>();
 
@@ -59,11 +47,24 @@ class Geometry {
           VertexPolygon[] subPolys = splitPolygon(poly,v,edgeTable.get(v.toString()),w,edgeTable.get(w.toString()));
           if(subPolys[0].getAreaSize() > minArea && subPolys[1].getAreaSize() > minArea){
             bottleneckList.add(new LineSegment(v,w));
+            double score = v.distance(w) * Math.sqrt(Math.min(subPolys[0].getAreaSize(), subPolys[1].getAreaSize()));
+            scoreTable.put(new LineSegment(v,w).toString(), score);
           }
         }
       }
     }
+    sortBottleneckList(bottleneckList, scoreTable);
     return bottleneckList;
+  }
+
+  public static void sortBottleneckList(ArrayList<LineSegment> bottleneckList, Hashtable<String,Double> scoreTable){
+    Collections.sort(bottleneckList, new Comparator<LineSegment>() {
+        @Override
+        public int compare(LineSegment line1, LineSegment line2)
+        {
+            return (int) Math.signum(scoreTable.get(line1.toString()) - scoreTable.get(line2.toString()));
+        }
+    });
   }
 
   public static VertexPolygon[] splitPolygon(VertexPolygon poly, Vertex v, LineSegment vEdge, Vertex w, LineSegment wEdge) {
@@ -118,21 +119,21 @@ class Geometry {
   }
 
 
-  public static Boolean canSee(VertexPolygon poly, Vertex v, Vertex w) {
+  public static Boolean canSee(VertexPolygon poly, Vertex v, Vertex w) { // does not work properly if the two points can see each other outside of the polygon
+    if(v.equals(w)) return false;
     LineSegment visionLine = new LineSegment(v,w);
-    Vertex intersection = new Vertex(-1,-1);
+    Vertex intersect = new Vertex(-1,-1);
     for(int i = 0; i < poly.getOutline().size(); i++) {
       LineSegment edge = poly.getLineSegment(i);
-      visionLine.getLineIntersection(edge, intersection);
-      if(intersection.x != -1) {
-        if(intersection.x != v.x && intersection.y != v.y || intersection.x != w.x && intersection.y != w.y) {
+      if(visionLine.getLineIntersection(edge, intersect)) {
+        if(!intersect.equals(v) && !intersect.equals(w)) {
           return false;
         }
       }
     }
+    if(!poly.vertexInPolygon(v.add(w.sub(v).mult(0.5)))) return false;
     return true;
   }
-
 
 
   public static ArrayList<Bottleneck> findBottleneckInPolygon(VertexPolygon p, double minWidth) {
@@ -144,79 +145,16 @@ class Geometry {
       for(int i = 0; i < p.getOutline().size(); i++){
         LineSegment edge = p.getLineSegment(i);
         Vertex intersection = new Vertex(-1,-1);
-        if(edge.getLineIntersection(horizontalLine, intersection) || v.y == edge.start.y || v.y == edge.end.y) {
-          if(intersection.x == -1 && intersection.y == -1){
-            if(v.y == edge.start.y) intersection = edge.start;
-            else intersection = edge.end;
-            edgeTable.put(intersection.toString(), new LineSegment(intersection, intersection));
-          } else {
-            edgeTable.put(intersection.toString(), edge);
+        if(edge.getLineIntersection(horizontalLine, intersection)){
+          double width = Math.abs(v.x - intersection.x);
+          if(canSee(p,v,intersection) && width < minWidth && width > 0){
+            intersections.add(intersection);
+            bottleneckList.add(new Bottleneck(new LineSegment(v, intersection), edge));
           }
-          intersections.add(intersection);
-        }
-      }
-      intersections.sort(new VertexXComparator());
-      for(int i = 0; i < intersections.size() - 2; i += 2){
-        if(intersections.get(i).equals(v) || intersections.get(i + 1).equals(v)) {
-          double width = Math.abs(intersections.get(i).x - intersections.get(i + 1).x);
-          if(width < minWidth && width > 0) {
-            if(intersections.get(i).equals(v)){
-              bottleneckList.add(new Bottleneck(new LineSegment(v, intersections.get(i + 1)), edgeTable.get(intersections.get(i + 1).toString())));
-            } else {
-              bottleneckList.add(new Bottleneck(new LineSegment(v, intersections.get(i)), edgeTable.get(intersections.get(i).toString())));
-            }
-          }
-          // break;
         }
       }
     }
     return bottleneckList;
   }
 
-  public static ArrayList<Vertex> slicePolygon(VertexPolygon poly, ArrayList<Bottleneck> bottleneckList) {
-    return null;
-  }
-
-  public static VertexPolygon[] splitPolygon(VertexPolygon poly, Bottleneck bottleneck) {
-    ArrayList<Vertex> outline = poly.getOutline();
-    int polyLineStart = outline.indexOf(bottleneck.polygonLine.start);
-    int polyLineEnd = outline.indexOf(bottleneck.polygonLine.end);
-    int neckStart = outline.indexOf(bottleneck.neckLine.start);
-    int neckEnd = outline.indexOf(bottleneck.neckLine.end);
-
-    VertexPolygon upper = new VertexPolygon();
-    VertexPolygon lower = new VertexPolygon();
-
-    Vertex v = outline.get(neckStart);
-    upper.addVertex(v);
-    lower.addVertex(v);
-    for(int i = 1; true; i++) {
-      int index = Math.floorMod((neckStart + i), outline.size());
-      v = outline.get(index);
-
-      upper.addVertex(v);
-      if(index == polyLineStart || index == polyLineEnd) {
-        if(!bottleneck.neckLine.end.equals(bottleneck.polygonLine.end)) {
-          upper.addVertex(bottleneck.neckLine.end);
-        }
-        break;
-      }
-    }
-
-    for(int i = -1; true; i--) {
-      int index = Math.floorMod((neckStart + i), outline.size());
-      v = outline.get(index);
-
-      lower.addVertex(v);
-      if(index == polyLineStart || index == polyLineEnd) {
-        if(!bottleneck.neckLine.end.equals(bottleneck.polygonLine.end)) {
-          lower.addVertex(bottleneck.neckLine.end);
-        }
-        break;
-      }
-    }
-
-    return new VertexPolygon[]{upper, lower};
-
-  }
 }

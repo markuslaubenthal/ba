@@ -245,6 +245,8 @@ class DefaultView {
     // add click functionality back in
     addOnClickActionListenerOnDrawingArea();
     for(VertexPolygon poly : polygonList) {
+
+      /*
       ArrayList<LineSegment> bottleneckList = Geometry.findAllBottlenecksApprox(poly);
       for(LineSegment line : bottleneckList){
         Line l = new Line(line.start.x,line.start.y,line.end.x,line.end.y);
@@ -252,21 +254,23 @@ class DefaultView {
         l.setStroke(Color.LIGHTBLUE);
         textLayer.getChildren().add(l);
       }
+*/
+
+
       // TODO
       // geometry Polygon -> kleinere plys
       // für kleine mache rest
 
-      // ArrayList<Bottleneck> bottlenecks;
-      // bottlenecks = Geometry.findBottleneckInPolygon(poly, 150);
-      // for(Bottleneck b : bottlenecks) {
-      //   VertexPolygon[] newList = Geometry.splitPolygon(poly, b);
-      //
-      //   for(VertexPolygon p : newList) {
-      //     drawUIPolygon(p);
-      //     drawPolygon(p);
-      //   }
-      //
-      // }
+      ArrayList<Bottleneck> bottlenecks;
+      bottlenecks = Geometry.findBottleneckInPolygon(poly, 150);
+      for(Bottleneck b : bottlenecks) {
+        VertexPolygon[] newList = Geometry.splitPolygon(poly, b.neckLine.start, b.neckLine, b.neckLine.end, b.polygonLine);
+        for(VertexPolygon p : newList) {
+          drawUIPolygon(p);
+          drawPolygon(p);
+        }
+
+      }
 
 
       // draw polygon twice. once for the UI once for the outline
