@@ -20,6 +20,8 @@ class NewScanStrategy implements TextStrategy{
   }
 
   public void drawText(VertexPolygon poly, Pane textLayer){
+
+    
     /*
     polyArea = poly.getAreaSize();
 
