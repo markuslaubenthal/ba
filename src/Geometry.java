@@ -41,7 +41,7 @@ class Geometry {
 
   }*/
 
-  
+
   public static ArrayList<LineSegment> findAllBottlenecksApprox(VertexPolygon poly) {
     double[] boundingBox = poly.getBoundingBox();
     double diagonal = new Vertex(boundingBox[0],boundingBox[3]).sub(new Vertex(boundingBox[1],boundingBox[2])).mag();
@@ -103,7 +103,7 @@ class Geometry {
     return new VertexPolygon[]{upper, lower};
   }
 
-  public static ArrayList<Vertex> buildOutlinePoints(VertexPolygon poly, Hashtable table) {
+  public static ArrayList<Vertex> buildOutlinePoints(VertexPolygon poly, Hashtable<String, LineSegment> table) {
     ArrayList<Vertex> pointList = new ArrayList<Vertex>();
     for(int i = 0; i < poly.getOutline().size(); i++) {
       LineSegment edge = poly.getLineSegment(i);
@@ -218,5 +218,23 @@ class Geometry {
 
     return new VertexPolygon[]{upper, lower};
 
+  }
+
+  public static Vertex[] getFurthestPointsInPolygon(VertexPolygon polygon) {
+    Vertex x = null;
+    Vertex y = null;
+    double farthestDistance = 0;
+    ArrayList<Vertex> outline = polygon.getOutline();
+    for(int i = 0; i < outline.size(); i++) {
+      for(int j = 0; j < outline.size(); j++) {
+        double distance = outline.get(i).distance(outline.get(j));
+        if(distance > farthestDistance) {
+          farthestDistance = distance;
+          x = outline.get(i);
+          y = outline.get(j);
+        }
+      }
+    }
+    return new Vertex[]{x, y};
   }
 }

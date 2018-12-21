@@ -298,7 +298,7 @@ class DefaultView {
     return polygonTextField;
   }
 
-  public ComboBox getStrategyCombobox() {
+  public ComboBox<String> getStrategyCombobox() {
     return strategySelector;
   }
 

@@ -92,7 +92,8 @@ class ScanStrategy implements TextStrategy{
     while(startOffset < lines.size()) {
       LineSegment start = lines.get(startOffset);
       LineSegment end = null;
-
+      double top = start.end.y;
+      double bot = start.start.y;
       if(start.getHeight() >= minHeight) {
         for(endOffset = startOffset + 1; endOffset < lines.size(); endOffset++) {
           LineSegment tmp = lines.get(endOffset);
@@ -100,6 +101,8 @@ class ScanStrategy implements TextStrategy{
             startOffset = endOffset + 1;
           } else {
             double space = tmp.start.x - start.start.x;
+            top = Math.min(top, tmp.end.y);
+            bot = Math.max(bot, tmp.start.y);
             if(space >= rectangleWidth) {
               startOffset = endOffset;
               end = lines.get(endOffset);
@@ -112,8 +115,8 @@ class ScanStrategy implements TextStrategy{
       }
 
       if(end != null) {
-        double top = Math.min(start.end.y, end.end.y);
-        double bot = Math.max(start.start.y, end.start.y);
+        // top = Math.min(start.end.y, end.end.y);
+        // bot = Math.max(start.start.y, end.start.y);
 
         Text t = new Text();
         Font monospacedFont = Font.font("Courier New", FontWeight.NORMAL, minWidth);
@@ -121,10 +124,10 @@ class ScanStrategy implements TextStrategy{
         t.setText(p.getText().substring(letter, letter + 1));
         t.setX(start.start.x);
         t.setY(top);
-        t.setScaleX(1);
+        t.setScaleX(2);
         double scale = Math.abs(top - bot) / minWidth;
-        t.setScaleY(scale);
-        t.setTranslateY(-(minWidth * (scale - 1) / 2));
+        t.setScaleY(scale * 1.25);
+        t.setTranslateY(-(minWidth * (scale - 1) / 2) - 10);
         textLayer.getChildren().add(t);
 
         letter++;
@@ -192,53 +195,4 @@ class ScanStrategy implements TextStrategy{
     return ((rightest - leftest)/p.getText().length());
   }
 
-
-
-
-
 }
-
-/*
-
-
-
-
-public void dropBackground() {
-  textLayer.getChildren().clear();
-}
-
-
-public void drawText(Text t) {
-  textLayer.getChildren().add(t);
-}
-
-
-public void drawVertex(Vertex v) {
-  Circle point = new Circle();
-  point.setCenterX(v.x);
-  point.setCenterY(v.y);
-  point.setRadius(2.0);
-  point.setFill(Color.RED);
-  textLayer.getChildren().add(point);
-}
-
-public void drawLine(Vertex s, Vertex t) {
-  Line line = new Line();
-  line.setStartX(s.x);
-  line.setStartY(s.y);
-  line.setEndX(t.x);
-  line.setEndY(t.y);
-  line.setStrokeWidth(1);
-  textLayer.getChildren().add(line);
-}
-
-public void drawRectangle(double left, double right, double top, double bottom) {
-  Rectangle r = new Rectangle();
-  r.setX(left);
-  r.setY(bottom);
-  r.setWidth(Math.abs(right - left));
-  r.setHeight(Math.abs(top - bottom));
-  r.setFill(Color.RED);
-  textLayer.getChildren().add(r);
-}
- */
