@@ -80,7 +80,7 @@ class DefaultView {
     double y = vertex.y;
     point.setCenterX(x);
     point.setCenterY(y);
-    point.setRadius(6.0);
+    point.setRadius(1.0);
 
     point.setOnMouseDragged(new EventHandler<MouseEvent>() {
       public void handle(MouseEvent event) {
@@ -260,7 +260,7 @@ class DefaultView {
       // TODO
       // geometry Polygon -> kleinere plys
       // für kleine mache rest
-
+      /*
       ArrayList<Bottleneck> bottlenecks;
       bottlenecks = Geometry.findBottleneckInPolygon(poly, 150);
       for(Bottleneck b : bottlenecks) {
@@ -270,7 +270,7 @@ class DefaultView {
           drawPolygon(p);
         }
 
-      }
+      }*/
 
 
       // draw polygon twice. once for the UI once for the outline

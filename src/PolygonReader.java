@@ -30,6 +30,11 @@ class PolygonReader {
   private ArrayList<VertexPolygon> stringToList(String content) throws Exception {
     JSONObject jsonObj = new JSONObject(content);
 
+    if(jsonObj.has("features")){
+      GeoSpatialReader reader = new GeoSpatialReader(file);
+      return reader.get();
+    }
+
     JSONArray polygons = jsonObj.getJSONArray("polygons");
 
     ArrayList<VertexPolygon> polygonList = new ArrayList<VertexPolygon>();

@@ -157,7 +157,7 @@ class Geometry {
     }
     return bottleneckList;
   }
-  
+
   public static Vertex[] getFurthestPointsInPolygon(VertexPolygon polygon) {
     Vertex x = null;
     Vertex y = null;
