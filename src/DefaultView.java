@@ -45,8 +45,6 @@ class DefaultView {
 
   DefaultController controller;
 
-  TextStrategy textStrategy = new SimpleStrategy();
-
   public DefaultView(Pane root) {
     controller = new DefaultController(this);
     root.getChildren().add(emptyLayer);

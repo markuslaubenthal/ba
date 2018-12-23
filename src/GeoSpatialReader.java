@@ -37,17 +37,17 @@ class GeoSpatialReader {
     ArrayList<Vertex> vertexList = new ArrayList<Vertex>();
 
     double absoluteBiggestValue = -1.0;
+    double smallestValueX = Double.POSITIVE_INFINITY;
+    double smallestValueY = Double.POSITIVE_INFINITY;
 
     for(int i = 0; i < features.length(); i++) {
 
       JSONObject feature = features.getJSONObject(i);
       JSONObject geometry = feature.getJSONObject("geometry");
       JSONObject properties = feature.getJSONObject("properties");
-      String text = properties.getString("NAME_ENGL");
-
-      //String euFlag = properties.getString("OTHR_FLAG");
-
-      //if(euFlag.equals("T")) continue;
+      String text = "null";
+      if(properties.has("NAME_ENGL")) text = properties.getString("NAME_ENGL");
+      if(properties.has("NUTS_NAME")) text = properties.getString("NUTS_NAME");
 
       JSONArray coordinateList = geometry.getJSONArray("coordinates");
 
@@ -69,6 +69,8 @@ class GeoSpatialReader {
 
           if(Math.abs(v.x) > absoluteBiggestValue) absoluteBiggestValue = Math.abs(v.x);
           if(Math.abs(v.y) > absoluteBiggestValue) absoluteBiggestValue = Math.abs(v.y);
+          if(v.x < smallestValueX) smallestValueX = v.x;
+          if(v.y < smallestValueY) smallestValueY = v.y;
 
           if(!vertexList.contains(v)) {
             vertexList.add(v);
@@ -81,14 +83,14 @@ class GeoSpatialReader {
 
         newPolygon.setText(text);
         polygonList.add(newPolygon);
-
       }
 
     }
 
+    double scaleFactor = absoluteBiggestValue - Math.max(smallestValueX, smallestValueY);
     for(Vertex v : vertexList) {
-      v.x = v.x * 400.0 / absoluteBiggestValue + 400.0;
-      v.y = 800.0 - (v.y * 400.0 / absoluteBiggestValue + 400.0);
+      v.x = (v.x - smallestValueX) * 800.0 / scaleFactor;
+      v.y = 800.0 - ((v.y - smallestValueY) * 800.0 / scaleFactor);
     }
 
     return polygonList;
