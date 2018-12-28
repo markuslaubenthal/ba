@@ -149,7 +149,8 @@ class DefaultView {
     strategySelector.getItems().addAll(
       "Default",
       "Simple Strategy",
-      "Scan Strategy"
+      "Scan Strategy",
+      "Graph Strategy"
     );
     strategySelector.setValue("Default");
     strategySelector.setOnAction(new EventHandler<ActionEvent>() {
