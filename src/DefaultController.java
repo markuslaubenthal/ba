@@ -135,6 +135,6 @@ class DefaultController {
   public void handleStrategyDropDown() {
     String strategy = (String) view.getStrategyCombobox().getValue();
     state.getSelectedPolygon().setTextStrategy(StrategyFactory.getStrategy(strategy));
-    view.refresh();
+    //view.refresh();
   }
 }

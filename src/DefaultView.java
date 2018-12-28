@@ -78,7 +78,7 @@ class DefaultView {
     double y = vertex.y;
     point.setCenterX(x);
     point.setCenterY(y);
-    point.setRadius(1.0);
+    point.setRadius(2.0);
 
     point.setOnMouseDragged(new EventHandler<MouseEvent>() {
       public void handle(MouseEvent event) {

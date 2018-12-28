@@ -151,5 +151,22 @@ class VertexPolygon {
     return null;
   }
 
+  public Boolean canSee(Vertex v, Vertex w) {
+    if(v.equals(w)) return false;
+    LineSegment visionLine = new LineSegment(v,w);
+    Vertex intersect = new Vertex(-1,-1);
+    for(int i = 0; i < this.getOutline().size(); i++) {
+      LineSegment edge = this.getLineSegment(i);
+      if(visionLine.getLineIntersection(edge, intersect)) {
+        if(!intersect.equals(v) && !intersect.equals(w)) {
+          return false;
+        }
+      }
+    }
+    if(!this.vertexInPolygon(v.add(w.sub(v).mult(0.5)))) return false;
+    return true;
+  }
+
+
 
 }

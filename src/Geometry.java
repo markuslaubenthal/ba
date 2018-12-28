@@ -2,6 +2,7 @@ import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Comparator;
 import java.util.Collections;
+import java.util.HashSet;
 
 class Geometry {
 
@@ -102,8 +103,23 @@ class Geometry {
         }
       }
     }
+    eliminateDuplicates(upper);
+    eliminateDuplicates(lower);
     return new VertexPolygon[]{upper, lower};
   }
+
+  public static void eliminateDuplicates(VertexPolygon poly) {
+    HashSet<Vertex> checklist = new HashSet<Vertex>();
+    ArrayList<Vertex> newOutline = new ArrayList<Vertex>();
+    for(Vertex v : poly.getOutline()) {
+      if(!checklist.contains(v)) {
+        newOutline.add(v);
+        checklist.add(v);
+      }
+    }
+    poly.outline = newOutline;
+  }
+
 
   public static ArrayList<Vertex> buildOutlinePoints(VertexPolygon poly, Hashtable<String, LineSegment> table) {
     ArrayList<Vertex> pointList = new ArrayList<Vertex>();
@@ -120,7 +136,7 @@ class Geometry {
   }
 
 
-  public static Boolean canSee(VertexPolygon poly, Vertex v, Vertex w) { // does not work properly if the two points can see each other outside of the polygon
+  public static Boolean canSee(VertexPolygon poly, Vertex v, Vertex w) {
     if(v.equals(w)) return false;
     LineSegment visionLine = new LineSegment(v,w);
     Vertex intersect = new Vertex(-1,-1);
