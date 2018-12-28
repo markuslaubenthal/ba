@@ -1,9 +1,11 @@
 import java.util.ArrayList;
 
+
 class Test {
   public static void main(String[] args) {
     polygonTest();
     jsonTest();
+    hyphenatorTest();
   }
 
   public static void polygonTest() {
@@ -36,5 +38,11 @@ class Test {
 
     PolygonWriter writer = new PolygonWriter(polygonList);
     // writer.save("test.txt");
+  }
+
+  public static void hyphenatorTest() {
+    HyphenGenerator h = new HyphenGenerator();
+    System.out.println("Hyphenator created");
+    h.hyphenate("Deutschland");
   }
 }

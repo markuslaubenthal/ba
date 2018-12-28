@@ -1,1 +1,1 @@
-java -cp target:packages/java-json.jar Main
+java -cp target:packages/java-json.jar:packages/JHyphenator-1.0.jar Main
