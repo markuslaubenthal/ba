@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.List;
 
 
 class Test {
@@ -43,6 +44,7 @@ class Test {
   public static void hyphenatorTest() {
     HyphenGenerator h = new HyphenGenerator();
     System.out.println("Hyphenator created");
-    h.hyphenate("Deutschland");
+    List<String> output = h.hyphenate("Schifffahrtskapitän");
+    System.out.println(output);
   }
 }

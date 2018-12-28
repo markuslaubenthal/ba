@@ -108,6 +108,29 @@ class Geometry {
     return new VertexPolygon[]{upper, lower};
   }
 
+  public static VertexPolygon[] splitPolygonOnBestBottleneck(VertexPolygon poly) {
+    double minWidth = 0.5 * Math.sqrt(poly.getAreaSize());
+
+    ArrayList<Bottleneck> bottlenecks = findBottleneckInPolygon(poly, minWidth);
+    if(bottlenecks.size() > 0) {
+      Bottleneck best = bottlenecks.get(0);
+      double bestScore = 0;
+      for(int i = 0; i < bottlenecks.size(); i++) {
+        Bottleneck b = bottlenecks.get(i);
+        VertexPolygon[] subPolys = splitPolygon(poly, b.neckLine.start, b.neckLine, b.neckLine.end, b.polygonLine);
+        double score = b.neckLine.start.distance(b.neckLine.end) * Math.sqrt(Math.max(subPolys[0].getAreaSize(), subPolys[1].getAreaSize()));
+        bestScore = Math.max(score, bestScore);
+        if(bestScore == score) best = b;
+        // double score = v.distance(w) * Math.sqrt(Math.min(subPolys[0].getAreaSize(), subPolys[1].getAreaSize()));
+      }
+      VertexPolygon[] subPolys = splitPolygon(poly, best.neckLine.start, best.neckLine, best.neckLine.end, best.polygonLine);
+      return subPolys;
+    } else {
+      return new VertexPolygon[]{poly};
+    }
+  }
+
+
   public static void eliminateDuplicates(VertexPolygon poly) {
     HashSet<Vertex> checklist = new HashSet<Vertex>();
     ArrayList<Vertex> newOutline = new ArrayList<Vertex>();
