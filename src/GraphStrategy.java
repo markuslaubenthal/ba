@@ -2,6 +2,8 @@ import javafx.scene.layout.Pane;
 import java.util.ArrayList;
 import javafx.scene.text.*;
 import javafx.scene.paint.Color;
+import java.io.InputStream;
+import java.io.FileInputStream;
 
 class GraphStrategy implements TextStrategy{
 
@@ -33,7 +35,14 @@ class GraphStrategy implements TextStrategy{
       double fontsize = verteciesPerLetter * minSize / density;
 
       Text t = new Text();
-      Font monospacedFont = Font.font("Courier New", FontWeight.NORMAL, fontsize);
+      Font monospacedFont;
+      try {
+        InputStream inputstream = new FileInputStream("./ttf/cour.ttf");
+        monospacedFont = Font.loadFont(inputstream, fontsize);
+      } catch(Exception e) {
+        monospacedFont = Font.font("Courier New", FontWeight.NORMAL, fontsize);
+        System.out.println("Font not found");
+      }
       t.setFont(monospacedFont);
       t.setText(poly.getText().substring(i, i + 1).toUpperCase());
       t.setX(centerVertex.x - (fontsize / 2));

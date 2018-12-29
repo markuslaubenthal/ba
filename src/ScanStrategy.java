@@ -6,7 +6,8 @@ import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.paint.Color;
-
+import java.io.InputStream;
+import java.io.FileInputStream;
 
 class ScanStrategy implements TextStrategy{
   double fontsize;
@@ -118,8 +119,15 @@ class ScanStrategy implements TextStrategy{
         // top = Math.min(start.end.y, end.end.y);
         // bot = Math.max(start.start.y, end.start.y);
 
+        Font monospacedFont;
         Text t = new Text();
-        Font monospacedFont = Font.font("Courier New", FontWeight.NORMAL, minWidth);
+        try {
+          InputStream inputstream = new FileInputStream("./ttf/cour.ttf");
+          monospacedFont = Font.loadFont(inputstream, minWidth);
+        } catch(Exception e) {
+          monospacedFont = Font.font("Courier New", FontWeight.NORMAL, minWidth);
+          System.out.println("Font not found");
+        }
         t.setFont(monospacedFont);
         t.setText(p.getText().substring(letter, letter + 1));
         t.setX(start.start.x);
