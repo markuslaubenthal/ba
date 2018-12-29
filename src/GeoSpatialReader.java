@@ -89,8 +89,8 @@ class GeoSpatialReader {
 
     double scaleFactor = absoluteBiggestValue - Math.max(smallestValueX, smallestValueY);
     for(Vertex v : vertexList) {
-      v.x = (v.x - smallestValueX) * 800.0 / scaleFactor;
-      v.y = 800.0 - ((v.y - smallestValueY) * 800.0 / scaleFactor);
+      v.x = (v.x - smallestValueX) * 780.0 / scaleFactor + 20;
+      v.y = 760.0 - ((v.y - smallestValueY) * 760.0 / scaleFactor) + 20;
     }
 
     return polygonList;

@@ -271,16 +271,16 @@ class DefaultView {
 
       }*/
 
-      VertexPolygon[] newList = Geometry.splitPolygonOnBestBottleneck(poly);
-      for(VertexPolygon p : newList) {
-        drawUIPolygon(p);
-        drawPolygon(p);
-      }
+      // VertexPolygon[] newList = Geometry.splitPolygonOnBestBottleneck(poly);
+      // for(VertexPolygon p : newList) {
+      //   drawUIPolygon(p);
+      //   drawPolygon(p);
+      // }
 
 
       // draw polygon twice. once for the UI once for the outline
-      // drawUIPolygon(poly);
-      // drawPolygon(poly);
+      drawUIPolygon(poly);
+      drawPolygon(poly);
       // drawRectangle(poly.getBoundingBox());
       // drawRectangle(poly.getLargestRectangle());
 
