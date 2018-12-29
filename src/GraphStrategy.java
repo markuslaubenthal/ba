@@ -70,10 +70,13 @@ class GraphStrategy implements TextStrategy{
       double difference = Math.abs(Math.abs(middle) - Math.abs(middle - ascent));
       t.setX(cv.x - (fontsize / 2));
       double padding = 1;
-      double scale = ((centerVertex.score + density - 1) * minSize / density / (ascent - middle));
-      t.setY(cv.y + middle);
+      double scale = ((centerVertex.score + density - 1.0) * minSize / density / (ascent - middle));
+      t.setY(cv.y + middle + descent / 2.0);
       t.setScaleY(scale);
-      // t.setTranslateY(scale/2);
+      System.out.println(descent);
+      // t.setTranslateY((middle - descent) * (scale - 1));
+      // t.setTranslateY((middle - descent / 2) * (scale - 1));
+      // t.setTranslateY(Math.abs(ascent - middle) - middle * (scale - 1));
       t.setScaleX(1.5);
       textLayer.getChildren().add(t);
     }
