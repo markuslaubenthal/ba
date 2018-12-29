@@ -27,7 +27,7 @@ class GraphStrategy implements TextStrategy{
         cleanPath.add(v);
       }
     }
-    int verteciesPerLetter = (cleanPath.size() - density * 4) / poly.getText().length();
+    int verteciesPerLetter = (cleanPath.size() - density * 3) / poly.getText().length();
     for(int i = 0; i < poly.getText().length(); i++) {
       GraphVertex centerVertexL = cleanPath.get((int) density * 2 + i*verteciesPerLetter + verteciesPerLetter / 2);
       GraphVertex centerVertexR = cleanPath.get((int) density * 2 + i*verteciesPerLetter + (verteciesPerLetter + 1) / 2);
@@ -70,12 +70,11 @@ class GraphStrategy implements TextStrategy{
       double difference = Math.abs(Math.abs(middle) - Math.abs(middle - ascent));
       t.setX(cv.x - (fontsize / 2));
       double padding = 1;
-      double scale = ((centerVertex.score + density - 1) * minSize / density / ascent) * padding;
+      double scale = ((centerVertex.score + density - 1) * minSize / density / (ascent-middle));
       t.setY(cv.y + middle);
       t.setScaleY(scale);
 
       t.setScaleX(1.5);
-      t.setTranslateY((difference/2) * scale);
       textLayer.getChildren().add(t);
     }
   } catch (Exception e){

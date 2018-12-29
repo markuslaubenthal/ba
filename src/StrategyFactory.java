@@ -15,7 +15,7 @@ class StrategyFactory {
       case Graph:
         return new GraphStrategy();
       default:
-        return new ScanStrategy();
+        return new GraphStrategy();
     }
   }
 

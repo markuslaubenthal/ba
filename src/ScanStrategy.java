@@ -122,8 +122,8 @@ class ScanStrategy implements TextStrategy{
       if(end != null) {
         Font monospacedFont;
         Text t = new Text();
-        monospacedFont = Font.font("Courier New", FontWeight.NORMAL, minWidth);
-        if(monospacedFont.getFamily() != "Courier New") {
+        monospacedFont = Font.font("Monospaced", FontWeight.NORMAL, minWidth);
+        if(monospacedFont.getFamily() != "Monospaced") {
           monospacedFont = Font.font("Courier New", FontWeight.NORMAL, minWidth);
         }
 
@@ -146,19 +146,21 @@ class ScanStrategy implements TextStrategy{
         System.out.println("Ascent:  " + ascent);
         System.out.println("Descent: " + descent);
         System.out.println("Middle: " + middle);
-        System.out.println("----------");
-        System.out.println("");
         t.setX(start.start.x);
         t.setScaleX(1.5);
 
         double requiredHeight = Math.abs(top - bot);
         double actualHeight = ascent;
 
-        double scale = requiredHeight / actualHeight;
+        System.out.println("required: " + requiredHeight);
+        System.out.println("actual: " + actualHeight);
+        double scale = requiredHeight / (actualHeight - middle);
         t.setScaleY(scale);
         t.setTranslateY( - middle * (scale - 1));
         textLayer.getChildren().add(t);
 
+        System.out.println("----------");
+        System.out.println("");
         letter++;
       } else {
         startOffset = lines.size();
