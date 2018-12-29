@@ -155,7 +155,7 @@ class ScanStrategy implements TextStrategy{
         double actualHeight = ascent;
 
         double scale = requiredHeight / actualHeight;
-        t.setScaleY(scale * 2);
+        t.setScaleY(scale);
         t.setTranslateY( - middle * (scale - 1));
         textLayer.getChildren().add(t);
 
