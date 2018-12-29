@@ -167,6 +167,10 @@ class VertexPolygon {
     return true;
   }
 
+  public String toString(){
+    return "txt:" + text + " outline:" + outline;
+  }
+
 
 
 }

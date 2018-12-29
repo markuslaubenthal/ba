@@ -31,32 +31,29 @@ class Geometry {
 
 
 
-  public static ArrayList<LineSegment> findAllBottlenecksApprox(VertexPolygon poly) {
+  public static VertexPolygon[] findSplitLineApprox(VertexPolygon poly) {
     double[] boundingBox = poly.getBoundingBox();
-    double diagonal = new Vertex(boundingBox[0],boundingBox[3]).sub(new Vertex(boundingBox[1],boundingBox[2])).mag();
-
-    double minWidth = 0.2 * diagonal;
-    double minArea =  0.2 * poly.getAreaSize();
 
     Hashtable<String,LineSegment> edgeTable = new Hashtable<String,LineSegment>();
     Hashtable<String,Double> scoreTable = new Hashtable<String,Double>();
-    ArrayList<Vertex> pointList = buildOutlinePoints(poly,edgeTable);
+    int density = 4;
+    ArrayList<Vertex> pointList = buildOutlinePoints(poly, edgeTable, density);
     ArrayList<LineSegment> bottleneckList = new ArrayList<LineSegment>();
 
     for(Vertex v : pointList) {
       for(Vertex w : pointList) {
-        if(v.distance(w) < minWidth && canSee(poly,v,w) && !edgeTable.get(v.toString()).equals(edgeTable.get(w.toString()))){
-          VertexPolygon[] subPolys = splitPolygon(poly,v,edgeTable.get(v.toString()),w,edgeTable.get(w.toString()));
-          if(subPolys[0].getAreaSize() > minArea && subPolys[1].getAreaSize() > minArea){
+        if(v.y < w.y && Math.abs(Math.atan2(w.y - v.y,w.x - v.x)) < Math.PI / 4){
+          if(canSee(poly,v,w) && !edgeTable.get(v.toString()).equals(edgeTable.get(w.toString()))){
+            VertexPolygon[] subPolys = splitPolygon(poly,v,edgeTable.get(v.toString()),w,edgeTable.get(w.toString()));
             bottleneckList.add(new LineSegment(v,w));
-            double score = v.distance(w) * Math.sqrt(Math.min(subPolys[0].getAreaSize(), subPolys[1].getAreaSize()));
+            double score = Math.max(subPolys[0].getAreaSize(), subPolys[1].getAreaSize());
             scoreTable.put(new LineSegment(v,w).toString(), score);
           }
         }
       }
     }
     sortBottleneckList(bottleneckList, scoreTable);
-    return bottleneckList;
+    return splitPolygon(poly,bottleneckList.get(0).start,edgeTable.get(bottleneckList.get(0).start.toString()),bottleneckList.get(0).end,edgeTable.get(bottleneckList.get(0).end.toString()));
   }
 
   public static void sortBottleneckList(ArrayList<LineSegment> bottleneckList, Hashtable<String,Double> scoreTable){
@@ -144,13 +141,13 @@ class Geometry {
   }
 
 
-  public static ArrayList<Vertex> buildOutlinePoints(VertexPolygon poly, Hashtable<String, LineSegment> table) {
+  public static ArrayList<Vertex> buildOutlinePoints(VertexPolygon poly, Hashtable<String, LineSegment> table, int density) {
     ArrayList<Vertex> pointList = new ArrayList<Vertex>();
     for(int i = 0; i < poly.getOutline().size(); i++) {
       LineSegment edge = poly.getLineSegment(i);
       Vertex directionV = edge.end.sub(edge.start).mult(1/edge.end.distance(edge.start));
-      for(int j = 1; j < edge.end.distance(edge.start); j++) {
-        Vertex newPoint = edge.start.add(directionV.mult(j));
+      for(int j = 1; j < density; j++) {
+        Vertex newPoint = edge.start.add(directionV.mult(j * edge.end.distance(edge.start)/density));
         pointList.add(newPoint);
         table.put(newPoint.toString(),edge);
       }

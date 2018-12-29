@@ -5,14 +5,14 @@ import javafx.scene.paint.Color;
 
 class GraphStrategy implements TextStrategy{
 
-  public GraphStrategy(){
-  }
+  public GraphStrategy(){}
 
   public void drawText(VertexPolygon poly, Pane textLayer){
     try {
 
-    double[] bb = poly.getBoundingBox();
-    double minSize = (bb[1]-bb[0]) / (2 * poly.getText().length());
+    //double[] bb = poly.getBoundingBox();
+    //double minSize = (bb[1]-bb[0]) / (2 * poly.getText().length());
+    double minSize = Math.sqrt(poly.getAreaSize()) / poly.getText().length();
     int density = 4;
     Graph g = new Graph(poly, minSize, density);
     g.generateNetwork();
