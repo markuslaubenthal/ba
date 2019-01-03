@@ -6,6 +6,37 @@ import java.util.HashSet;
 
 class Geometry {
 
+  public static VertexPolygon scalePolygon(VertexPolygon originalPoly, double factor) {
+
+    /*
+    Calculate the center of the polygon.
+     */
+
+    Vertex centerV = new Vertex(0,0);
+
+    for(Vertex v : originalPoly.getOutline()) {
+      centerV = centerV.add(v);
+
+    }
+
+    centerV = centerV.mult(1.0/originalPoly.getOutline().size());
+
+    /*
+    Create the new polygon by moving the center to the origin,
+    scaling and moving the center back.
+     */
+
+    VertexPolygon poly = new VertexPolygon();
+    poly.text = originalPoly.text;
+
+    for(Vertex v : originalPoly.getOutline()) {
+      poly.addVertex(v.sub(centerV).mult(factor).add(centerV));
+    }
+
+    return poly;
+
+  }
+
   public static double getAreaSizeOfPolygon(VertexPolygon p) {
     ArrayList<Vertex> outline = p.getOutline();
     return getAreaSizeOfPolygon(outline);
@@ -31,22 +62,21 @@ class Geometry {
 
 
 
-  public static VertexPolygon[] findSplitLineApprox(VertexPolygon poly) {
-    double[] boundingBox = poly.getBoundingBox();
+  public static VertexPolygon[] findSplitLineApprox(VertexPolygon poly, double upperRatio, double lowerRatio) {
 
     Hashtable<String,LineSegment> edgeTable = new Hashtable<String,LineSegment>();
     Hashtable<String,Double> scoreTable = new Hashtable<String,Double>();
     int density = 4;
     ArrayList<Vertex> pointList = buildOutlinePoints(poly, edgeTable, density);
     ArrayList<LineSegment> bottleneckList = new ArrayList<LineSegment>();
-
+    double polygonSize = poly.getAreaSize();
     for(Vertex v : pointList) {
       for(Vertex w : pointList) {
-        if(v.y < w.y && Math.abs(Math.atan2(w.y - v.y,w.x - v.x)) < Math.PI / 4){
+        if(v.y < w.y && Math.abs(Math.atan2(w.y - v.y,w.x - v.x)) < Math.PI / 6){
           if(canSee(poly,v,w) && !edgeTable.get(v.toString()).equals(edgeTable.get(w.toString()))){
             VertexPolygon[] subPolys = splitPolygon(poly,v,edgeTable.get(v.toString()),w,edgeTable.get(w.toString()));
             bottleneckList.add(new LineSegment(v,w));
-            double score = Math.max(subPolys[0].getAreaSize(), subPolys[1].getAreaSize());
+            double score = Math.abs(subPolys[0].getAreaSize() / polygonSize - upperRatio) + Math.abs(subPolys[1].getAreaSize() / polygonSize - lowerRatio);
             scoreTable.put(new LineSegment(v,w).toString(), score);
           }
         }
@@ -67,6 +97,8 @@ class Geometry {
   }
 
   public static VertexPolygon[] splitPolygon(VertexPolygon poly, Vertex v, LineSegment vEdge, Vertex w, LineSegment wEdge) {
+
+
     VertexPolygon upper = new VertexPolygon();
     VertexPolygon lower = new VertexPolygon();
     Boolean lowerArc = true;
@@ -102,7 +134,40 @@ class Geometry {
     }
     eliminateDuplicates(upper);
     eliminateDuplicates(lower);
-    return new VertexPolygon[]{upper, lower};
+
+    /*
+    We now need to check if the upper and lower polygons are named correctly.
+    We are assuming that the bottleneck line from v to w goes from left to right (v.y < w.y).
+    Also we are assuming that v is not equal to either vEdge.start or vEdge.end.
+    We know that the upper polygon is left of the vector from v to w.
+    So we can determin which point of vEdge belongs to the upper polygon
+    by looking at the angle between v->w and v->vEdge.(start / end).
+    Is the angle smaller than pi the point belongs to the upper polygon.
+    This does not work in all cases. Wide rectangles with a downward facing splitline
+    will be categorized wrong. In these cases the splitting angle needs to be smaller or something.
+    Not sure how to fix this.
+     */
+
+    Vertex vTOw = w.sub(v);
+    Vertex vTOvEdgeStart = vEdge.start.sub(v);
+
+    double angle = Math.atan2(vTOvEdgeStart.y, vTOvEdgeStart.x) - Math.atan2(vTOw.y, vTOw.x);
+    if(angle < 0) angle += 2 * Math.PI;
+
+    if(angle > Math.PI) {
+      if(upper.contains(vEdge.start)) {
+        return new VertexPolygon[]{upper, lower};
+      } else {
+        return new VertexPolygon[]{lower, upper};
+      }
+    } else {
+      if(upper.contains(vEdge.start)) {
+        return new VertexPolygon[]{lower, upper};
+      } else {
+        return new VertexPolygon[]{upper, lower};
+      }
+    }
+
   }
 
   public static VertexPolygon[] splitPolygonOnBestBottleneck(VertexPolygon poly) {
