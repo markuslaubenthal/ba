@@ -67,28 +67,23 @@ class Graph {
 
   private void calculateScores() {
 
+    int score = 0;
+
     for(GraphVertex v : vertecies) {
 
-      int upperCount = 0;
-      int lowerCount = 0;
-
-      GraphVertex pointer = v;
-
-      while(pointer.getUpper() != null) {
-        upperCount++;
-        pointer = pointer.getUpper();
-      }
-
-      pointer = v;
-
-      while(pointer.getLower() != null) {
-        lowerCount++;
-        pointer = pointer.getLower();
-      }
-
-      int score = -(density - 1) - Math.abs(upperCount - lowerCount) + upperCount + lowerCount;
+      score += 2;
+      if(v.getUpper() == null) score = -1 * density + 1;
 
       v.setScore(score);
+
+    }
+
+    for(int i = vertecies.size() - 1; i > 0; i -= 1) {
+
+      score += 2;
+      if(vertecies.get(i).getLower() == null) score = -1 * density + 1;
+
+      vertecies.get(i).setScore(Math.min(score, vertecies.get(i).getScore()));
 
     }
 
@@ -98,53 +93,56 @@ class Graph {
     v.addNeighbour(u);
   }
 
-  public double distance(GraphVertex v, GraphVertex u) {
-    return u.getScore() - Math.abs(v.y - u.y) * density / minSize;
+  public int distance(GraphVertex v, GraphVertex u) {
+    return u.getScore() - (int)(Math.abs(v.y - u.y) * density) / (int) minSize;
   }
 
-  public ArrayList<GraphVertex> findLongestPathGreedy() {
+  public ArrayList<GraphVertex> findLongestPath() {
 
-    ArrayList<GraphVertex> longestPath = new ArrayList<GraphVertex>();
-    double longestPathLength = -9999.0;
+    /*
+    Initialize the pathLength with the score so that we take the own value into account.
+     */
+
+    for(GraphVertex v : vertecies) { v.pathLengthEndingHere = v.score; }
 
     for(GraphVertex v : vertecies) {
 
-      ArrayList<GraphVertex> path = new ArrayList<GraphVertex>();
-      path.add(v);
-      double pathLength = v.score;
+      for(GraphVertex w : v.neighbours) {
 
-      GraphVertex pointer = v;
+        if(v.pathLengthEndingHere + distance(v,w) > w.pathLengthEndingHere) {
 
-      while(pointer.neighbours.size() > 0) { // laufe durch den graphen von v aus
-
-        GraphVertex next = null;
-        double biggestDistance = -9999.9;
-
-        for(GraphVertex u : pointer.neighbours) { //finde groessten nachbar
-
-          if(biggestDistance < distance(pointer,u)) {
-            biggestDistance = distance(pointer,u);
-            next = u;
-          }
+          w.parent = v;
+          w.pathLengthEndingHere = v.pathLengthEndingHere + distance(v,w);
 
         }
 
-        pathLength += biggestDistance;
-        path.add(next);
-        pointer = next;
-
       }
 
-      if(longestPathLength < pathLength){
-        longestPathLength = pathLength;
-        longestPath = path;
-      }
+    }
+
+    GraphVertex winner = vertecies.get(0);
+
+    for(GraphVertex v : vertecies) {
+
+      if(v.pathLengthEndingHere > winner.pathLengthEndingHere) winner = v;
+
+    }
+
+    ArrayList<GraphVertex> longestPath = new ArrayList<GraphVertex>();
+
+    GraphVertex pointer = winner;
+
+    while(pointer != null) {
+
+      longestPath.add(0, pointer);
+      pointer = pointer.parent;
 
     }
 
     return longestPath;
 
   }
+
   public String toString() {
     String s = "";
     for(GraphVertex v : vertecies) {

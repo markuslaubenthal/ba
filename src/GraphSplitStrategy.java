@@ -13,6 +13,7 @@ class GraphSplitStrategy implements TextStrategy {
   public GraphSplitStrategy() {}
 
   public void drawText(VertexPolygon originalPoly, Pane textLayer) {
+  try {
 
     VertexPolygon poly = Geometry.scalePolygon(originalPoly, 0.8);
 
@@ -127,25 +128,12 @@ class GraphSplitStrategy implements TextStrategy {
       p.drawText(textLayer);
       p.setTextStrategy(this);
     }
+  } catch (Exception e){
+    System.out.println(e);
+  }
 
   }
 
-  private int verteciesPerLetter(VertexPolygon poly, int density) {
-    double minSize = Math.sqrt(poly.getAreaSize()) / poly.getText().length();
-    Graph g = new Graph(poly, minSize, density);
-    g.generateNetwork();
-    ArrayList<GraphVertex> path = g.findLongestPathGreedy();
-    ArrayList<GraphVertex> cleanPath = new ArrayList<GraphVertex>();
-
-    for(GraphVertex v : path) {
-      if(v.getScore() > 0) {
-        cleanPath.add(v);
-      }
-    }
-
-    return (cleanPath.size() - density * 2) / poly.getText().length();
-
-  }
 
   private String[] splitText(String text) {
 

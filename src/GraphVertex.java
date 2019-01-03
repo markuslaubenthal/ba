@@ -7,6 +7,9 @@ class GraphVertex extends Vertex {
   GraphVertex upper = null;
   GraphVertex lower = null;
 
+  GraphVertex parent = null;
+  int pathLengthEndingHere = 0;
+
   int score = -1;
 
   public GraphVertex(double x, double y) {

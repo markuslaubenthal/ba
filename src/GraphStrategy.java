@@ -19,7 +19,7 @@ class GraphStrategy implements TextStrategy{
     int density = 4;
     Graph g = new Graph(poly, minSize, density);
     g.generateNetwork();
-    ArrayList<GraphVertex> path = g.findLongestPathGreedy();
+    ArrayList<GraphVertex> path = g.findLongestPath();
 
     int verteciesPerLetter = path.size() / poly.getText().length();
     int verteciesleft = path.size() % poly.getText().length();
