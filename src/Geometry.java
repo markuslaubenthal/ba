@@ -66,13 +66,13 @@ class Geometry {
 
     Hashtable<String,LineSegment> edgeTable = new Hashtable<String,LineSegment>();
     Hashtable<String,Double> scoreTable = new Hashtable<String,Double>();
-    int density = 4;
+    int density = 8;
     ArrayList<Vertex> pointList = buildOutlinePoints(poly, edgeTable, density);
     ArrayList<LineSegment> bottleneckList = new ArrayList<LineSegment>();
     double polygonSize = poly.getAreaSize();
     for(Vertex v : pointList) {
       for(Vertex w : pointList) {
-        if(v.y < w.y && Math.abs(Math.atan2(w.y - v.y,w.x - v.x)) < Math.PI / 6){
+        if(v.y < w.y && Math.abs(Math.atan2(w.y - v.y,w.x - v.x)) < Math.PI / 20){
           if(canSee(poly,v,w) && !edgeTable.get(v.toString()).equals(edgeTable.get(w.toString()))){
             VertexPolygon[] subPolys = splitPolygon(poly,v,edgeTable.get(v.toString()),w,edgeTable.get(w.toString()));
             bottleneckList.add(new LineSegment(v,w));

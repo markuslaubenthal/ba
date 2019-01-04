@@ -94,7 +94,7 @@ class Graph {
   }
 
   public int distance(GraphVertex v, GraphVertex u) {
-    return u.getScore() - (int)(Math.abs(v.y - u.y) * density) / (int) minSize;
+    return (int)(u.getScore() - (Math.abs(v.y - u.y) * density) / minSize);
   }
 
   public ArrayList<GraphVertex> findLongestPath() {

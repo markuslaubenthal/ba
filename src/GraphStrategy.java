@@ -8,11 +8,18 @@ import javafx.geometry.Bounds;
 
 class GraphStrategy implements TextStrategy{
 
+  double factor = 0.9;
+
   public GraphStrategy(){
   }
+  public GraphStrategy(double factor){
+    this.factor = factor;
+  }
 
-  public void drawText(VertexPolygon poly, Pane textLayer){
+  public void drawText(VertexPolygon originalPoly, Pane textLayer){
     try {
+    VertexPolygon poly = Geometry.scalePolygon(originalPoly, factor);
+
 
     double[] bb = poly.getBoundingBox();
     double minSize = (bb[1]-bb[0]) / (2 * poly.getText().length());
@@ -35,7 +42,7 @@ class GraphStrategy implements TextStrategy{
         centerVertex.x += path.get(index).x;
         centerVertex.y += path.get(index).y;
         if(path.get(index).score < 0) badVerticies++;
-        centerVertex.score += Math.max(path.get(index).score , 0);
+        centerVertex.score += path.get(index).score;
       }
 
       centerVertex.x = centerVertex.x / verteciesPerLetter;

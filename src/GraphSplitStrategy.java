@@ -13,124 +13,95 @@ class GraphSplitStrategy implements TextStrategy {
   public GraphSplitStrategy() {}
 
   public void drawText(VertexPolygon originalPoly, Pane textLayer) {
-  try {
+  // try {
 
     VertexPolygon poly = Geometry.scalePolygon(originalPoly, 0.8);
 
-    ArrayList<VertexPolygon> subPolygonList = new ArrayList<VertexPolygon>();
-
-    /*
-    Split the text into two parts based on word seperations like space or dash,
-    hyphenation or by simply splitting the text in the center.
-     */
-
-    String[] textParts = splitText(poly.text);
-
-    /*
-    Create subpolygons with the area ratio matching the ratio of the two text parts.
-     */
-
-    double upperRatio = (double)textParts[0].length() / poly.text.length();
-    double lowerRatio = (double)textParts[1].length() / poly.text.length();
-
-    VertexPolygon[] polygonParts = Geometry.findSplitLineApprox(poly, upperRatio, lowerRatio);
-
-    //  <<<<<<<<<<<<<<<<<< BEGIN DEBUG <<<<<<<<<<<<<<<<<<<<<<<<
-    /*
-
-    System.out.println("<<<<<<<<<<<<<");
-    System.out.println(poly.text);
-    System.out.println(upperRatio);
-    System.out.println(polygonParts[0].getAreaSize() / poly.getAreaSize());
-    System.out.println(lowerRatio);
-    System.out.println(polygonParts[1].getAreaSize() / poly.getAreaSize());
-
-    Polygon drawPoly = new Polygon();
-
-    for(Vertex v : polygonParts[0].getOutline()) {
-      drawPoly.getPoints().addAll(new Double[] {v.x, v.y} );
-    }
-    drawPoly.setFill(Color.color(0,0,0,0));
-    drawPoly.setStrokeWidth(2);
-    drawPoly.setStroke(Color.BLACK);
-    textLayer.getChildren().add(drawPoly);
-
-    drawPoly = new Polygon();
-
-    for(Vertex v : polygonParts[1].getOutline()) {
-      drawPoly.getPoints().addAll(new Double[] {v.x, v.y} );
-    }
-    drawPoly.setFill(Color.color(0,0,0,0));
-    drawPoly.setStrokeWidth(2);
-    drawPoly.setStroke(Color.BLACK);
-    textLayer.getChildren().add(drawPoly);
-    */
-
-    //  <<<<<<<<<<<<<<<<<< END DEBUG <<<<<<<<<<<<<<<<<<<<<<<<
-
-    polygonParts[0].text = textParts[0];
-    polygonParts[1].text = textParts[1];
-    subPolygonList.add(polygonParts[0]);
-    subPolygonList.add(polygonParts[1]);
-
-
-    /*
-
     int density = 4;
-    int minVerteciesPerLetter = verteciesPerLetter(poly, density);
 
     ArrayList<VertexPolygon> subPolygonList = new ArrayList<VertexPolygon>();
-    ArrayList<Integer> subPolygonVPLList = new ArrayList<Integer>();
     subPolygonList.add(poly);
-    subPolygonVPLList.add(minVerteciesPerLetter);
 
-    int zz = 0;
-    while(minVerteciesPerLetter < density && zz < 3) {
-      zz++;
+    for(int bbb = 0; bbb < poly.text.length(); bbb++) {
 
       ArrayList<VertexPolygon> newSubPolygonList = new ArrayList<VertexPolygon>();
-      ArrayList<Integer> newSubPolygonVPLList = new ArrayList<Integer>();
 
-      for(int i = 0; i < subPolygonList.size(); i++) {
-        if(subPolygonVPLList.get(i) < density) {
-          String[] textParts = splitText(subPolygonList.get(i).text);
-          VertexPolygon[] polygonParts = Geometry.splitPolygonOnBestBottleneck(subPolygonList.get(i));
-          if(polygonParts.length < 2 || textParts.length < 2){
-            newSubPolygonList.add(subPolygonList.get(i));
-            newSubPolygonVPLList.add(subPolygonVPLList.get(i) + 1);
-            System.out.println("hallo");
-            continue;
+      for(VertexPolygon p : subPolygonList) {
+        if(p.text.length() < 3) continue;
+
+        double[] bb = p.getBoundingBox();
+        double minSize = (bb[1]-bb[0]) / (2 * p.getText().length());
+        Graph g = new Graph(p, minSize, density);
+        g.generateNetwork();
+        ArrayList<GraphVertex> path = g.findLongestPath();
+        int verteciesPerLetter = path.size() / p.getText().length();
+        int avgScore = 0;
+
+        for(GraphVertex v : path) { avgScore += v.getScore(); }
+
+        avgScore = avgScore / path.size();
+
+
+        if(avgScore + density - 1 > 3 * verteciesPerLetter) {
+
+          /*
+          Split the text into two parts based on word seperations like space or dash,
+          hyphenation or by simply splitting the text in the center.
+           */
+
+          String[] textParts = splitText(p.text);
+
+          /*
+          Create subpolygons with the area ratio matching the ratio of the two text parts.
+           */
+
+
+
+          double upperRatio = (double)textParts[0].length() / p.text.length();
+          double lowerRatio = (double)textParts[1].length() / p.text.length();
+
+          VertexPolygon[] polygonParts = Geometry.findSplitLineApprox(p, upperRatio, lowerRatio);
+
+          //>>> DEBUG
+          /*
+          Polygon polyy = new Polygon();
+
+          for(Vertex v : polygonParts[0].getOutline()) {
+            polyy.getPoints().addAll(new Double[] {v.x, v.y} );
           }
+          polyy.setFill(Color.color(0,0,0,0));
+          polyy.setStrokeWidth(1);
+          polyy.setStroke(Color.RED);
+          textLayer.getChildren().add(polyy);
+          */
+          //>>> DEBUG
+
           polygonParts[0].text = textParts[0];
           polygonParts[1].text = textParts[1];
           newSubPolygonList.add(polygonParts[0]);
           newSubPolygonList.add(polygonParts[1]);
-          int verteciesPerLetter0 = verteciesPerLetter(polygonParts[0], density);
-          int verteciesPerLetter1 = verteciesPerLetter(polygonParts[1], density);
-          newSubPolygonVPLList.add(verteciesPerLetter0);
-          newSubPolygonVPLList.add(verteciesPerLetter1);
-          if(verteciesPerLetter0 < minVerteciesPerLetter) minVerteciesPerLetter = verteciesPerLetter0;
-          if(verteciesPerLetter1 < minVerteciesPerLetter) minVerteciesPerLetter = verteciesPerLetter1;
+
         } else {
-          newSubPolygonList.add(subPolygonList.get(i));
-          newSubPolygonVPLList.add(subPolygonVPLList.get(i));
+
+          newSubPolygonList.add(p);
+
         }
+
       }
 
       subPolygonList = newSubPolygonList;
-      subPolygonVPLList = newSubPolygonVPLList;
 
     }
-    */
+
 
     for(VertexPolygon p : subPolygonList) {
-      p.setTextStrategy(new GraphStrategy());
+      p.setTextStrategy(new GraphStrategy(1));
       p.drawText(textLayer);
       p.setTextStrategy(this);
     }
-  } catch (Exception e){
-    System.out.println(e);
-  }
+  // } catch (Exception e){
+  //   System.out.println(e);
+  // }
 
   }
 
@@ -197,12 +168,12 @@ class GraphSplitStrategy implements TextStrategy {
 
         }
 
-        return new String[]{subPoly1Text, subPoly2Text};
+        return new String[]{subPoly1Text + "-", subPoly2Text};
 
       } else {
 
         int mid = text.length() / 2; //get the middle of the String
-        return new String[]{text.substring(0, mid),text.substring(mid)};
+        return new String[]{text.substring(0, mid) + "-",text.substring(mid)};
 
       }
     }

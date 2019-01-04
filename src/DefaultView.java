@@ -208,7 +208,7 @@ class DefaultView {
     textLayer.getChildren().clear();
     for(VertexPolygon poly : polygonList) {
       drawPolygon(poly);
-      poly.drawText(textLayer);
+      //poly.drawText(textLayer);
     }
   }
 
