@@ -19,7 +19,7 @@ class RotatingCalipersAdapter {
         corners.add(new Vertex(points[i].x, points[i].y));
       }
     } catch (Exception e) {
-
+      System.out.println(e);
     }
     return corners;
   }
