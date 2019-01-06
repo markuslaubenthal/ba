@@ -252,9 +252,7 @@ class DefaultView {
     textLayer.getChildren().clear();
     for(VertexPolygon poly : polygonList) {
       drawPolygon(poly);
-      if(poly.isWithinBox(0,0,1000,800)) {
-        poly.drawText(textLayer);
-      }
+      //poly.drawText(textLayer);
     }
   }
 
