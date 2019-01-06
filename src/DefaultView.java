@@ -41,6 +41,11 @@ class DefaultView {
   Button opacityButton = new Button("Toggle Opacity");
   Button saveButton = new Button("Save file...");
   Button loadButton = new Button("Load file...");
+  Button scaleButton = new Button("Zoom in");
+  Button moveLeftButton = new Button("Left");
+  Button moveRightButton = new Button("Right");
+  Button moveDownButton = new Button("Down");
+  Button moveUpButton = new Button("Up");
   ComboBox<String> strategySelector = new ComboBox<String>();
 
   DefaultController controller;
@@ -49,6 +54,10 @@ class DefaultView {
     controller = new DefaultController(this);
     root.getChildren().add(emptyLayer);
     root.getChildren().add(uiContainer);
+    textLayer.setMaxWidth(1000);
+    edgeLayer.setMaxWidth(1000);
+    mainLayer.setMaxWidth(1000);
+    emptyLayer.setMaxWidth(1000);
     emptyLayer.getChildren().add(textLayer);
     emptyLayer.getChildren().add(edgeLayer);
     emptyLayer.getChildren().add(mainLayer);
@@ -146,6 +155,36 @@ class DefaultView {
       }
     });
 
+    scaleButton.setOnAction(new EventHandler<ActionEvent>() {
+      public void handle(ActionEvent event) {
+        controller.handleScaleButton();
+      }
+    });
+
+    moveLeftButton.setOnAction(new EventHandler<ActionEvent>() {
+      public void handle(ActionEvent event) {
+        controller.handleMoveLeftButton();
+      }
+    });
+
+    moveRightButton.setOnAction(new EventHandler<ActionEvent>() {
+      public void handle(ActionEvent event) {
+        controller.handleMoveRightButton();
+      }
+    });
+
+    moveUpButton.setOnAction(new EventHandler<ActionEvent>() {
+      public void handle(ActionEvent event) {
+        controller.handleMoveUpButton();
+      }
+    });
+
+    moveDownButton.setOnAction(new EventHandler<ActionEvent>() {
+      public void handle(ActionEvent event) {
+        controller.handleMoveDownButton();
+      }
+    });
+
     strategySelector.getItems().addAll(
       "Default",
       "Simple Strategy",
@@ -168,6 +207,11 @@ class DefaultView {
     uiContainer.getChildren().add(loadButton);
     uiContainer.getChildren().add(saveButton);
     uiContainer.getChildren().add(strategySelector);
+    uiContainer.getChildren().add(scaleButton);
+    uiContainer.getChildren().add(moveLeftButton);
+    uiContainer.getChildren().add(moveRightButton);
+    uiContainer.getChildren().add(moveUpButton);
+    uiContainer.getChildren().add(moveDownButton);
   }
 
   public void drawPolygon(VertexPolygon vertexPolygon){
@@ -208,7 +252,9 @@ class DefaultView {
     textLayer.getChildren().clear();
     for(VertexPolygon poly : polygonList) {
       drawPolygon(poly);
-      poly.drawText(textLayer);
+      if(poly.isWithinBox(0,0,1000,800)) {
+        poly.drawText(textLayer);
+      }
     }
   }
 
@@ -245,11 +291,11 @@ class DefaultView {
     // add click functionality back in
     addOnClickActionListenerOnDrawingArea();
     for(VertexPolygon poly : polygonList) {
-
-      drawUIPolygon(poly);
       drawPolygon(poly);
-
-      poly.drawText(textLayer);
+      drawUIPolygon(poly);
+      if(poly.isWithinBox(0,0,1000,800)) {
+        poly.drawText(textLayer);
+      }
     }
     for(VertexPolygon poly : polygonList) {
       for(Vertex v : poly.outline){

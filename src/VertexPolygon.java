@@ -171,6 +171,13 @@ class VertexPolygon {
     return "txt:" + text + " outline:" + outline;
   }
 
-
+  public Boolean isWithinBox(double minX, double minY, double maxX, double maxY) {
+    for(int i = 0; i < outline.size(); i++) {
+      Vertex v = outline.get(i);
+      if(!(v.x >= minX && v.x <= maxX && v.y >= minY && v.y <= maxY))
+        return false;
+    }
+    return true;
+  }
 
 }

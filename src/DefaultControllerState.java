@@ -1,9 +1,10 @@
-
+import java.util.ArrayList;
 
 class DefaultControllerState {
   private VertexPolygon selectedPolygon = null;
   private Boolean polygonOpacity = true;
   private Boolean _isCreatingNewPolygon = false;
+  private ArrayList<Vertex> vertices = new ArrayList<Vertex>();
 
   public VertexPolygon getSelectedPolygon() {
     return selectedPolygon;
@@ -28,5 +29,17 @@ class DefaultControllerState {
   public Boolean stopBuildingNewPolygon() {
     _isCreatingNewPolygon = false;
     return _isCreatingNewPolygon;
+  }
+  public void addVertex(Vertex v) {
+    vertices.add(v);
+  }
+  public void resetVertices() {
+    vertices = new ArrayList<Vertex>();
+  }
+  public Boolean containsVertex(Vertex v) {
+    return vertices.contains(v);
+  }
+  public ArrayList<Vertex> getVertices() {
+    return vertices;
   }
 }

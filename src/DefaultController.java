@@ -34,6 +34,7 @@ class DefaultController {
   public void addVertexAndPoint(double x, double y) {
     if(state.isBuildingNewPolygon()) {
       Vertex v = new Vertex(x, y);
+      state.addVertex(v);
       view.addPointToVertex(v);
       v.point.setFill(Color.LAWNGREEN);
       newPolygon.addVertex(v);
@@ -116,8 +117,15 @@ class DefaultController {
     if(file != null) {
       PolygonReader reader = new PolygonReader(file);
       polygonList = reader.get();
+      state.resetVertices();
       for(int i = 0; i < polygonList.size(); i++) {
+        VertexPolygon polygon = polygonList.get(i);
         polygonList.get(i).setTextStrategy(StrategyFactory.getStrategy(StrategyFactory.Default));
+        for(int j = 0; j < polygon.getOutline().size(); j++) {
+          if(!state.containsVertex(polygon.getOutline().get(j))) {
+            state.addVertex(polygon.getOutline().get(j));
+          }
+        }
       }
       newPolygon = null;
       state.stopBuildingNewPolygon();
@@ -136,5 +144,47 @@ class DefaultController {
     String strategy = (String) view.getStrategyCombobox().getValue();
     state.getSelectedPolygon().setTextStrategy(StrategyFactory.getStrategy(strategy));
     //view.refresh();
+  }
+
+  public void handleScaleButton() {
+    ArrayList<Vertex> vertices = state.getVertices();
+    for(int i = 0; i < vertices.size(); i++) {
+      Vertex v = vertices.get(i);
+      v.x = v.x * 2.0 - 500;
+      v.y = v.y * 2.0 - 400;
+    }
+    view.refresh();
+  }
+  public void handleMoveLeftButton() {
+    ArrayList<Vertex> vertices = state.getVertices();
+    for(int i = 0; i < vertices.size(); i++) {
+      Vertex v = vertices.get(i);
+      v.x = v.x + 100;
+    }
+    view.refresh();
+  }
+  public void handleMoveRightButton() {
+    ArrayList<Vertex> vertices = state.getVertices();
+    for(int i = 0; i < vertices.size(); i++) {
+      Vertex v = vertices.get(i);
+      v.x = v.x - 100;
+    }
+    view.refresh();
+  }
+  public void handleMoveUpButton() {
+    ArrayList<Vertex> vertices = state.getVertices();
+    for(int i = 0; i < vertices.size(); i++) {
+      Vertex v = vertices.get(i);
+      v.y = v.y + 100;
+    }
+    view.refresh();
+  }
+  public void handleMoveDownButton() {
+    ArrayList<Vertex> vertices = state.getVertices();
+    for(int i = 0; i < vertices.size(); i++) {
+      Vertex v = vertices.get(i);
+      v.y = v.y - 100;
+    }
+    view.refresh();
   }
 }

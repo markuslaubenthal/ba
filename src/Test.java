@@ -7,6 +7,8 @@ class Test {
     polygonTest();
     jsonTest();
     hyphenatorTest();
+    convexHullTest();
+    rotatingCalipersTest();
   }
 
   public static void polygonTest() {
@@ -46,5 +48,34 @@ class Test {
     System.out.println("Hyphenator created");
     List<String> output = h.hyphenate("Schifffahrtskapitän");
     System.out.println(output);
+  }
+
+  public static void convexHullTest() {
+    ArrayList<Vertex> vertices = new ArrayList<Vertex>();
+    vertices.add(new Vertex(10, 10));
+    vertices.add(new Vertex(20, 20));
+    vertices.add(new Vertex(30, 10));
+    vertices.add(new Vertex(30, 40));
+    vertices.add(new Vertex(20, 30));
+    vertices.add(new Vertex(10, 40));
+    ArrayList<Vertex> res = ConvexHull.convexHull(vertices);
+    System.out.println(res);
+  }
+
+  public static void rotatingCalipersTest() {
+    ArrayList<Vertex> vertices = new ArrayList<Vertex>();
+    vertices.add(new Vertex(10, 10));
+    vertices.add(new Vertex(20, 20));
+    vertices.add(new Vertex(30, 10));
+    vertices.add(new Vertex(500, 40));
+    vertices.add(new Vertex(50, 500));
+    vertices.add(new Vertex(10, 40));
+    ArrayList<Vertex> res = RotatingCalipersAdapter.getMinimumBoundingRectangle(vertices);
+    Vertex orientation = new Vertex(0,0);
+    for(int i = 0; i < 2; i++) {
+      if(res.get(i).sub(res.get(i + 1)).mag() > orientation.mag()) orientation = res.get(i).sub(res.get(i + 1));
+    }
+    System.out.println(orientation);
+    System.out.println(res);
   }
 }

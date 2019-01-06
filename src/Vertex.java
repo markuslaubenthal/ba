@@ -97,8 +97,17 @@ public class Vertex {
       return false;
     }
 
+    // @Override
+    public int compareTo(Vertex o) {
+      return Double.compare(x, o.x);
+    }
+
     public String toString(){
       return "x:" + this.x + ",y:" + this.y;
+    }
+
+    public double getAngleInRadians() {
+      return Math.atan2(y,x);
     }
 
 }
