@@ -99,6 +99,8 @@ class Graph {
 
   public ArrayList<GraphVertex> findLongestPath() {
 
+    if(vertecies.size() == 0) return null;
+
     /*
     Initialize the pathLength with the score so that we take the own value into account.
      */

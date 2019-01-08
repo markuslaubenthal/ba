@@ -18,15 +18,25 @@ class GraphStrategy implements TextStrategy{
 
   public void drawText(VertexPolygon originalPoly, Pane textLayer){
     try {
+
     VertexPolygon poly = Geometry.scalePolygon(originalPoly, factor);
 
 
-    double[] bb = poly.getBoundingBox();
-    double minSize = (bb[1]-bb[0]) / (2 * poly.getText().length());
-    int density = 4;
+    //double[] bb = poly.getBoundingBox();
+    //double minSize = (bb[1]-bb[0]) / (2 * poly.getText().length());
+    double minSize = Math.sqrt(poly.getAreaSize()) / poly.getText().length();
+    int density = Math.max(4, 4 * 4 / poly.getText().length());
     Graph g = new Graph(poly, minSize, density);
     g.generateNetwork();
-    ArrayList<GraphVertex> path = g.findLongestPath();
+    ArrayList<GraphVertex> initialPath = g.findLongestPath();
+
+    if(initialPath == null) throw new NullPointerException("no vertecies");
+
+    ArrayList<GraphVertex> path = new ArrayList<GraphVertex>();
+
+    for(GraphVertex p : initialPath) {
+      if(p.getScore() > 0) path.add(p);
+    }
 
     int verteciesPerLetter = path.size() / poly.getText().length();
     int verteciesleft = path.size() % poly.getText().length();
@@ -36,18 +46,16 @@ class GraphStrategy implements TextStrategy{
       GraphVertex centerVertex = new GraphVertex(0,0);
       centerVertex.setScore(0);
 
-      int badVerticies = 0;
       for(int j = 0; j < verteciesPerLetter; j++) {
         int index = verteciesleft / 2 + i * verteciesPerLetter + j;
         centerVertex.x += path.get(index).x;
         centerVertex.y += path.get(index).y;
-        if(path.get(index).score < 0) badVerticies++;
         centerVertex.score += path.get(index).score;
       }
 
       centerVertex.x = centerVertex.x / verteciesPerLetter;
       centerVertex.y = centerVertex.y / verteciesPerLetter;
-      centerVertex.score = centerVertex.score / (verteciesPerLetter - badVerticies);
+      centerVertex.score = centerVertex.score / verteciesPerLetter;
 
       double fontsize = verteciesPerLetter * minSize / density;
 
@@ -75,10 +83,10 @@ class GraphStrategy implements TextStrategy{
       t.setScaleX(1.5);
       textLayer.getChildren().add(t);
     }
-  } catch (Exception e){
-    System.out.println("nothing");
+    } catch (Exception e) {
+      System.out.println(e);
+    }
   }
 
-  }
 
 }

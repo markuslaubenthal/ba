@@ -6,18 +6,16 @@ import javafx.scene.shape.Polygon;
 import javafx.scene.paint.Color;
 
 class GraphSplitStrategy implements TextStrategy {
-
   VertexPolygon poly;
   Pane textLayer;
 
   public GraphSplitStrategy() {}
 
   public void drawText(VertexPolygon originalPoly, Pane textLayer) {
-  // try {
+    try {
 
     VertexPolygon poly = Geometry.scalePolygon(originalPoly, 0.8);
 
-    int density = 4;
 
     ArrayList<VertexPolygon> subPolygonList = new ArrayList<VertexPolygon>();
     subPolygonList.add(poly);
@@ -27,62 +25,65 @@ class GraphSplitStrategy implements TextStrategy {
       ArrayList<VertexPolygon> newSubPolygonList = new ArrayList<VertexPolygon>();
 
       for(VertexPolygon p : subPolygonList) {
-        if(p.text.length() < 3) continue;
 
-        double[] bb = p.getBoundingBox();
-        double minSize = (bb[1]-bb[0]) / (2 * p.getText().length());
+        if(p.text.length() < 3) {
+          // System.out.println("verteciesPerLetter == 0");
+          newSubPolygonList.add(p);
+          continue;
+        }
+
+        int density = Math.max(4, 4 * 4 / p.getText().length());
+        //double[] bb = p.getBoundingBox();
+        //double minSize = (bb[1]-bb[0]) / (2 * p.getText().length());
+        double minSize = Math.sqrt(poly.getAreaSize()) / poly.getText().length();
         Graph g = new Graph(p, minSize, density);
         g.generateNetwork();
         ArrayList<GraphVertex> path = g.findLongestPath();
+
+        if(path == null) {
+          // System.out.println("path == null");
+          //System.out.println(p.text);
+          VertexPolygon[] polygonParts = slicePoly(p, density);
+          newSubPolygonList.add(polygonParts[0]);
+          newSubPolygonList.add(polygonParts[1]);
+          continue;
+        }
+
         int verteciesPerLetter = path.size() / p.getText().length();
+
+        if(verteciesPerLetter == 0) {
+          // System.out.println("verteciesPerLetter == 0");
+          // System.out.println(p.text);
+          VertexPolygon[] polygonParts = slicePoly(p, density);
+          newSubPolygonList.add(polygonParts[0]);
+          newSubPolygonList.add(polygonParts[1]);
+          continue;
+        }
+
         int avgScore = 0;
 
         for(GraphVertex v : path) { avgScore += v.getScore(); }
 
         avgScore = avgScore / path.size();
 
-
-        if(avgScore + density - 1 > 3 * verteciesPerLetter) {
-
-          /*
-          Split the text into two parts based on word seperations like space or dash,
-          hyphenation or by simply splitting the text in the center.
-           */
-
-          String[] textParts = splitText(p.text);
-
-          /*
-          Create subpolygons with the area ratio matching the ratio of the two text parts.
-           */
-
-
-
-          double upperRatio = (double)textParts[0].length() / p.text.length();
-          double lowerRatio = (double)textParts[1].length() / p.text.length();
-
-          VertexPolygon[] polygonParts = Geometry.findSplitLineApprox(p, upperRatio, lowerRatio);
-
-          //>>> DEBUG
-          /*
-          Polygon polyy = new Polygon();
-
-          for(Vertex v : polygonParts[0].getOutline()) {
-            polyy.getPoints().addAll(new Double[] {v.x, v.y} );
-          }
-          polyy.setFill(Color.color(0,0,0,0));
-          polyy.setStrokeWidth(1);
-          polyy.setStroke(Color.RED);
-          textLayer.getChildren().add(polyy);
-          */
-          //>>> DEBUG
-
-          polygonParts[0].text = textParts[0];
-          polygonParts[1].text = textParts[1];
+        /*if(avgScore + density - 1 < verteciesPerLetter) {
+          // System.out.println("avgScore + density - 1 < verteciesPerLetter");
+          VertexPolygon[] polygonParts = slicePoly(p, density);
           newSubPolygonList.add(polygonParts[0]);
           newSubPolygonList.add(polygonParts[1]);
+          continue;
+
+        }*/
+
+        if(avgScore + density - 1 > 3 * verteciesPerLetter) {
+          //System.out.println("avgScore + density - 1 > 3 * verteciesPerLetter");
+          VertexPolygon[] polygonParts = slicePoly(p, density);
+          newSubPolygonList.add(polygonParts[0]);
+          newSubPolygonList.add(polygonParts[1]);
+          continue;
 
         } else {
-
+          // System.out.println("else");
           newSubPolygonList.add(p);
 
         }
@@ -95,20 +96,60 @@ class GraphSplitStrategy implements TextStrategy {
 
 
     for(VertexPolygon p : subPolygonList) {
+      System.out.println(p.text + " --");
       p.setTextStrategy(new GraphStrategy(1));
       p.drawText(textLayer);
       p.setTextStrategy(this);
     }
-  // } catch (Exception e){
-  //   System.out.println(e);
-  // }
+  } catch (Exception e) {
+      System.out.println(e);
+  }
+  }
+
+  private VertexPolygon[] slicePoly(VertexPolygon p, int density) {
+    try {
+
+    /*
+    Split the text into two parts based on word seperations like space or dash,
+    hyphenation or by simply splitting the text in the center.
+     */
+
+    String[] textParts = splitText(p.text);
+
+    /*
+    Create subpolygons with the area ratio matching the ratio of the two text parts.
+     */
+
+    double upperRatio = (double)textParts[0].length() / p.text.length();
+    double lowerRatio = (double)textParts[1].length() / p.text.length();
+
+    VertexPolygon[] polygonParts = Geometry.findSplitLineApprox(p, upperRatio, lowerRatio, density);
+
+    if(polygonParts == null) {
+      polygonParts = Geometry.findSplitLineApprox(p, upperRatio, lowerRatio, density * density);
+    }
+
+    if(polygonParts == null) {
+      polygonParts = Geometry.findSplitLineApprox(p, 0.5, 0.5, density * density);
+    }
+
+    polygonParts[0].text = textParts[0];
+    polygonParts[1].text = textParts[1];
+
+    return polygonParts;
+
+    } catch (Exception e) {
+        System.out.println(e);
+    }
+
+    return null;
 
   }
 
 
   private String[] splitText(String text) {
 
-    if(text.contains(" ") || text.contains("-")){
+    if(text.substring(0,text.length() - 1).contains(" ") || text.substring(0,text.length() - 1).contains("-")){
 
       /*
       loop through text to find positions of spaces and dashes
@@ -118,7 +159,7 @@ class GraphSplitStrategy implements TextStrategy {
 
       ArrayList<Integer> indexList = new ArrayList<Integer>();
 
-      for (int i = 0; i < text.length(); i++){
+      for (int i = 0; i < text.length() - 1; i++){
 
         char c = text.charAt(i);
 
