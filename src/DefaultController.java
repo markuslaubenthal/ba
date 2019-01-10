@@ -146,12 +146,22 @@ class DefaultController {
     //view.refresh();
   }
 
-  public void handleScaleButton() {
+  public void handleScaleInButton() {
     ArrayList<Vertex> vertices = state.getVertices();
     for(int i = 0; i < vertices.size(); i++) {
       Vertex v = vertices.get(i);
       v.x = v.x * 2.0 - 500;
       v.y = v.y * 2.0 - 400;
+    }
+    view.refresh();
+  }
+
+  public void handleScaleOutButton() {
+    ArrayList<Vertex> vertices = state.getVertices();
+    for(int i = 0; i < vertices.size(); i++) {
+      Vertex v = vertices.get(i);
+      v.x = v.x / 2.0 + 500 / 2;
+      v.y = v.y / 2.0 + 400 / 2;
     }
     view.refresh();
   }

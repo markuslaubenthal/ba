@@ -41,7 +41,8 @@ class DefaultView {
   Button opacityButton = new Button("Toggle Opacity");
   Button saveButton = new Button("Save file...");
   Button loadButton = new Button("Load file...");
-  Button scaleButton = new Button("Zoom in");
+  Button scaleInButton = new Button("Zoom in");
+  Button scaleOutButton = new Button("Zoom Out");
   Button moveLeftButton = new Button("Left");
   Button moveRightButton = new Button("Right");
   Button moveDownButton = new Button("Down");
@@ -155,9 +156,15 @@ class DefaultView {
       }
     });
 
-    scaleButton.setOnAction(new EventHandler<ActionEvent>() {
+    scaleInButton.setOnAction(new EventHandler<ActionEvent>() {
       public void handle(ActionEvent event) {
-        controller.handleScaleButton();
+        controller.handleScaleInButton();
+      }
+    });
+
+    scaleOutButton.setOnAction(new EventHandler<ActionEvent>() {
+      public void handle(ActionEvent event) {
+        controller.handleScaleOutButton();
       }
     });
 
@@ -207,7 +214,8 @@ class DefaultView {
     uiContainer.getChildren().add(loadButton);
     uiContainer.getChildren().add(saveButton);
     uiContainer.getChildren().add(strategySelector);
-    uiContainer.getChildren().add(scaleButton);
+    uiContainer.getChildren().add(scaleInButton);
+    uiContainer.getChildren().add(scaleOutButton);
     uiContainer.getChildren().add(moveLeftButton);
     uiContainer.getChildren().add(moveRightButton);
     uiContainer.getChildren().add(moveUpButton);
