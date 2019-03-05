@@ -299,7 +299,7 @@ class DefaultView {
     for(VertexPolygon poly : polygonList) {
       drawPolygon(poly);
       drawUIPolygon(poly);
-      if(poly.isWithinBox(0,0,1000,800)) {
+      if(poly.isWithinBox(0,0,1000,800) && poly.getAreaSize() > 100) {
         poly.drawText(textLayer);
       }
     }
