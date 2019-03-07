@@ -1,28 +1,61 @@
 import java.lang.Math;
+import javafx.scene.layout.Pane;
+import javafx.scene.shape.Line;
+import javafx.scene.paint.Color;
 
-class MALineSegment extends LineSegment {
+class MALineSegment{
 
   double r;
-  MAVertex center;
+  MAVertex center = null;
+  MAVertex start = new MAVertex(0,0);
+  MAVertex end = null;
 
-  public MALineSegment(MAVertex v, MAVertex w) {
-    super(v,w);
-    calcCandR();
+  public MALineSegment(MAVertex v, MAVertex w) {
+    this.start = v;
+    this.end = w;
   }
 
-  public MAVertex calcCandR() {
+
+  public void calcCandR() {
 
     MAVertex a = start.getPred();
     MAVertex b = start;
     MAVertex c = end;
     MAVertex d = end.getSucc();
     // calculate bisection lines
-    angleABC = angle(a,b,c);
-    angleBCD = angle(b,c,d);
+    double angleABC = angle(a,b,c);
+    double angleBCD = angle(b,c,d);
     MAVertex bisecOrientationVectABC = rotate(c.sub(b), angleABC);
     MAVertex bisecOrientationVectBCD = rotate(d.sub(c), angleBCD);
     MALineSegment bisecABC = new MALineSegment(b, b.add(bisecOrientationVectABC.mult(1000/bisecOrientationVectABC.mag())));
     MALineSegment bisecBCD = new MALineSegment(c, c.add(bisecOrientationVectBCD.mult(1000/bisecOrientationVectBCD.mag())));
+    // find intersection and calculate the distance from the linesegement
+    MAVertex intersectionPoint = new MAVertex(0,0);
+    bisecABC.getLineIntersection(bisecBCD, intersectionPoint);
+    this.center = intersectionPoint;
+    this.r = distanceFromPoint(center);
+
+  }
+
+  public void calcCandR(Pane textLayer) {
+
+    MAVertex a = start.getPred();
+    MAVertex b = start;
+    MAVertex c = end;
+    MAVertex d = end.getSucc();
+    // calculate bisection lines
+    double angleABC = angle(a,b,c) / 2.0;
+    double angleBCD = angle(b,c,d) / 2.0;
+    MAVertex bisecOrientationVectABC = rotate(c.sub(b), angleABC);
+    MAVertex bisecOrientationVectBCD = rotate(d.sub(c), angleBCD);
+    MALineSegment bisecABC = new MALineSegment(b, b.add(bisecOrientationVectABC.mult(1000/bisecOrientationVectABC.mag())));
+    MALineSegment bisecBCD = new MALineSegment(c, c.add(bisecOrientationVectBCD.mult(1000/bisecOrientationVectBCD.mag())));
+    Line l1 = new Line(bisecABC.start.x,bisecABC.start.y,bisecABC.end.x,bisecABC.end.y);
+    Line l2 = new Line(bisecBCD.start.x,bisecBCD.start.y,bisecBCD.end.x,bisecBCD.end.y);
+    l1.setStroke(Color.color(0,1,0,0.3));
+    l2.setStroke(Color.color(0,1,0,0.3));
+    textLayer.getChildren().add(l1);
+    textLayer.getChildren().add(l2);
     // find intersection and calculate the distance from the linesegement
     MAVertex intersectionPoint = new MAVertex(0,0);
     bisecABC.getLineIntersection(bisecBCD, intersectionPoint);
@@ -37,6 +70,8 @@ class MALineSegment extends LineSegment {
     MAVertex v2 = z.sub(y);
 
     double angle = Math.atan2(v1.y, v1.x) - Math.atan2(v2.y, v2.x);
+    if (angle < 0) { angle += 2 * Math.PI; }
+
 
     // angle between - pi and pi
 
@@ -69,5 +104,43 @@ class MALineSegment extends LineSegment {
 
   }
 
+  // STOLEN FROM LINESEGMENT weil ich zu dumm bin um das zu inheriten
+
+  public boolean intersects(MALineSegment l) {
+    return getLineIntersection(l, new MAVertex(0, 0));
+  }
+
+  public boolean getLineIntersection(MALineSegment l, MAVertex i) {
+    return getLineIntersection(this.start.x, this.start.y, this.end.x, this.end.y,
+      l.start.x, l.start.y, l.end.x, l.end.y, i);
+  }
+
+  public boolean getLineIntersection(double p0_x, double p0_y, double p1_x, double p1_y,
+    double p2_x, double p2_y, double p3_x, double p3_y, MAVertex i)
+  {
+      double s1_x, s1_y, s2_x, s2_y;
+      s1_x = p1_x - p0_x;     s1_y = p1_y - p0_y;
+      s2_x = p3_x - p2_x;     s2_y = p3_y - p2_y;
+
+      double s, t;
+      s = (-s1_y * (p0_x - p2_x) + s1_x * (p0_y - p2_y)) / (-s2_x * s1_y + s1_x * s2_y);
+      t = ( s2_x * (p0_y - p2_y) - s2_y * (p0_x - p2_x)) / (-s2_x * s1_y + s1_x * s2_y);
+
+      if (s >= 0 && s <= 1 && t >= 0 && t <= 1)
+      {
+          // Collision detected
+          i.x = p0_x + (t * s1_x);
+          i.y = p0_y + (t * s1_y);
+          return true;
+      }
+
+      return false; // No collision
+  }
+
+  public String toString(){
+    return "start:x:" + this.start.x + ",y:" + this.start.y + "end:x:" + this.end.x + ",y:" + this.end.y;
+  }
+
+  // STEAL END
 
 }
