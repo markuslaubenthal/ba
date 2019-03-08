@@ -63,7 +63,7 @@ class Geometry {
 
 
   public static VertexPolygon[] findSplitLineApprox(VertexPolygon poly, double upperRatio, double lowerRatio, int density) {
-    
+
     Hashtable<String,LineSegment> edgeTable = new Hashtable<String,LineSegment>();
     Hashtable<String,Double> scoreTable = new Hashtable<String,Double>();
     ArrayList<Vertex> pointList = buildOutlinePoints(poly, edgeTable, density);
@@ -75,7 +75,7 @@ class Geometry {
           if(canSee(poly,v,w) && !edgeTable.get(v.toString()).equals(edgeTable.get(w.toString()))){
             VertexPolygon[] subPolys = splitPolygon(poly,v,edgeTable.get(v.toString()),w,edgeTable.get(w.toString()));
             bottleneckList.add(new LineSegment(v,w));
-            double score = Math.abs(subPolys[0].getAreaSize() / polygonSize - lowerRatio) + Math.abs(subPolys[1].getAreaSize() / polygonSize - upperRatio);
+            double score = Math.abs(subPolys[0].getAreaSize() / polygonSize - upperRatio) + Math.abs(subPolys[1].getAreaSize() / polygonSize - lowerRatio);
             scoreTable.put(new LineSegment(v,w).toString(), score);
           }
         }

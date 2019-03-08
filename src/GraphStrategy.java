@@ -28,15 +28,15 @@ class GraphStrategy implements TextStrategy{
     int density = Math.max(4, 4 * 4 / poly.getText().length());
     Graph g = new Graph(poly, minSize, density);
     g.generateNetwork();
-    ArrayList<GraphVertex> initialPath = g.findLongestPath();
+    ArrayList<GraphVertex> path = g.findLongestPath();
 
-    if(initialPath == null) throw new NullPointerException("no vertecies");
+    if(path == null) throw new NullPointerException("no vertecies");
 
-    ArrayList<GraphVertex> path = new ArrayList<GraphVertex>();
-
-    for(GraphVertex p : initialPath) {
-      if(p.getScore() > 0) path.add(p);
-    }
+    // ArrayList<GraphVertex> path = new ArrayList<GraphVertex>();
+    //
+    // for(GraphVertex p : initialPath) {
+    //   if(p.getScore() > 0) path.add(p);
+    // }
 
     int verteciesPerLetter = path.size() / poly.getText().length();
     int verteciesleft = path.size() % poly.getText().length();
@@ -53,24 +53,31 @@ class GraphStrategy implements TextStrategy{
         centerVertex.score += path.get(index).score;
       }
 
+
       centerVertex.x = centerVertex.x / verteciesPerLetter;
       centerVertex.y = centerVertex.y / verteciesPerLetter;
       centerVertex.score = centerVertex.score / verteciesPerLetter;
+
+      if(centerVertex.score < density) centerVertex.score = density / 2;
 
       double fontsize = verteciesPerLetter * minSize / density;
 
       Font monospacedFont;
       Text t = new Text();
-      monospacedFont = Font.font("Courier New", FontWeight.NORMAL, fontsize);
-      if(monospacedFont.getFamily() != "Courier New") {
-        monospacedFont = Font.font("Courier New", FontWeight.NORMAL, fontsize);
-      }
+      monospacedFont = new Font("Cartograph Mono CF Heavy", fontsize);
+      // if(monospacedFont.getFamily() != "Cartograph Mono CF") {
+      //   monospacedFont = Font.font("Cartograph Mono CF", FontWeight.THIN, fontsize);
+      // }
+      String letterI = poly.getText().substring(i, i + 1).toUpperCase();
       t.setFont(monospacedFont);
-      t.setText(poly.getText().substring(i, i + 1).toUpperCase());
+      t.setText(letterI);
       Bounds b = t.getLayoutBounds();
       double boundingBot = b.getMaxY();
       double boundingTop = b.getMinY();
       double ascent = Math.abs(boundingTop);
+      if(letterI.equals("Ü") || letterI.equals("Ö") || letterI.equals("Ä")) {
+        // fix the letter sizes
+      }
       double descent = Math.abs(boundingBot);
       double middle = Math.abs(boundingTop + boundingBot) / 2;
 

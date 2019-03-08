@@ -195,6 +195,7 @@ class DefaultView {
     strategySelector.getItems().addAll(
       "Default",
       "Simple Strategy",
+      "Medial Axis Strategy",
       "Scan Strategy",
       "Graph Strategy",
       "Graph Split Strategy"
@@ -299,7 +300,7 @@ class DefaultView {
     for(VertexPolygon poly : polygonList) {
       drawPolygon(poly);
       drawUIPolygon(poly);
-      if(poly.isWithinBox(0,0,1000,800)) {
+      if(poly.isWithinBox(0,0,1000,800) && poly.getAreaSize() > 100) {
         poly.drawText(textLayer);
       }
     }

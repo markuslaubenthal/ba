@@ -96,7 +96,6 @@ class GraphSplitStrategy implements TextStrategy {
 
 
     for(VertexPolygon p : subPolygonList) {
-      System.out.println(p.text + " --");
       p.setTextStrategy(new GraphStrategy(1));
       p.drawText(textLayer);
       p.setTextStrategy(this);
@@ -209,12 +208,14 @@ class GraphSplitStrategy implements TextStrategy {
 
         }
 
-        return new String[]{subPoly1Text + "-", subPoly2Text};
+        // return new String[]{subPoly1Text + "-", subPoly2Text};
+        return new String[]{subPoly1Text, subPoly2Text};
 
       } else {
 
         int mid = text.length() / 2; //get the middle of the String
-        return new String[]{text.substring(0, mid) + "-",text.substring(mid)};
+        // return new String[]{text.substring(0, mid) + "-",text.substring(mid)};
+        return new String[]{text.substring(0, mid),text.substring(mid)};
 
       }
     }
