@@ -7,7 +7,7 @@ class MALineSegment{
 
   double r;
   MAVertex center = null;
-  MAVertex start = new MAVertex(0,0);
+  MAVertex start = null;
   MAVertex end = null;
 
   public MALineSegment(MAVertex v, MAVertex w) {
@@ -23,39 +23,12 @@ class MALineSegment{
     MAVertex c = end;
     MAVertex d = end.getSucc();
     // calculate bisection lines
-    double angleABC = angle(a,b,c);
-    double angleBCD = angle(b,c,d);
-    MAVertex bisecOrientationVectABC = rotate(c.sub(b), angleABC);
-    MAVertex bisecOrientationVectBCD = rotate(d.sub(c), angleBCD);
-    MALineSegment bisecABC = new MALineSegment(b, b.add(bisecOrientationVectABC.mult(1000/bisecOrientationVectABC.mag())));
-    MALineSegment bisecBCD = new MALineSegment(c, c.add(bisecOrientationVectBCD.mult(1000/bisecOrientationVectBCD.mag())));
-    // find intersection and calculate the distance from the linesegement
-    MAVertex intersectionPoint = new MAVertex(0,0);
-    bisecABC.getLineIntersection(bisecBCD, intersectionPoint);
-    this.center = intersectionPoint;
-    this.r = distanceFromPoint(center);
-
-  }
-
-  public void calcCandR(Pane textLayer) {
-
-    MAVertex a = start.getPred();
-    MAVertex b = start;
-    MAVertex c = end;
-    MAVertex d = end.getSucc();
-    // calculate bisection lines
     double angleABC = angle(a,b,c) / 2.0;
     double angleBCD = angle(b,c,d) / 2.0;
     MAVertex bisecOrientationVectABC = rotate(c.sub(b), angleABC);
     MAVertex bisecOrientationVectBCD = rotate(d.sub(c), angleBCD);
-    MALineSegment bisecABC = new MALineSegment(b, b.add(bisecOrientationVectABC.mult(1000/bisecOrientationVectABC.mag())));
-    MALineSegment bisecBCD = new MALineSegment(c, c.add(bisecOrientationVectBCD.mult(1000/bisecOrientationVectBCD.mag())));
-    Line l1 = new Line(bisecABC.start.x,bisecABC.start.y,bisecABC.end.x,bisecABC.end.y);
-    Line l2 = new Line(bisecBCD.start.x,bisecBCD.start.y,bisecBCD.end.x,bisecBCD.end.y);
-    l1.setStroke(Color.color(0,1,0,0.3));
-    l2.setStroke(Color.color(0,1,0,0.3));
-    textLayer.getChildren().add(l1);
-    textLayer.getChildren().add(l2);
+    MALineSegment bisecABC = new MALineSegment(b, b.add(bisecOrientationVectABC));
+    MALineSegment bisecBCD = new MALineSegment(c, c.add(bisecOrientationVectBCD));
     // find intersection and calculate the distance from the linesegement
     MAVertex intersectionPoint = new MAVertex(0,0);
     bisecABC.getLineIntersection(bisecBCD, intersectionPoint);
@@ -63,6 +36,7 @@ class MALineSegment{
     this.r = distanceFromPoint(center);
 
   }
+
 
   public double angle(MAVertex x, MAVertex y, MAVertex z) {
 
@@ -126,15 +100,11 @@ class MALineSegment{
       s = (-s1_y * (p0_x - p2_x) + s1_x * (p0_y - p2_y)) / (-s2_x * s1_y + s1_x * s2_y);
       t = ( s2_x * (p0_y - p2_y) - s2_y * (p0_x - p2_x)) / (-s2_x * s1_y + s1_x * s2_y);
 
-      if (s >= 0 && s <= 1 && t >= 0 && t <= 1)
-      {
-          // Collision detected
-          i.x = p0_x + (t * s1_x);
-          i.y = p0_y + (t * s1_y);
-          return true;
-      }
 
-      return false; // No collision
+      i.x = p0_x + (t * s1_x);
+      i.y = p0_y + (t * s1_y);
+      return true;
+
   }
 
   public String toString(){

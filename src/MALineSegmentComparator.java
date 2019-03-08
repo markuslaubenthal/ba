@@ -8,6 +8,6 @@ import java.lang.Math;
 public class MALineSegmentComparator implements Comparator<MALineSegment>{
   public int compare(MALineSegment l1, MALineSegment l2)
     {
-      return (int) Math.signum(l2.r - l1.r);
+      return (int) Math.signum(l1.r - l2.r);
     }
 }
