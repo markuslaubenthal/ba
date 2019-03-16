@@ -45,6 +45,8 @@ class GeoSpatialReader {
       JSONObject feature = features.getJSONObject(i);
       JSONObject geometry = feature.getJSONObject("geometry");
       JSONObject properties = feature.getJSONObject("properties");
+      //if(properties.has("CNTR_CODE") && !properties.getString("CNTR_CODE").equals("DE")) continue;
+
       String text = "null";
       if(properties.has("NAME_ENGL")) text = properties.getString("NAME_ENGL");
       if(properties.has("NUTS_NAME")) text = properties.getString("NUTS_NAME");

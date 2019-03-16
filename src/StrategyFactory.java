@@ -21,7 +21,7 @@ class StrategyFactory {
       case GraphSplit:
         return new GraphSplitStrategy();
       default:
-        return new MAStrategy();
+        return new GraphSplitStrategy();
     }
   }
 
