@@ -14,7 +14,7 @@ class GraphSplitStrategy implements TextStrategy {
   public void drawText(VertexPolygon originalPoly, Pane textLayer) {
     try {
 
-    VertexPolygon poly = Geometry.scalePolygon(originalPoly, 0.8);
+    VertexPolygon poly = Geometry.scalePolygon(originalPoly, 1);
 
 
     ArrayList<VertexPolygon> subPolygonList = new ArrayList<VertexPolygon>();
@@ -32,10 +32,12 @@ class GraphSplitStrategy implements TextStrategy {
           continue;
         }
 
-        int density = Math.max(4, 4 * 4 / p.getText().length());
+        // int density = Math.max(10, 50 / p.getText().length());
+        int density = Math.max(8, 8 * 4 / poly.getText().length());
         //double[] bb = p.getBoundingBox();
         //double minSize = (bb[1]-bb[0]) / (2 * p.getText().length());
-        double minSize = Math.sqrt(poly.getAreaSize()) / poly.getText().length();
+        double minSize = Math.sqrt(p.getAreaSize()/ poly.getText().length() / 3);
+
         Graph g = new Graph(p, minSize, density);
         g.generateNetwork();
         ArrayList<GraphVertex> path = g.findLongestPath();
@@ -61,22 +63,22 @@ class GraphSplitStrategy implements TextStrategy {
         }
 
         int avgScore = 0;
+        int score = 0;
 
-        for(GraphVertex v : path) { avgScore += v.getScore(); }
+        for(GraphVertex v : path) { score += v.getScore(); }
 
-        avgScore = avgScore / path.size();
+        avgScore = score / path.size();
 
-        /*if(avgScore + density - 1 < verteciesPerLetter) {
-          // System.out.println("avgScore + density - 1 < verteciesPerLetter");
+        if(avgScore + density - 1 < 1.5 * density / verteciesPerLetter) { // area covered is not 50% of the polygon
+          System.out.println("too small");
+          
           VertexPolygon[] polygonParts = slicePoly(p, density);
           newSubPolygonList.add(polygonParts[0]);
           newSubPolygonList.add(polygonParts[1]);
           continue;
+        }
 
-        }*/
-
-        if(avgScore + density - 1 > 3 * verteciesPerLetter) {
-          //System.out.println("avgScore + density - 1 > 3 * verteciesPerLetter");
+        if(avgScore + density - 1 > 4 * verteciesPerLetter) { // the avg height can be 2.66 times higher than the width
           VertexPolygon[] polygonParts = slicePoly(p, density);
           newSubPolygonList.add(polygonParts[0]);
           newSubPolygonList.add(polygonParts[1]);

@@ -5,10 +5,11 @@ import javafx.scene.paint.Color;
 import java.io.InputStream;
 import java.io.FileInputStream;
 import javafx.geometry.Bounds;
+import javafx.scene.shape.Circle;
 
 class GraphStrategy implements TextStrategy{
 
-  double factor = 0.9;
+  double factor = 1;
 
   public GraphStrategy(){
   }
@@ -24,8 +25,12 @@ class GraphStrategy implements TextStrategy{
 
     //double[] bb = poly.getBoundingBox();
     //double minSize = (bb[1]-bb[0]) / (2 * poly.getText().length());
-    double minSize = Math.sqrt(poly.getAreaSize()) / poly.getText().length();
-    int density = Math.max(4, 4 * 4 / poly.getText().length());
+    //double minSize = Math.sqrt(poly.getAreaSize()) / poly.getText().length();
+    int density = Math.max(8, 8 * 4 / poly.getText().length());
+    // int density = Math.max(10, 50 / poly.getText().length());
+
+    double minSize = Math.sqrt((poly.getAreaSize() / poly.getText().length()) / 3) ;
+
     Graph g = new Graph(poly, minSize, density);
     g.generateNetwork();
     ArrayList<GraphVertex> path = g.findLongestPath();
@@ -71,24 +76,25 @@ class GraphStrategy implements TextStrategy{
       String letterI = poly.getText().substring(i, i + 1).toUpperCase();
       t.setFont(monospacedFont);
       t.setText(letterI);
-      Bounds b = t.getLayoutBounds();
-      double boundingBot = b.getMaxY();
-      double boundingTop = b.getMinY();
-      double ascent = Math.abs(boundingTop);
-      if(letterI.equals("Ü") || letterI.equals("Ö") || letterI.equals("Ä")) {
-        // fix the letter sizes
-      }
-      double descent = Math.abs(boundingBot);
-      double middle = Math.abs(boundingTop + boundingBot) / 2;
+      t.setBoundsType(TextBoundsType.VISUAL);
 
-      double difference = Math.abs(Math.abs(middle) - Math.abs(middle - ascent));
-      t.setX(centerVertex.x - (fontsize / 2));
-      double padding = 0.9;
-      double scale = ((centerVertex.score + density - 1) * minSize / density / (ascent - middle)) * padding;
-      t.setY(centerVertex.y + middle);
-      t.setScaleY(scale);
-      t.setScaleX(1.5);
+      Bounds b = t.getLayoutBounds();
+      double height = b.getHeight();
+      double width = b.getWidth();
+      double boundingLeft = b.getMinX();
+      double boundingBot = b.getMaxY();
+
+      t.setX(centerVertex.x - width / 2 - boundingLeft);
+      t.setScaleX(1.7);
+      t.setY(centerVertex.y + height / 2 - boundingBot);
+      if(!letterI.equals("-")) t.setScaleY(((centerVertex.score + density - 1) * minSize) / (density * height));
+
+
+
+
       textLayer.getChildren().add(t);
+
+
     }
     } catch (Exception e) {
       System.out.println(e);
