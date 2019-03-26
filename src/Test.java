@@ -1,6 +1,7 @@
 import java.util.ArrayList;
 import java.util.List;
-
+import java.util.TreeSet;
+import java.util.Random;
 
 class Test {
   public static void main(String[] args) {
@@ -9,6 +10,7 @@ class Test {
     hyphenatorTest();
     convexHullTest();
     rotatingCalipersTest();
+    sortedTrapezoidsTest();
   }
 
   public static void polygonTest() {
@@ -78,4 +80,48 @@ class Test {
     System.out.println(orientation);
     System.out.println(res);
   }
+
+  public static void sortedTrapezoidsTest() {
+    Random r = new Random();
+    double c = 20.0;
+    ArrayList<Vertex> vertices = new ArrayList<Vertex>();
+    TreeSet<ProxyVerticalTrapezoidVertex> tree =
+      new TreeSet<ProxyVerticalTrapezoidVertex>(new VerticalTrapezoidVertexComparator());
+    for(int t = 0; t < c; t++) {
+      double height = 800.0 / c;
+      double offset =  t * 20.0;
+      double min = offset;
+      double max = offset + height;
+      double left1 = min + (max - min) * r.nextDouble();
+      double left2 = min + (max - min) * r.nextDouble();
+      double right1 = min + (max - min) * r.nextDouble();
+      double right2 = min + (max - min) * r.nextDouble();
+      Vertex v1 = new Vertex(10, Math.min(left1, left2));
+      Vertex v2 = new Vertex(10, Math.max(left1, left2));
+      Vertex v3 = new Vertex(20, Math.min(right1, right2));
+      Vertex v4 = new Vertex(20, Math.max(right1, right2));
+
+      vertices.add(v3);
+      vertices.add(v4);
+
+      LineSegment left = new LineSegment(v1, v2);
+      LineSegment top = new LineSegment(v1, v3);
+      LineSegment bot = new LineSegment(v2, v4);
+
+      VerticalTrapezoid vt = new VerticalTrapezoid(left, top, bot);
+      ProxyVerticalTrapezoidVertex pvt = new ProxyVerticalTrapezoidVertex(vt);
+      tree.add(pvt);
+    }
+
+    int count = vertices.size();
+    int randomInt = (int) (r.nextDouble() * (double) count);
+    Vertex v = vertices.get(randomInt);
+    ProxyVerticalTrapezoidVertex pv = new ProxyVerticalTrapezoidVertex(v);
+    ProxyVerticalTrapezoidVertex proxy = tree.floor(pv);
+
+    System.out.println("ID: " + randomInt + ": " + proxy.t.left.start);
+
+
+  }
+
 }
