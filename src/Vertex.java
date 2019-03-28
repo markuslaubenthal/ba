@@ -10,11 +10,12 @@ public class Vertex {
     public double y;
     public Circle point;
     public Boolean dragged = false;
+    private String hash = "";
 
     public Vertex(double x, double y, Circle point) {
-        this.x = x;
-        this.y = y;
+        this(x,y);
         this.point = point;
+        hash = toString();
     }
 
     public Vertex(double x, double y) {
@@ -115,7 +116,7 @@ public class Vertex {
     }
 
     public int hashCode() {
-      return toString().hashCode();
+      return hash.hashCode();
     }
 
 }

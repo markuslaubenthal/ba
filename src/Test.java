@@ -14,7 +14,8 @@ class Test {
     // sortedTrapezoidsTest();
     // vertexListTest();
     // orderingTest();
-    intersectionTest();
+    // intersectionTest();
+    outlineTest();
   }
 
   public static void polygonTest() {
@@ -180,6 +181,14 @@ class Test {
     System.out.println(i);
     l1.getLineIntersection(l3, i);
     System.out.println(i);
+  }
+
+  public static void outlineTest() {
+    Vertex v = new Vertex(20,20);
+    VertexList l = new VertexList();
+    l.add(v);
+    v.x = 10;
+    if(l.contains(v)) System.out.println("contains");
   }
 
 }
