@@ -9,16 +9,17 @@ class VertexPolygon {
   protected ArrayList<Vertex> outline;
   protected String text = "";
   protected TextStrategy strategy;
-  protected LinkedHashSet<Vertex> dlOutline;
+  protected VertexList dlOutline;
 
   public VertexPolygon() {
     outline = new ArrayList<Vertex>();
-    dlOutline = new LinkedHashSet<Vertex>();
+    // dlOutline = new LinkedHashSet<Vertex>();
+    dlOutline = new VertexList();
   }
 
   public VertexPolygon(String text) {
     outline = new ArrayList<Vertex>();
-    dlOutline = new LinkedHashSet<Vertex>();
+    dlOutline = new VertexList();
     this.text = text;
   }
 
@@ -26,7 +27,7 @@ class VertexPolygon {
     return outline;
   }
 
-  public LinkedHashSet<Vertex> getDlOutline() {
+  public VertexList getDlOutline() {
     return dlOutline;
   }
 

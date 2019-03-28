@@ -54,6 +54,15 @@ class LineSegment {
       return false; // No collision
   }
   public String toString(){
+    if(this.start == null || this.end == null) return "null";
     return "start:x:" + this.start.x + ",y:" + this.start.y + "end:x:" + this.end.x + ",y:" + this.end.y;
+  }
+
+  public double slope() {
+    if(end.x == start.x) {
+      if(start.y > end.y) return -9999999;
+      else return 9999999;
+    }
+    return (end.y - start.y) / (end.x - start.x);
   }
 }

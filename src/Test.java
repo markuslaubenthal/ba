@@ -2,15 +2,19 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeSet;
 import java.util.Random;
+import java.util.Arrays;
 
 class Test {
   public static void main(String[] args) {
-    polygonTest();
-    jsonTest();
-    hyphenatorTest();
-    convexHullTest();
-    rotatingCalipersTest();
-    sortedTrapezoidsTest();
+    // polygonTest();
+    // jsonTest();
+    // hyphenatorTest();
+    // convexHullTest();
+    // rotatingCalipersTest();
+    // sortedTrapezoidsTest();
+    // vertexListTest();
+    // orderingTest();
+    intersectionTest();
   }
 
   public static void polygonTest() {
@@ -89,7 +93,7 @@ class Test {
       new TreeSet<ProxyVerticalTrapezoidVertex>(new VerticalTrapezoidVertexComparator());
     for(int t = 0; t < c; t++) {
       double height = 800.0 / c;
-      double offset =  t * 20.0;
+      double offset =  t * height;
       double min = offset;
       double max = offset + height;
       double left1 = min + (max - min) * r.nextDouble();
@@ -116,12 +120,66 @@ class Test {
     int count = vertices.size();
     int randomInt = (int) (r.nextDouble() * (double) count);
     Vertex v = vertices.get(randomInt);
+
+    double randLeft = 1 + (400 - 1) * r.nextDouble();
+    Vertex v2 = new Vertex(15, 100000);
+
     ProxyVerticalTrapezoidVertex pv = new ProxyVerticalTrapezoidVertex(v);
-    ProxyVerticalTrapezoidVertex proxy = tree.floor(pv);
+    ProxyVerticalTrapezoidVertex pv2 = new ProxyVerticalTrapezoidVertex(v2);
+    ProxyVerticalTrapezoidVertex proxy = tree.floor(pv2);
+    if(tree.contains(pv)) {
+      System.out.println("Contains pv");
+    } else {
+      System.out.println("Not Contains pv");
+    }
+    if(!tree.contains(pv2)) {
+      System.out.println("Not Contains pv2");
+    } else {
+      System.out.println("Contains pv2");
+    }
+    System.out.println("ID: " + v + ": " + proxy.t.left.start);
+  }
 
-    System.out.println("ID: " + randomInt + ": " + proxy.t.left.start);
+  public static void vertexListTest() {
+    VertexList l = new VertexList();
+    for(int i = 0; i < 50; i++) {
+      l.add(new Vertex(i, i+1));
+      System.out.println(i);
+      System.out.println(l._getPrev(new Vertex(i, i+1)));
+    }
+    Vertex v = new Vertex(0,1);
+    if(l.contains(v)) System.out.println("VList Contains");
+    // System.out.println(vList.get(v));
+    System.out.println(Arrays.toString(l.toArray()));
+    if(l.contains(l.getNext(v))) System.out.println("VList Contains");
+    System.out.println(l.getNext(v));
 
+  }
 
+  public static void orderingTest() {
+    Vertex[] v = new Vertex[16];
+    for(int i = 1; i < 5; i++) {
+      for(int k = 1; k < 5; k++) {
+        v[(i - 1) * 4 + (k-1)] = new Vertex(i, k);
+      }
+    }
+    Arrays.sort(v, new VertexXComparator());
+    System.out.println(Arrays.toString(v));
+  }
+
+  public static void intersectionTest() {
+    Vertex v1 = new Vertex(20, 20);
+    Vertex v2 = new Vertex(30, 10);
+    Vertex v3 = new Vertex(40, 20);
+    LineSegment l1 = new LineSegment(v1, v2);
+    LineSegment l2 = new LineSegment(v2, v3);
+    LineSegment l3 = new LineSegment(v2.x, v2.y, v2.x, 1000);
+
+    Vertex i = new Vertex(-1,-1);
+    l1.getLineIntersection(l2, i);
+    System.out.println(i);
+    l1.getLineIntersection(l3, i);
+    System.out.println(i);
   }
 
 }

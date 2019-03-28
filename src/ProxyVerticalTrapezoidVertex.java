@@ -16,4 +16,12 @@ class ProxyVerticalTrapezoidVertex {
     if(v != null) return v.toString();
     return "Keine ahnung";
   }
+
+  public VerticalTrapezoid toTrapezoid() {
+    return t;
+  }
+
+  public Vertex toVertex() {
+    return v;
+  }
 }

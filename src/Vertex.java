@@ -23,6 +23,10 @@ public class Vertex {
         point = null;
     }
 
+    public Vertex(Vertex v) {
+      this(v.x, v.y);
+    }
+
     public void setPoint(Circle point) {
       this.point = point;
     }
@@ -108,6 +112,10 @@ public class Vertex {
 
     public double getAngleInRadians() {
       return Math.atan2(y,x);
+    }
+
+    public int hashCode() {
+      return toString().hashCode();
     }
 
 }

@@ -18,7 +18,7 @@ class StrategyFactory {
       case GraphSplit:
         return new GraphSplitStrategy();
       default:
-        return new GraphSplitStrategy();
+        return new ConvexStrategy();
     }
   }
 

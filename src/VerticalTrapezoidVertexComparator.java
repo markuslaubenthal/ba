@@ -28,9 +28,15 @@ class VerticalTrapezoidVertexComparator implements Comparator<ProxyVerticalTrape
         vertical.getLineIntersection(bot, intersectionBot);
 
         if(v.y < intersectionTop.y) return -1;
-        return 1;
+        if(v.y > intersectionBot.y) return 1;
+        return 0;
       } else {
-        return a.t.left.start.y < b.t.left.start.y ? -1 : 1;
+        System.out.println(a);
+        System.out.println(b);
+        if(a.t != null && b.t != null) {
+          return (a.t.left.start.y == b.t.left.start.y && a.t.left.start.x == b.t.left.start.x) ? 0 : (a.t.left.start.y < b.t.left.start.y ? -1 : 1);
+        }
+        return 0;
       }
     }
 }
