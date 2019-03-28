@@ -44,7 +44,6 @@ class VerticalTrapezoid {
   }
 
   public void addPreviousTrapezoid(VerticalTrapezoid t) {
-    if(t == null) System.out.println("Nullpointer");
     prev.add(t);
   }
   public void addNextTrapezoid(VerticalTrapezoid t) {

@@ -33,16 +33,6 @@ class ConvexStrategy implements TextStrategy{
       VertexList outline = poly.getDlOutline();
       Vertex[] orderedVertices = sort(outline);
       getTrapezoidalDecomposition(outline, orderedVertices);
-
-
-      // double area[] = getUsableArea(poly);
-      // double width = area[1] - area[0];
-      // String text = poly.getText();
-      //
-      // double fontwidth = width / text.length();
-      // System.out.println("Fontwidth: " + fontwidth);
-
-
     } catch (Exception e){
       e.printStackTrace(new java.io.PrintStream(System.out));
     }
@@ -70,7 +60,6 @@ class ConvexStrategy implements TextStrategy{
       ProxyVerticalTrapezoidVertex pv = new ProxyVerticalTrapezoidVertex(v);
 
       //Wenn der Vertex in einem Trapez liegt
-      System.out.println("ATT SIZE: " + att.size());
       if(att.contains(pv)) {
         VerticalTrapezoid trapezoid = att.floor(pv).toTrapezoid();
         leftSideTrapezoids.add(trapezoid);
@@ -84,12 +73,9 @@ class ConvexStrategy implements TextStrategy{
       if(tHead == null) tHead = rightSideTrapezoids.get(0);
 
       for(VerticalTrapezoid trapezoid : leftSideTrapezoids) {
-        System.out.println("ATT SIZE / BEFORE REMOVE: " + att.size());
         att.remove(new ProxyVerticalTrapezoidVertex(trapezoid));
-        System.out.println("ATT SIZE / AFTER REMOVE: " + att.size());
       }
       for(VerticalTrapezoid trapezoid : rightSideTrapezoids) {
-        System.out.println("ATT SIZE / BEFORE ADD: " + att.size());
         att.add(new ProxyVerticalTrapezoidVertex(trapezoid));
       }
     }
@@ -99,7 +85,6 @@ class ConvexStrategy implements TextStrategy{
   public void drawTrapezoids(VerticalTrapezoid t, VerticalTrapezoid previous) {
     drawTrapezoid(t);
     for(VerticalTrapezoid _t : t.getNext()) {
-      if(previous == null) System.out.println("prev null");
       if(!_t.equals(previous))
         drawTrapezoids(_t, t);
     }
@@ -110,10 +95,7 @@ class ConvexStrategy implements TextStrategy{
   }
 
   public void drawTrapezoid(VerticalTrapezoid t) {
-    System.out.println(t);
-    System.out.println("Drawing");
     double x;
-
 
     Line l1 = new Line(t.left.start.x, t.left.start.y, t.left.end.x, t.left.end.y);
     Line l2 = new Line(t.right.start.x, t.right.start.y, t.right.end.x, t.right.end.y);
@@ -165,7 +147,6 @@ class ConvexStrategy implements TextStrategy{
   }
 
   public List<VerticalTrapezoid> createTrapezoids(List<VerticalTrapezoid> leftSideTrapezoids, Vertex v, VertexList outline) {
-    System.out.println("CREATING");
     List<VerticalTrapezoid> rightSideTrapezoids = new ArrayList<VerticalTrapezoid>();
 
     Vertex next = outline.getNext(v);
@@ -178,7 +159,6 @@ class ConvexStrategy implements TextStrategy{
     Vertex nextLeft = next.x < v.x ? next : (prev.x < v.x ? prev : null);
 
     if(leftSideTrapezoids.size() == 1) {
-      System.out.println("FALL 1");
       VerticalTrapezoid trapezoid = leftSideTrapezoids.get(0);
       Vertex[] intersections = intersection(trapezoid, v);
       VirtualVertex vTop;
@@ -206,7 +186,6 @@ class ConvexStrategy implements TextStrategy{
       // }
 
       if(vertexIsRightTrap(outline, v)) {
-        System.out.println("FALL 2");
 
         //Merge 2 Polygons into 1
         /**
@@ -239,7 +218,6 @@ class ConvexStrategy implements TextStrategy{
         trapezoid.addNextTrapezoid(botTrap);
 
       } else {
-        System.out.println("FALL 3");
 
         //Attach 1 Polygon to another
         //Fall Eckpunkt oder Punkte liegen übereinander
@@ -257,7 +235,6 @@ class ConvexStrategy implements TextStrategy{
           }
           //Previous schon vorhanden. Next = Null
         } else if(trapezoid.top.end.equals(v)) {
-          System.out.println("FALL 4");
 
           trapezoid.right = new LineSegment(v, vBot);
           VerticalTrapezoid newTrapezoid = new VerticalTrapezoid(trapezoid.right);
@@ -269,7 +246,6 @@ class ConvexStrategy implements TextStrategy{
           newTrapezoid.addPreviousTrapezoid(trapezoid);
           rightSideTrapezoids.add(newTrapezoid);
         } else {
-          System.out.println("FALL 5");
 
           trapezoid.right = new LineSegment(vTop, v);
           VerticalTrapezoid newTrapezoid = new VerticalTrapezoid(trapezoid.right);
