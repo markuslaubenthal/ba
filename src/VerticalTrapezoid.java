@@ -64,4 +64,14 @@ class VerticalTrapezoid {
     }
     return false;
   }
+
+  public double area() {
+    //1/2(a+c) * h;
+    return 1.0/2.0 * (Math.abs(left.getHeight() + right.getHeight())) * Math.abs(left.start.x - right.start.x);
+  }
+
+  public boolean contains(Vertex v) {
+    if(top.contains(v) || bot.contains(v)) return true;
+    return false;
+  }
 }

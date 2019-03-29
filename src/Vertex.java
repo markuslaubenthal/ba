@@ -115,6 +115,20 @@ public class Vertex {
       return Math.atan2(y,x);
     }
 
+    public void rotateCounterClockwise() {
+      double x = this.x;
+      double y = this.y;
+      this.x = -y;
+      this.y = x;
+    }
+
+    public void rotateClockwise() {
+      double x = this.x;
+      double y = this.y;
+      this.x = y;
+      this.y = -x;
+    }
+
     public int hashCode() {
       return hash.hashCode();
     }

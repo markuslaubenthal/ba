@@ -10,7 +10,9 @@ import javafx.scene.paint.Color;
 
 import java.util.TreeSet;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Arrays;
 
 class ConvexStrategy implements TextStrategy{
@@ -32,7 +34,9 @@ class ConvexStrategy implements TextStrategy{
     try {
       VertexList outline = poly.getDlOutline();
       Vertex[] orderedVertices = sort(outline);
-      getTrapezoidalDecomposition(outline, orderedVertices);
+      List<VerticalTrapezoid> trapezoids = getTrapezoidalDecomposition(outline, orderedVertices);
+      drawTrapezoids(trapezoids.get(0), null);
+      lineBreak(outline, 5);
     } catch (Exception e){
       e.printStackTrace(new java.io.PrintStream(System.out));
     }
@@ -45,12 +49,13 @@ class ConvexStrategy implements TextStrategy{
   }
 
 
-  public void getTrapezoidalDecomposition(VertexList outline, Vertex[] orderedVertices) {
+  public List<VerticalTrapezoid> getTrapezoidalDecomposition(VertexList outline, Vertex[] orderedVertices) {
 
     int size = orderedVertices.length;
     //Active Trapezoid Tree
     TreeSet<ProxyVerticalTrapezoidVertex> att = new TreeSet<ProxyVerticalTrapezoidVertex>(new VerticalTrapezoidVertexComparator());
     VerticalTrapezoid tHead = null;
+    List<VerticalTrapezoid> trapezoidList= new LinkedList<VerticalTrapezoid>();
 
 
     for(int i = 0; i < size; i++) {
@@ -61,11 +66,25 @@ class ConvexStrategy implements TextStrategy{
 
       //Wenn der Vertex in einem Trapez liegt
       if(att.contains(pv)) {
-        VerticalTrapezoid trapezoid = att.floor(pv).toTrapezoid();
+        ProxyVerticalTrapezoidVertex pt = att.floor(pv);
+        VerticalTrapezoid trapezoid = pt.toTrapezoid();
         leftSideTrapezoids.add(trapezoid);
 
-        if(vertexIsLeftTrap(outline, v)) {
-          // Add another Trapezoid;
+        if(vertexIsLeftTrap(outline, v) && hasIntersection(trapezoid, v)) {
+          System.out.println("-----------------------LEFT TRAP");
+          ProxyVerticalTrapezoidVertex pt1 = att.higher(pt);
+          ProxyVerticalTrapezoidVertex pt2 = att.lower(pt);
+          if(pt1 == null) {
+            leftSideTrapezoids.add(pt2.toTrapezoid());
+          } else if(pt2 == null) {
+            leftSideTrapezoids.add(pt1.toTrapezoid());
+          } else if(pt1.toTrapezoid().contains(v)) {
+            leftSideTrapezoids.add(pt1.toTrapezoid());
+          } else if(pt2.toTrapezoid().contains(v)) {
+            leftSideTrapezoids.add(pt2.toTrapezoid());
+          } else {
+            System.out.println("KEIN TRAPEZ");
+          }
         }
       }
 
@@ -76,10 +95,15 @@ class ConvexStrategy implements TextStrategy{
         att.remove(new ProxyVerticalTrapezoidVertex(trapezoid));
       }
       for(VerticalTrapezoid trapezoid : rightSideTrapezoids) {
-        att.add(new ProxyVerticalTrapezoidVertex(trapezoid));
+        if(!(trapezoid instanceof VerticalTrapezoidFiller)) {
+          att.add(new ProxyVerticalTrapezoidVertex(trapezoid));
+        }
+        //Sortiere nach Anfang des Polygons
+        trapezoidList.add(trapezoid);
       }
     }
-    drawTrapezoids(tHead, null);
+    // drawTrapezoids(tHead, null);
+    return trapezoidList;
   }
 
   public void drawTrapezoids(VerticalTrapezoid t, VerticalTrapezoid previous) {
@@ -133,6 +157,10 @@ class ConvexStrategy implements TextStrategy{
   }
 
   public boolean vertexIsLeftTrap(VertexList outline, Vertex v) {
+    Vertex next = outline.getNext(v);
+    Vertex prev = outline.getPrev(v);
+    if(next.x < v.x && prev.x < v.x) return true;
+
     return false;
   }
 
@@ -144,6 +172,17 @@ class ConvexStrategy implements TextStrategy{
     vertical.getLineIntersection(trapezoid.bot, intersectionBot);
 
     return new Vertex[] {intersectionTop, intersectionBot};
+  }
+
+  public boolean hasIntersection(VerticalTrapezoid trapezoid, Vertex v) {
+    Vertex[] intersections = intersection(trapezoid, v);
+    if(!intersections[0].equals(v) && !intersections[0].equals(new Vertex(-1, -1))) {
+      return true;
+    }
+    if(!intersections[1].equals(v) && !intersections[1].equals(new Vertex(-1, -1))) {
+      return true;
+    }
+    return false;
   }
 
   public List<VerticalTrapezoid> createTrapezoids(List<VerticalTrapezoid> leftSideTrapezoids, Vertex v, VertexList outline) {
@@ -233,6 +272,15 @@ class ConvexStrategy implements TextStrategy{
             trapezoid.top = new LineSegment(trapezoid.left.start, v);
             trapezoid.bot = new LineSegment(trapezoid.left.end, v);
           }
+          VerticalTrapezoid endTrap = new VerticalTrapezoidFiller(trapezoid.right);
+          endTrap.top = new LineSegment(trapezoid.right.start, trapezoid.right.start);
+          endTrap.bot = new LineSegment(trapezoid.right.start, trapezoid.right.start);
+          endTrap.right = trapezoid.right;
+          trapezoid.addNextTrapezoid(endTrap);
+          endTrap.addPreviousTrapezoid(trapezoid);
+          rightSideTrapezoids.add(endTrap);
+          System.out.println("ENDPUNKT");
+          System.out.println(endTrap.area());
           //Previous schon vorhanden. Next = Null
         } else if(trapezoid.top.end.equals(v)) {
 
@@ -276,9 +324,162 @@ class ConvexStrategy implements TextStrategy{
       }
       rightSideTrapezoids.add(newTrapezoid);
     } else {
-      //Fall Left Trap
+      //Fall Left Trap / leftside_1 = top, leftside_2 = bot
+      VerticalTrapezoid trapTop = leftSideTrapezoids.get(0);
+      VerticalTrapezoid trapBot = leftSideTrapezoids.get(1);
+      if(trapTop.left.start.y > trapBot.left.start.y) {
+        VerticalTrapezoid tmp = trapTop;
+        trapTop = trapBot;
+        trapBot = tmp;
+      }
 
+      Vertex[] intersections = intersection(trapTop, v);
+      VirtualVertex vTop = null;
+      VirtualVertex vBot = null;
+      System.out.println(v);
+      System.out.println("HALLO");
+      if(!intersections[0].equals(v) && !intersections[0].equals(new Vertex(-1, -1))) {
+        vTop = new VirtualVertex(intersections[0]);
+        System.out.println(vTop);
+      }
+      // if(!intersections[1].equals(v) && !intersections[1].equals(new Vertex(-1, -1))) {
+      //   vBot = new VirtualVertex(intersections[1]);
+      // }
+
+      intersections = intersection(trapBot, v);
+      // if(!intersections[0].equals(v) && !intersections[0].equals(new Vertex(-1, -1))) {
+      //   vTop = new VirtualVertex(intersections[0]);
+      // }
+      if(!intersections[1].equals(v) && !intersections[1].equals(new Vertex(-1, -1))) {
+        vBot = new VirtualVertex(intersections[1]);
+        System.out.println(vBot);
+      }
+
+      VerticalTrapezoid newTrapezoid = new VerticalTrapezoid(new LineSegment(vTop, vBot));
+      newTrapezoid.top = trapTop.top;
+      newTrapezoid.bot = trapBot.bot;
+      trapTop.right = new LineSegment(vTop, v);
+      trapTop.top = new LineSegment(trapTop.left.start, vTop);
+      trapTop.bot = new LineSegment(trapTop.left.end, v);
+      trapBot.right = new LineSegment(v, vBot);
+      trapBot.top = new LineSegment(trapBot.left.start, v);
+      trapBot.bot = new LineSegment(trapBot.left.end, vBot);
+      trapTop.addNextTrapezoid(newTrapezoid);
+      trapBot.addNextTrapezoid(newTrapezoid);
+      newTrapezoid.addPreviousTrapezoid(trapTop);
+      newTrapezoid.addPreviousTrapezoid(trapBot);
+      System.out.println(vTop);
+      System.out.println(v);
+      System.out.println(vBot);
+      double aslkdjalsd = newTrapezoid.left.start.y;
+      rightSideTrapezoids.add(newTrapezoid);
     }
     return rightSideTrapezoids;
   }
+
+  // public double[] calculateUniformAreasize(List<VerticalTrapezoid> trapList, int lineCount) {
+  //   double area = 0;
+  //   for(VerticalTrapezoid trapezoid : trapList) {
+  //     area += trapezoid.area();
+  //   }
+  //   return area;
+  // }
+
+  public void lineBreak(VertexList outline, int lineCount) {
+    rotateCounterClockwise(outline);
+    //Linked List mit konstanter Einfüge Operation
+    Vertex[] orderedVertices = sort(outline);
+    LinkedList<VerticalTrapezoid> trapList = (LinkedList<VerticalTrapezoid>)getTrapezoidalDecomposition(outline, orderedVertices);
+    double areaPolygon = area(trapList);
+    HashSet<VerticalTrapezoid> ats = new HashSet<VerticalTrapezoid>();
+    // double area[] = new double[trapList.size()];
+    double area = 0;
+    double area_last = 0;
+    double sweep = 0;
+    double a1 = 0;
+    double a2 = 0;
+    double b1 = 0;
+    double b2 = 0;
+    double s_last = -9999;
+    double counter = 1;
+
+    List<LineSegment> breakingLines = new LinkedList<LineSegment>();
+
+    for(VerticalTrapezoid trapezoid : trapList) {
+      System.out.println("PRINT AREA");
+      System.out.println(trapezoid.area());
+      sweep = trapezoid.left.start.x;
+      if(s_last == -9999) {
+        s_last = sweep;
+      }
+
+      // area += a1/2 * Math.pow(sweep,2) + b1*sweep - (a1/2 * Math.pow(s_last,2) + b1 * s_last)
+      //   - (a2/2 * Math.pow(sweep,2) + b2 * sweep - (a2/2 * Math.pow(s_last,2) + b2 * s_last));
+      area += a2/2 * Math.pow(sweep,2) + b2*sweep - (a2/2 * Math.pow(s_last,2) + b2 * s_last)
+        - (a1/2 * Math.pow(sweep,2) + b1 * sweep - (a1/2 * Math.pow(s_last,2) + b1 * s_last));
+      System.out.println("AREA: " + area);
+      System.out.println("POLYGON: " + areaPolygon);
+      while(area > areaPolygon * (counter/(lineCount + 1)) && counter <= lineCount) {
+        //Trapez gefunden
+        double Fleft = areaPolygon * counter / (lineCount + 1) - area_last;
+        // double x = -((b1 - b2 + Math.sqrt(Math.pow((b1-b2),2) + (2*(b1*s_last-b2*s_last+Fleft)+a1*Math.pow(s_last,2)-a2*Math.pow(s_last,2))*(a1-a2)))/(a1-a2));
+        double x = -((b2 - b1 - Math.sqrt(Math.pow((b2-b1),2) + (2*(b2*s_last-b1*s_last+Fleft)+a2*Math.pow(s_last,2)-a1*Math.pow(s_last,2))*(a2-a1)))/(a2-a1));
+        LineSegment vLine = new LineSegment(new Vertex(x, 0), new Vertex(x, 1000));
+        vLine.start.rotateClockwise();
+        vLine.end.rotateClockwise();
+        breakingLines.add(vLine);
+        drawLineSegment(vLine);
+        counter++;
+      }
+
+
+      //Erst rechnen, dann hinzufügen
+
+      a1 += trapezoid.top.slope();
+      a2 += trapezoid.bot.slope();
+      b1 += trapezoid.top.functionOffset();
+      b2 += trapezoid.bot.functionOffset();
+      // ats.add(trapezoid);
+      for(VerticalTrapezoid t : trapezoid.getPrev()) {
+        a1 -= t.top.slope();
+        a2 -= t.bot.slope();
+        b1 -= t.top.functionOffset();
+        b2 -= t.bot.functionOffset();
+        // ats.remove(t);
+      }
+      s_last = sweep;
+      area_last = area;
+    }
+
+
+
+    rotateClockwise(outline);
+  }
+
+  public void rotateCounterClockwise(VertexList outline) {
+    Vertex v = null;
+    for(int i = 0; i < outline.size(); i++) {
+      v = outline.next(v);
+      v.rotateCounterClockwise();
+      // v.x += 800;
+    }
+  }
+
+  public void rotateClockwise(VertexList outline) {
+    Vertex v = null;
+    for(int i = 0; i < outline.size(); i++) {
+      v = outline.next(v);
+      // v.x -= 800;
+      v.rotateClockwise();
+    }
+  }
+
+  public double area(List<VerticalTrapezoid> trapezoids) {
+    double area = 0;
+    for(VerticalTrapezoid t : trapezoids) {
+      area += t.area();
+    }
+    return area;
+  }
+
 }

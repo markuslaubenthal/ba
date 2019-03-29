@@ -65,4 +65,13 @@ class LineSegment {
     }
     return (end.y - start.y) / (end.x - start.x);
   }
+
+  public double functionOffset() {
+    return - slope() * start.x + start.y;
+  }
+
+  public boolean contains(Vertex v) {
+    if(start.equals(v) || end.equals(v)) return true;
+    return false;
+  }
 }

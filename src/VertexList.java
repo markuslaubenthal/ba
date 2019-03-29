@@ -44,7 +44,12 @@ class VertexList {
     return false;
   }
 
+  public Vertex next(Vertex v) {
+    return getNext(v);
+  }
+
   public Vertex getNext(Vertex v) {
+    if(v == null && head != null) return head.value();
     if(contains(v)) {
       return map.get(v).getNext().value();
     }
@@ -57,6 +62,10 @@ class VertexList {
       return map.get(v).getPrev().value();
     }
     return null;
+  }
+
+  public Vertex head() {
+    return head.value();
   }
 
   public VertexWrapper _getPrev(Vertex v) {
