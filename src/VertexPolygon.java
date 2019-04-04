@@ -151,6 +151,15 @@ class VertexPolygon {
     return null;
   }
 
+  public ArrayList<LineSegment> getLineSegments() {
+    ArrayList<LineSegment> segments= new ArrayList<LineSegment>();
+    for(int i = 0; i < outline.size(); i++) {
+      segments.add(getLineSegment(i));
+    }
+    return segments;
+  }
+
+
   public Boolean canSee(Vertex v, Vertex w) {
     if(v.equals(w)) return false;
     LineSegment visionLine = new LineSegment(v,w);

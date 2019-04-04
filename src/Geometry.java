@@ -4,7 +4,62 @@ import java.util.Comparator;
 import java.util.Collections;
 import java.util.HashSet;
 
+import javafx.scene.layout.Pane;
+import javafx.scene.text.*;
+
+
 class Geometry {
+
+
+  public static MALineSegment calcBisec(LineSegment l1, LineSegment l2) {
+    MALineSegment upper = new MALineSegment(new MAVertex(l1.start.x, l1.start.y), new MAVertex(l1.end.x, l1.end.y));
+    MALineSegment lower = new MALineSegment(new MAVertex(l2.start.x, l2.start.y), new MAVertex(l2.end.x, l2.end.y));
+    MAVertex intersectionPoint = new MAVertex(0,0);
+
+    upper.getLineIntersection(lower, intersectionPoint);
+
+
+    MAVertex a = upper.start;
+    MAVertex b = intersectionPoint;
+    MAVertex c = lower.start;
+    // calculate bisection lines
+    double angleABC = angle(a,b,c) / 2.0;
+
+    MAVertex bisecOrientationVectABC = rotate(c.sub(b), angleABC);
+
+    MALineSegment bisecABC = new MALineSegment(b, b.add(bisecOrientationVectABC));
+
+    return bisecABC;
+
+  }
+
+  public static double angle(MAVertex x, MAVertex y, MAVertex z) {
+
+    MAVertex v1 = x.sub(y);
+    MAVertex v2 = z.sub(y);
+
+    double angle = Math.atan2(v1.y, v1.x) - Math.atan2(v2.y, v2.x);
+    if (angle < 0) { angle += 2 * Math.PI; }
+
+
+    // angle between - pi and pi
+
+    return angle;
+  }
+
+  public static MAVertex rotate(MAVertex v, double d) {
+
+    double x = Math.cos(d) * v.x - Math.sin(d) * v.y;
+    double y = Math.sin(d) * v.x + Math.cos(d) * v.y;
+    v.x = x;
+    v.y = y;
+
+    return v;
+
+  }
+
+
+
 
   public static VertexPolygon scalePolygon(VertexPolygon originalPoly, double factor) {
 
@@ -36,6 +91,8 @@ class Geometry {
     return poly;
 
   }
+
+
 
   public static double getAreaSizeOfPolygon(VertexPolygon p) {
     ArrayList<Vertex> outline = p.getOutline();

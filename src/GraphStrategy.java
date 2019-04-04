@@ -26,10 +26,10 @@ class GraphStrategy implements TextStrategy{
     //double[] bb = poly.getBoundingBox();
     //double minSize = (bb[1]-bb[0]) / (2 * poly.getText().length());
     //double minSize = Math.sqrt(poly.getAreaSize()) / poly.getText().length();
-    int density = Math.max(8, 8 * 4 / poly.getText().length());
+    int density = Math.max(16, 16 * 4 / poly.getText().length());
     // int density = Math.max(10, 50 / poly.getText().length());
 
-    double minSize = Math.sqrt((poly.getAreaSize() / poly.getText().length()) / 3) ;
+    double minSize = Math.sqrt((poly.getAreaSize() / poly.getText().length()) / 3 / 3) * 1.5;
 
     Graph g = new Graph(poly, minSize, density);
     g.generateNetwork();
@@ -87,7 +87,7 @@ class GraphStrategy implements TextStrategy{
       t.setX(centerVertex.x - width / 2 - boundingLeft);
       t.setScaleX(1.7);
       t.setY(centerVertex.y + height / 2 - boundingBot);
-      if(!letterI.equals("-")) t.setScaleY(((centerVertex.score + density - 1) * minSize) / (density * height));
+      if(!letterI.equals("-")) t.setScaleY(((centerVertex.score + density - 1) * minSize) * 0.9 / (density * height));
 
 
 

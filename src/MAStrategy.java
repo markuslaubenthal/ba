@@ -14,6 +14,7 @@ class MAStrategy implements TextStrategy{
 
   public void drawText(VertexPolygon originalPoly, Pane textLayer){
 
+
     ArrayList<MAVertex> outline = convertOutline(originalPoly.getOutline());
     int n = outline.size();
     PriorityQueue<MALineSegment> Q = new PriorityQueue<>(11, new MALineSegmentComparator());

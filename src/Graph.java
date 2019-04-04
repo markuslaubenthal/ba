@@ -81,7 +81,7 @@ class Graph {
     for(int i = vertecies.size() - 1; i > 0; i -= 1) {
 
       score += 2;
-      if(vertecies.get(i).getLower() == null) score = -1 * density + 1;
+      if(vertecies.get(i).getLower() == null) score = -1 * density + 1; // - 2 * density for padding - not realy
 
       vertecies.get(i).setScore(Math.min(score, vertecies.get(i).getScore()));
 
@@ -94,7 +94,7 @@ class Graph {
   }
 
   public int distance(GraphVertex v, GraphVertex u) {
-    return (int)(u.getScore() - (Math.abs(v.y - u.y) * density) / minSize);
+    return (int)(u.getScore() - (Math.abs(v.y - u.y) * density) / minSize); // irgend was ist faul hier
   }
 
   public ArrayList<GraphVertex> findLongestPath() {

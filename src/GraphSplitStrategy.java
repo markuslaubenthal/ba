@@ -36,7 +36,7 @@ class GraphSplitStrategy implements TextStrategy {
         int density = Math.max(8, 8 * 4 / poly.getText().length());
         //double[] bb = p.getBoundingBox();
         //double minSize = (bb[1]-bb[0]) / (2 * p.getText().length());
-        double minSize = Math.sqrt(p.getAreaSize()/ poly.getText().length() / 3);
+        double minSize = Math.sqrt(p.getAreaSize()/ poly.getText().length() / 3 / 3) * 1.5;
 
         Graph g = new Graph(p, minSize, density);
         g.generateNetwork();
@@ -71,7 +71,7 @@ class GraphSplitStrategy implements TextStrategy {
 
         if(avgScore + density - 1 < 1.5 * density / verteciesPerLetter) { // area covered is not 50% of the polygon
           System.out.println("too small");
-          
+
           VertexPolygon[] polygonParts = slicePoly(p, density);
           newSubPolygonList.add(polygonParts[0]);
           newSubPolygonList.add(polygonParts[1]);

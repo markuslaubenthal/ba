@@ -6,3 +6,4 @@ class VertexXComparator implements Comparator<Vertex> {
         return a.x < b.x ? -1 : a.x == b.x ? 0 : 1;
     }
 }
+ 
