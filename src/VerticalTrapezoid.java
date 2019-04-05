@@ -50,11 +50,29 @@ class VerticalTrapezoid {
     next.add(t);
   }
 
+  public VerticalTrapezoid getNextExplicit() {
+    for(VerticalTrapezoid t : next) return t;
+    return null;
+  }
+
+  public VerticalTrapezoid getPrevExplicit() {
+    for(VerticalTrapezoid t : prev) return t;
+    return null;
+  }
+
   public HashSet<VerticalTrapezoid> getNext() {
     return next;
   }
   public HashSet<VerticalTrapezoid> getPrev() {
     return prev;
+  }
+
+  public void removeNext(VerticalTrapezoid t) {
+    if(next.contains(t)) next.remove(t);
+  }
+
+  public void removePrev(VerticalTrapezoid t) {
+    if(prev.contains(t)) prev.remove(t);
   }
 
   public boolean equals(Object o) {
@@ -73,5 +91,12 @@ class VerticalTrapezoid {
   public boolean contains(Vertex v) {
     if(top.contains(v) || bot.contains(v)) return true;
     return false;
+  }
+
+  public boolean hasNext() {
+    return next.size() == 0 ? false : true;
+  }
+  public boolean hasPrev() {
+    return prev.size() == 0 ? false : true;
   }
 }

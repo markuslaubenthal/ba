@@ -27,6 +27,9 @@ class LineSegment {
   public double getHeight() {
     return Math.abs(end.y - start.y);
   }
+  public double height() {
+    return getHeight();
+  }
 
   public double getWidth() {
     return Math.abs(end.x - start.x);
@@ -59,11 +62,16 @@ class LineSegment {
   }
 
   public double slope() {
+
+    // System.out.println("Slope: " + end.y + " : " + start.y);
+
+    if(start.x > end.x) System.out.println("FUCK");
+
     if(end.x == start.x) {
       if(start.y > end.y) return -9999999;
       else return 9999999;
     }
-    return (end.y - start.y) / (end.x - start.x);
+    return (start.y - end.y) / (start.x - end.x);
   }
 
   public double functionOffset() {

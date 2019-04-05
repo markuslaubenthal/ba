@@ -15,7 +15,8 @@ class Test {
     // vertexListTest();
     // orderingTest();
     // intersectionTest();
-    outlineTest();
+    // outlineTest();
+    areaCalcTest();
   }
 
   public static void polygonTest() {
@@ -189,6 +190,52 @@ class Test {
     l.add(v);
     v.x = 10;
     if(l.contains(v)) System.out.println("contains");
+  }
+
+  public static void areaCalcTest() {
+    Vertex v1 = new Vertex(50,50);
+    Vertex v2 = new Vertex(50,30);
+    Vertex v3 = new Vertex(60,45);
+    Vertex v4 = new Vertex(70,75);
+    Vertex v5 = new Vertex(50,65);
+    VerticalTrapezoid t1 = new VerticalTrapezoid(
+      new LineSegment(v2, v1),
+      new LineSegment(v2, v3),
+      new LineSegment(v3, v3),
+      new LineSegment(v1, v3)
+    );
+    VerticalTrapezoid t2 = new VerticalTrapezoid(
+      new LineSegment(v1, v5),
+      new LineSegment(v1, v4),
+      new LineSegment(v4, v4),
+      new LineSegment(v5, v4)
+    );
+
+    double a1 = t1.bot.slope() + t2.bot.slope();
+    double a2 = t1.top.slope() + t2.top.slope() ;
+    double b1 = t1.bot.functionOffset() + t2.bot.functionOffset();
+    double b2 = t1.top.functionOffset() + t2.top.functionOffset();
+    double sweep = 60;
+    double s_last = 50;
+
+    double polyArea = t1.area() + t2.area();
+
+    double area = ((a1/2 * Math.pow(sweep,2) + b1*sweep - (a1/2 * Math.pow(s_last,2) + b1 * s_last))
+      - (a2/2 * Math.pow(sweep,2) + b2 * sweep - (a2/2 * Math.pow(s_last,2) + b2 * s_last)));
+
+    System.out.println("Polygon: " + polyArea);
+    System.out.println("Sweep 50/60: " + area);
+
+    a1 -= t1.bot.slope();
+    a2 -= t1.top.slope();
+    b1 -= t1.bot.functionOffset();
+    b2 -= t1.top.functionOffset();
+    sweep = 70;
+    s_last = 60;
+    area = ((a1/2 * Math.pow(sweep,2) + b1*sweep - (a1/2 * Math.pow(s_last,2) + b1 * s_last))
+      - (a2/2 * Math.pow(sweep,2) + b2 * sweep - (a2/2 * Math.pow(s_last,2) + b2 * s_last)));
+
+    System.out.println("Sweep 60/70: " + area);
   }
 
 }

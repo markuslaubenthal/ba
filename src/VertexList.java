@@ -68,6 +68,10 @@ class VertexList {
     return head.value();
   }
 
+  public Vertex tail() {
+    return tail.value();
+  }
+
   public VertexWrapper _getPrev(Vertex v) {
     if(contains(v)) {
       return map.get(v).getPrev();

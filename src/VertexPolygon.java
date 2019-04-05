@@ -189,4 +189,12 @@ class VertexPolygon {
     return true;
   }
 
+  public Boolean isEmpty() {
+    return dlOutline.size() == 0 ? true : false;
+  }
+
+  public Vertex getLastVertex() {
+    return dlOutline.tail();
+  }
+
 }
