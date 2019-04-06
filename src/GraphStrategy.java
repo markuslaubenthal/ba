@@ -37,7 +37,6 @@ class GraphStrategy implements TextStrategy{
     for(GraphVertex p : initialPath) {
       if(p.getScore() > 0) path.add(p);
     }
-<<<<<<< HEAD
 
     int verteciesPerLetter = path.size() / poly.getText().length();
     int verteciesleft = path.size() % poly.getText().length();
@@ -58,14 +57,6 @@ class GraphStrategy implements TextStrategy{
       centerVertex.y = centerVertex.y / verteciesPerLetter;
       centerVertex.score = centerVertex.score / verteciesPerLetter;
 
-=======
-    int verteciesPerLetter = (cleanPath.size() - density * 3) / poly.getText().length();
-    for(int i = 0; i < poly.getText().length(); i++) {
-      GraphVertex centerVertexL = cleanPath.get((int) density * 2 + i*verteciesPerLetter + verteciesPerLetter / 2);
-      GraphVertex centerVertexR = cleanPath.get((int) density * 2 + i*verteciesPerLetter + (verteciesPerLetter + 1) / 2);
-      GraphVertex centerVertex = new GraphVertex((centerVertexL.x + centerVertexR.x) / 2, (centerVertexL.y + centerVertexR.y) / 2);
-      centerVertex.setScore(Math.min(centerVertexL.getScore(), centerVertexR.getScore()));
->>>>>>> font-tests
       double fontsize = verteciesPerLetter * minSize / density;
 
       Font monospacedFont;
@@ -83,42 +74,12 @@ class GraphStrategy implements TextStrategy{
       double descent = Math.abs(boundingBot);
       double middle = Math.abs(boundingTop + boundingBot) / 2;
 
-<<<<<<< HEAD
       double difference = Math.abs(Math.abs(middle) - Math.abs(middle - ascent));
       t.setX(centerVertex.x - (fontsize / 2));
       double padding = 0.9;
       double scale = ((centerVertex.score + density - 1) * minSize / density / (ascent - middle)) * padding;
       t.setY(centerVertex.y + middle);
       t.setScaleY(scale);
-=======
-      LineSegment test = new LineSegment(centerVertex.sub(new Vertex(0, 1000)), centerVertex.add(new Vertex(0, 1000)));
-      ArrayList<Vertex> intersections = new ArrayList<Vertex>();
-      for(int index = 0; index < poly.getOutline().size();index++) {
-        Vertex intersection = new Vertex(0,0);
-        if(test.getLineIntersection(poly.getLineSegment(index), intersection)) {
-          intersections.add(intersection);
-        }
-      }
-      VertexYComparator.sort(intersections);
-      Vertex cv = new Vertex(centerVertex.x,0);
-      for(int index = 0; index < intersections.size(); index++) {
-        if(intersections.get(index).y < centerVertex.y && intersections.get(index + 1).y > centerVertex.y) {
-          double midpoint = (intersections.get(index).y + intersections.get(index+1).y) / 2;
-          cv.y = midpoint;
-        }
-      }
-
-      double difference = Math.abs(Math.abs(middle) - Math.abs(middle - ascent));
-      t.setX(cv.x - (fontsize / 2));
-      double padding = 1;
-      double scale = ((centerVertex.score + density - 1.0) * minSize / density / (ascent - middle));
-      t.setY(cv.y + middle + descent / 2.0);
-      t.setScaleY(scale);
-      System.out.println(descent);
-      // t.setTranslateY((middle - descent) * (scale - 1));
-      // t.setTranslateY((middle - descent / 2) * (scale - 1));
-      // t.setTranslateY(Math.abs(ascent - middle) - middle * (scale - 1));
->>>>>>> font-tests
       t.setScaleX(1.5);
       textLayer.getChildren().add(t);
     }
