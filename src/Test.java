@@ -54,7 +54,7 @@ class Test {
   public static void hyphenatorTest() {
     HyphenGenerator h = new HyphenGenerator();
     System.out.println("Hyphenator created");
-    List<String> output = h.hyphenate("Schifffahrtskapitän");
+    List<String> output = h.hyphenate("DEUTSCHLAND");
     System.out.println(output);
   }
 
