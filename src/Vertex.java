@@ -10,17 +10,22 @@ public class Vertex {
     public double y;
     public Circle point;
     public Boolean dragged = false;
+    private String hash = "";
 
     public Vertex(double x, double y, Circle point) {
-        this.x = x;
-        this.y = y;
+        this(x,y);
         this.point = point;
+        hash = toString();
     }
 
     public Vertex(double x, double y) {
         this.x = x;
         this.y = y;
         point = null;
+    }
+
+    public Vertex(Vertex v) {
+      this(v.x, v.y);
     }
 
     public void setPoint(Circle point) {
@@ -108,6 +113,24 @@ public class Vertex {
 
     public double getAngleInRadians() {
       return Math.atan2(y,x);
+    }
+
+    public void rotateCounterClockwise() {
+      double x = this.x;
+      double y = this.y;
+      this.x = -y;
+      this.y = x;
+    }
+
+    public void rotateClockwise() {
+      double x = this.x;
+      double y = this.y;
+      this.x = y;
+      this.y = -x;
+    }
+
+    public int hashCode() {
+      return hash.hashCode();
     }
 
 }
