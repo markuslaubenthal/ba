@@ -22,6 +22,7 @@ class ConvexStrategy implements TextStrategy{
   boolean drawing = false;
   int counter = 0;
   int counter2 = 0;
+  double m = 0;
 
 
   public ConvexStrategy(){
@@ -46,9 +47,9 @@ class ConvexStrategy implements TextStrategy{
       VertexPolygon _p = trapezoidsToPolygon(head);
       lineBreak(_p.getDlOutline(), 2);
 
-
-
-      drawTrapezoids(head, null);
+      getRectrangles(head, poly.getText().length(), m);
+      m += 2;
+      // drawTrapezoids(head, null);
     } catch (Exception e){
       e.printStackTrace(new java.io.PrintStream(System.out));
     }
@@ -60,7 +61,109 @@ class ConvexStrategy implements TextStrategy{
     return v;
   }
 
+  /**
+   * get Most Left Point, get most Right point, rectwidth = (right - left) / count
+   * Sweep über Trapeze maxTop und minBot speichern
+   *
+   * @method getRectrangles
+   * @param  head           [description]
+   * @param  count          [description]
+   */
+  public void getRectrangles(VerticalTrapezoid head, int count, double margin) {
+    double mostLeftPoint = head.left.start.x;
+    double mostRightPoint;
+    VerticalTrapezoid rightest = head;
+    while(rightest.hasNext()) {
+      rightest = rightest.getNextExplicit();
+    }
+    mostRightPoint = rightest.right.start.x;
+    double width = (mostRightPoint - mostLeftPoint) / count;
 
+    VerticalTrapezoid current = head;
+    double x1 = mostLeftPoint;
+    double x2 = mostLeftPoint + width;
+
+
+
+    List<BoundingBox> boundingBoxes = new ArrayList<BoundingBox>();
+
+    for(int rectCounter = 0; rectCounter < count; rectCounter++) {
+      double x1_m = x1 + margin;
+      double x2_m = x2 - margin;
+      double top = getTopInInterval(current, x1_m, x2_m);
+      double bot = getBotInInterval(current, x1_m, x2_m);
+      // current = getTrapezoidAtPosition(current, x2);
+      boundingBoxes.add(new BoundingBox(top, x2_m, bot, x1_m));
+      x1 += width;
+      x2 += width;
+    }
+
+    for(BoundingBox b : boundingBoxes) {
+      drawRectangle(b);
+      System.out.println(b);
+    }
+
+
+  }
+
+  public void drawRectangle(BoundingBox b) {
+    Rectangle r = new Rectangle();
+    r.setX(b.left);
+    r.setY(b.top);
+    r.setWidth(b.right - b.left);
+    r.setHeight(b.bot - b.top);
+    // r.setArcWidth(20);
+    // r.setArcHeight(20);
+    textLayer.getChildren().add(r);
+  }
+
+  public VerticalTrapezoid getTrapezoidAtPosition(VerticalTrapezoid t, double x) {
+    while(t.right.start.x < x) {
+      t = t.getNextExplicit();
+    }
+    return t;
+  }
+
+  public double getTopInInterval(VerticalTrapezoid t, double x1, double x2) {
+    t = getTrapezoidAtPosition(t, x1);
+    double top = getTopAtPosition(t, x1);
+    while(t.right.start.x < x2) {
+      // if(t.right.start.x >= x2) {
+        top = Math.max(top, t.right.start.y);
+      // }
+      t = t.getNextExplicit();
+    }
+    return Math.max(top, getTopAtPosition(t, x2));
+  }
+
+  public double getTopAtPosition(VerticalTrapezoid t, double x) {
+    if(t.left.start.x == x) return t.left.start.y;
+    if(t.right.start.x == x) return t.right.start.y;
+    Vertex v = new Vertex(0,0);
+    t.top.getLineIntersection(new LineSegment(x,0,x,1000), v);
+    return v.y;
+  }
+
+  public double getBotInInterval(VerticalTrapezoid t, double x1, double x2) {
+    t = getTrapezoidAtPosition(t, x1);
+    double bot = getBotAtPosition(t, x1);
+    while(t.right.end.x < x2) {
+      // if(t.right.end.x >= x2) {
+        bot = Math.min(bot, t.right.end.y);
+      // }
+      t = t.getNextExplicit();
+    }
+    return Math.min(bot, getBotAtPosition(t, x2));
+  }
+
+  public double getBotAtPosition(VerticalTrapezoid t, double x) {
+    if(t.left.end.x == x) return t.left.end.y;
+    if(t.right.end.x == x) return t.right.end.y;
+    Vertex v = new Vertex(0,0);
+    t.bot.getLineIntersection(new LineSegment(x,0,x,1000), v);
+    System.out.println(v);
+    return v.y;
+  }
 
 
   public List<VerticalTrapezoid> getTrapezoidalDecomposition(VertexList outline, Vertex[] orderedVertices) {
