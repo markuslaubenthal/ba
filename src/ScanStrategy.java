@@ -142,25 +142,17 @@ class ScanStrategy implements TextStrategy{
 
         t.setY(baseline);
 
-        System.out.println("Letter: " + myLetter);
-        System.out.println("Ascent:  " + ascent);
-        System.out.println("Descent: " + descent);
-        System.out.println("Middle: " + middle);
         t.setX(start.start.x);
         t.setScaleX(1.5);
 
         double requiredHeight = Math.abs(top - bot);
         double actualHeight = ascent;
 
-        System.out.println("required: " + requiredHeight);
-        System.out.println("actual: " + actualHeight);
         double scale = requiredHeight / (actualHeight - middle);
         t.setScaleY(scale);
         t.setTranslateY( - middle * (scale - 1));
         textLayer.getChildren().add(t);
 
-        System.out.println("----------");
-        System.out.println("");
         letter++;
       } else {
         startOffset = lines.size();
