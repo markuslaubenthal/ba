@@ -46,7 +46,7 @@ class LineSegment {
       s = (-s1_y * (p0_x - p2_x) + s1_x * (p0_y - p2_y)) / (-s2_x * s1_y + s1_x * s2_y);
       t = ( s2_x * (p0_y - p2_y) - s2_y * (p0_x - p2_x)) / (-s2_x * s1_y + s1_x * s2_y);
 
-      if (s >= 0 && s <= 1 && t >= 0 && t <= 1)
+      if (s > 0 && s < 1 && t > 0 && t < 1)
       {
           // Collision detected
           i.x = p0_x + (t * s1_x);
@@ -62,11 +62,6 @@ class LineSegment {
   }
 
   public double slope() {
-
-    // System.out.println("Slope: " + end.y + " : " + start.y);
-
-    if(start.x > end.x) System.out.println("FUCK");
-
     if(end.x == start.x) {
       if(start.y > end.y) return -9999999;
       else return 9999999;
