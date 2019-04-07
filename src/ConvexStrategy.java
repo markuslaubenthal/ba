@@ -36,6 +36,7 @@ class ConvexStrategy implements TextStrategy{
   public void drawText(VertexPolygon poly, Pane textLayer) {
     this.textLayer = textLayer;
 
+    Random r = new Random();
     try {
       VertexList outline = poly.getDlOutline();
       Vertex[] orderedVertices = sort(outline);
@@ -44,12 +45,12 @@ class ConvexStrategy implements TextStrategy{
       double minHeight = weightedAverageHeight * 0.5;
       VerticalTrapezoid head = trapezoids.get(0);
       head = trimConvex(head, head, minHeight);
-      VertexPolygon _p = trapezoidsToPolygon(head);
-      lineBreak(_p.getDlOutline(), 2);
+      // VertexPolygon _p = trapezoidsToPolygon(head);
+      // lineBreak(_p.getDlOutline(), 2);
 
       getRectrangles(head, poly.getText().length(), m);
       m += 2;
-      // drawTrapezoids(head, null);
+      drawTrapezoids(head, null);
     } catch (Exception e){
       e.printStackTrace(new java.io.PrintStream(System.out));
     }
