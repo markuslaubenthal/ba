@@ -6,8 +6,13 @@ class VerticalTrapezoid {
   public LineSegment top;
   public LineSegment bot;
 
+  public double informationLeft;
+  public double informationRight;
+
   public HashSet<VerticalTrapezoid> prev = new HashSet<VerticalTrapezoid>();
   public HashSet<VerticalTrapezoid> next = new HashSet<VerticalTrapezoid>();
+
+  public boolean active = true;
 
   public VerticalTrapezoid(LineSegment l, LineSegment t, LineSegment r, LineSegment b) {
     left = l;
@@ -51,12 +56,20 @@ class VerticalTrapezoid {
   }
 
   public VerticalTrapezoid getNextExplicit() {
-    for(VerticalTrapezoid t : next) return t;
+    for(VerticalTrapezoid t : next) {
+      if(t.isActive()) {
+        return t;
+      }
+    }
     return null;
   }
 
   public VerticalTrapezoid getPrevExplicit() {
-    for(VerticalTrapezoid t : prev) return t;
+    for(VerticalTrapezoid t : prev) {
+      if(t.isActive()) {
+        return t;
+      }
+    }
     return null;
   }
 
@@ -98,5 +111,17 @@ class VerticalTrapezoid {
   }
   public boolean hasPrev() {
     return prev.size() == 0 ? false : true;
+  }
+
+  public boolean isActive() {
+    return active;
+  }
+
+  public void activate() {
+    active = true;
+  }
+
+  public void deactivate() {
+    active = false;
   }
 }

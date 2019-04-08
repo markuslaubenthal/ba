@@ -12,6 +12,8 @@ public class Vertex {
     public Boolean dragged = false;
     private String hash = "";
 
+    boolean isRotated = false;
+
     public Vertex(double x, double y, Circle point) {
         this(x,y);
         this.point = point;
@@ -118,8 +120,9 @@ public class Vertex {
     public void rotateCounterClockwise() {
       double x = this.x;
       double y = this.y;
-      this.x = -y;
+      this.x = -y + 800;
       this.y = x;
+      isRotated = true;
     }
 
     public void rotateClockwise() {
@@ -127,6 +130,7 @@ public class Vertex {
       double y = this.y;
       this.x = y;
       this.y = -x;
+      isRotated = true;
     }
 
     public int hashCode() {

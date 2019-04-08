@@ -81,22 +81,20 @@ class ConvexStrategy implements TextStrategy{
     double width = (mostRightPoint - mostLeftPoint) / count;
 
     VerticalTrapezoid current = head;
-    double x1 = mostLeftPoint;
-    double x2 = mostLeftPoint + width;
 
 
 
     List<BoundingBox> boundingBoxes = new ArrayList<BoundingBox>();
 
     for(int rectCounter = 0; rectCounter < count; rectCounter++) {
-      double x1_m = x1 + margin;
-      double x2_m = x2 - margin;
+      double x1 = mostLeftPoint + width * (rectCounter);
+      double x2 = mostLeftPoint + width * (rectCounter + 1);
+      double x1_m = x1 + (width / 100.0 * margin);
+      double x2_m = x2 - (width / 100.0 * margin);
       double top = getTopInInterval(current, x1_m, x2_m);
       double bot = getBotInInterval(current, x1_m, x2_m);
       // current = getTrapezoidAtPosition(current, x2);
       boundingBoxes.add(new BoundingBox(top, x2_m, bot, x1_m));
-      x1 += width;
-      x2 += width;
     }
 
     for(BoundingBox b : boundingBoxes) {
@@ -132,14 +130,17 @@ class ConvexStrategy implements TextStrategy{
       // if(t.right.start.x >= x2) {
         top = Math.max(top, t.right.start.y);
       // }
+      System.out.println("---");
+      System.out.println(x2);
+      System.out.println(t.right.start.x);
       t = t.getNextExplicit();
     }
     return Math.max(top, getTopAtPosition(t, x2));
   }
 
   public double getTopAtPosition(VerticalTrapezoid t, double x) {
-    if(t.left.start.x == x) return t.left.start.y;
-    if(t.right.start.x == x) return t.right.start.y;
+    if(t.left.start.x == x) return t.top.start.y;
+    if(t.right.start.x == x) return t.top.end.y;
     Vertex v = new Vertex(0,0);
     t.top.getLineIntersection(new LineSegment(x,0,x,1000), v);
     return v.y;
@@ -652,8 +653,8 @@ class ConvexStrategy implements TextStrategy{
     Vertex v = null;
     for(int i = 0; i < outline.size(); i++) {
       v = outline.next(v);
-      v.rotateCounterClockwise();
-      // v.x += 800;
+      if(!v.isRotated)
+        v.rotateCounterClockwise();
     }
   }
 
@@ -661,8 +662,8 @@ class ConvexStrategy implements TextStrategy{
     Vertex v = null;
     for(int i = 0; i < outline.size(); i++) {
       v = outline.next(v);
-      // v.x -= 800;
-      v.rotateClockwise();
+      if(!v.isRotated)
+        v.rotateClockwise();
     }
   }
 
