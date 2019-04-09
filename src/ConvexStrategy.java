@@ -74,7 +74,7 @@ class ConvexStrategy implements TextStrategy{
     double mostLeftPoint = head.left.start.x;
     double mostRightPoint;
     VerticalTrapezoid rightest = head;
-    while(rightest.hasNext()) {
+    while(rightest.hasNextExplicit()) {
       rightest = rightest.getNextExplicit();
     }
     mostRightPoint = rightest.right.start.x;
@@ -252,27 +252,30 @@ class ConvexStrategy implements TextStrategy{
     Line l3;
     Line l4;
     Random r = new Random();
+    Color c;
+    if(t.isActive()) c = Color.color(0,1,0,1);
+    else c = Color.color(1,0,0,1);
     double r1 = r.nextDouble();
     double r2 = r.nextDouble();
     double r3 = r.nextDouble();
     if(t.left != null) {
       l1 = new Line(t.left.start.x, t.left.start.y, t.left.end.x, t.left.end.y);
-      l1.setStroke(Color.color(r1,r2,r3,0.3));
+      l1.setStroke(c);
       textLayer.getChildren().add(l1);
     }
     if(t.right != null) {
       l2 = new Line(t.right.start.x, t.right.start.y, t.right.end.x, t.right.end.y);
-      l2.setStroke(Color.color(r1,r2,r3,0.3));
+      l2.setStroke(c);
       textLayer.getChildren().add(l2);
     }
     if(t.top != null) {
       l3 = new Line(t.top.start.x, t.top.start.y, t.top.end.x, t.top.end.y);
-      l3.setStroke(Color.color(r1,r2,r3,0.3));
+      l3.setStroke(c);
       textLayer.getChildren().add(l3);
     }
     if(t.bot != null) {
       l4 = new Line(t.bot.start.x, t.bot.start.y, t.bot.end.x, t.bot.end.y);
-      l4.setStroke(Color.color(r1,r2,r3,0.3));
+      l4.setStroke(c);
       textLayer.getChildren().add(l4);
     }
 
@@ -294,7 +297,7 @@ class ConvexStrategy implements TextStrategy{
   public boolean vertexIsRightTrap(VertexList outline, Vertex v) {
     Vertex next = outline.getNext(v);
     Vertex prev = outline.getPrev(v);
-    if(next.x >= v.x && prev.x >= v.x) return true;
+    if(next.x > v.x && prev.x > v.x) return true;
 
     return false;
   }
@@ -302,7 +305,7 @@ class ConvexStrategy implements TextStrategy{
   public boolean vertexIsLeftTrap(VertexList outline, Vertex v) {
     Vertex next = outline.getNext(v);
     Vertex prev = outline.getPrev(v);
-    if(next.x <= v.x && prev.x <= v.x) return true;
+    if(next.x < v.x && prev.x < v.x) return true;
 
     return false;
   }
@@ -547,15 +550,6 @@ class ConvexStrategy implements TextStrategy{
       rightSideTrapezoids.add(newTrapezoid);
     }
 
-    if(drawing) {
-      for(VerticalTrapezoid t : rightSideTrapezoids) {
-        if(counter == -1) {
-          drawTrapezoid(t);
-        }
-        counter++;
-      }
-    }
-
     return rightSideTrapezoids;
   }
 
@@ -571,6 +565,11 @@ class ConvexStrategy implements TextStrategy{
     // rotateCounterClockwise(outline);
     //Linked List mit konstanter Einfüge Operation
     Vertex[] orderedVertices = sort(outline);
+
+    for(Vertex v : orderedVertices) {
+      drawCircle(v);
+    }
+
     LinkedList<VerticalTrapezoid> trapList = (LinkedList<VerticalTrapezoid>)getTrapezoidalDecomposition(outline, orderedVertices);
     double areaPolygon = area(trapList);
     HashSet<VerticalTrapezoid> ats = new HashSet<VerticalTrapezoid>();
@@ -762,13 +761,10 @@ class ConvexStrategy implements TextStrategy{
   }
 
 
-  public void drawCircle(Vertex v, Vertex x) {
+  public void drawCircle(Vertex v) {
     Circle circle = new Circle(v.x, v.y, 5);
-    Circle circle2 = new Circle(x.x, x.y, 5);
     circle.setStroke(Color.color(1,0,0,1));
-    circle2.setStroke(Color.color(0,1,0,1));
     textLayer.getChildren().add(circle);
-    textLayer.getChildren().add(circle2);
   }
 
   public VertexPolygon trapezoidsToPolygon(VerticalTrapezoid trapezoid) {
@@ -840,6 +836,43 @@ class ConvexStrategy implements TextStrategy{
       }
     }
     return current;
+  }
+
+  public VertexPolygon _trapezoidToPolygonMonotone(VerticalTrapezoid trapezoid) {
+    VertexPolygon polygon = new VertexPolygon();
+    trapezoidToPolygonMonotone(polygon, trapezoid);
+    return polygon;
+  }
+
+  public void trapezoidToPolygonMonotone(VertexPolygon polygon, VerticalTrapezoid trapezoid) {
+    VerticalTrapezoid nextTrap = trapezoid.getNextExplicit();
+
+    if(polygon.isEmpty()) {
+      polygon.addVertex(trapezoid.left.start);
+      polygon.addVertex(trapezoid.right.start);
+      if(nextTrap != null) {
+        trapezoidToPolygon(polygon, nextTrap);
+      }
+
+    } else {
+      if(!polygon.getLastVertex().equals(trapezoid.left.start)) {
+        polygon.addVertex(trapezoid.left.start);
+      }
+      polygon.addVertex(trapezoid.right.start);
+      if(nextTrap != null) {
+        trapezoidToPolygon(polygon, nextTrap);
+      } else {
+        polygon.addVertex(trapezoid.right.end);
+      }
+    }
+
+    if(!polygon.getLastVertex().equals(trapezoid.right.end)) {
+      polygon.addVertex(trapezoid.right.end);
+    }
+
+    if(!polygon.getLastVertex().equals(trapezoid.left.end)) {
+      polygon.addVertex(trapezoid.left.end);
+    }
   }
 
 }

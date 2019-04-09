@@ -22,13 +22,14 @@ class ConcaveStrategy extends ConvexStrategy {
     System.out.println("Concave Constructor");
   }
 
+
+  public boolean drawing = false;
   public void drawText(VertexPolygon poly, Pane textLayer) {
     this.textLayer = textLayer;
 
     Random r = new Random();
     try {
       VertexList outline = poly.getDlOutline();
-      rotateCounterClockwise(outline);
       Vertex[] orderedVertices = sort(outline);
 
       List<VerticalTrapezoid> trapezoids = getTrapezoidalDecomposition(outline, orderedVertices);
@@ -36,13 +37,22 @@ class ConcaveStrategy extends ConvexStrategy {
       double minHeight = weightedAverageHeight * 0.5;
       VerticalTrapezoid head = trapezoids.get(0);
       VerticalTrapezoid tail = getTail(head, head, null);
-      drawTrapezoid(tail);
 
-      VertexPolygon _p = trapezoidsToPolygon(head);
-      lineBreak(_p.getDlOutline(), 2);
       double m = 10;
+      information(head, 1);
+      information(head, -1);
+      ditchInformation(head, null);
+      head = getHead(head, head, null);
+      tail = getTail(tail, head, null);
+      // drawTrapezoid(head);
+      // drawTrapezoid(tail);
+
+      // drawTrapezoids(head, null);
+      head = trimConvex(head, head, minHeight);
+      // VertexPolygon _p = _trapezoidToPolygonMonotone(head);
+      drawing = true;
+      // lineBreak(_p.getDlOutline(), 2);
       getRectrangles(head, poly.getText().length(), m);
-      drawTrapezoids(head, null);
     } catch (Exception e){
       System.out.println("---Exception---");
       e.printStackTrace(new java.io.PrintStream(System.out));
@@ -50,25 +60,68 @@ class ConcaveStrategy extends ConvexStrategy {
   }
 
   public VerticalTrapezoid getTail(VerticalTrapezoid tail, VerticalTrapezoid trap, VerticalTrapezoid prev) {
+    if(!tail.isActive() && !(trap instanceof VerticalTrapezoidFiller)) tail = trap;
     if(!(trap instanceof VerticalTrapezoidFiller) && trap.right.start.x > tail.right.start.x) {
       tail = trap;
     }
     for(VerticalTrapezoid t : trap.getNext()) {
       if(!t.equals(prev)) {
         VerticalTrapezoid tmp = getTail(tail, t, trap);
-        if(tmp.right.start.x > tail.right.start.x) tail = tmp;
+        if(!tail.isActive()) tail = tmp;
+        if(tmp.right.start.x > tail.right.start.x && t.isActive()) tail = tmp;
       }
     }
     for(VerticalTrapezoid t : trap.getPrev()) {
       if(!t.equals(prev)) {
         VerticalTrapezoid tmp = getTail(tail, t, trap);
-        if(tmp.right.start.x > tail.right.start.x) tail = tmp;
+        if(!tail.isActive()) tail = tmp;
+        if(tmp.right.start.x > tail.right.start.x && t.isActive()) tail = tmp;
       }
     }
     return tail;
   }
 
+  public VerticalTrapezoid getHead(VerticalTrapezoid head, VerticalTrapezoid trap, VerticalTrapezoid prev) {
+    return getHead(head, trap, prev, 0);
+  }
+
+  public VerticalTrapezoid getHead(VerticalTrapezoid head, VerticalTrapezoid trap, VerticalTrapezoid prev, int recursion) {
+    if(!head.isActive() && !(trap instanceof VerticalTrapezoidFiller)) {
+      head = trap;
+    }
+
+    if(recursion == 0) {
+      if(head.isActive()) System.out.println("head active");
+    }
+
+    if(!(trap instanceof VerticalTrapezoidFiller) && trap.left.start.x < head.left.start.x) {
+      head = trap;
+    }
+    for(VerticalTrapezoid t : trap.getNext()) {
+      if(!t.equals(prev)) {
+        VerticalTrapezoid tmp = getHead(head, t, trap, recursion + 1);
+        if(!head.isActive()) head = tmp;
+        if(tmp.left.start.x < head.left.start.x && t.isActive()) head = tmp;
+      }
+    }
+    for(VerticalTrapezoid t : trap.getPrev()) {
+      if(!t.equals(prev)) {
+        VerticalTrapezoid tmp = getHead(head, t, trap, recursion + 1);
+        if(!head.isActive()) head = tmp;
+        if(tmp.left.start.x < head.left.start.x && t.isActive()) head = tmp;
+      }
+    }
+    // if(recursion == 0) {
+    //   drawTrapezoid(head);
+    // }
+    return head;
+  }
+
   public double information(VerticalTrapezoid trap, int direction) {
+    return information(trap, direction, null);
+  }
+
+  public double information(VerticalTrapezoid trap, int direction, VerticalTrapezoid previous) {
     if(trap == null) return 0;
 
     //Laufe von links nach rechts
@@ -76,26 +129,63 @@ class ConcaveStrategy extends ConvexStrategy {
       if(trap.informationLeft != 0) return trap.informationLeft;
 
       for(VerticalTrapezoid t : trap.getPrev()) {
-        t.informationLeft = Math.max(information(t, direction), t.informationLeft);
+        trap.informationLeft = Math.max(information(t, direction, trap), t.informationLeft);
       }
       trap.informationLeft += trap.area();
       for(VerticalTrapezoid t : trap.getNext()) {
-        information(t, direction);
+        if(!t.equals(previous))
+          information(t, direction, trap);
       }
       return trap.informationLeft;
     } else {
       if(trap.informationRight != 0) return trap.informationRight;
 
       for(VerticalTrapezoid t : trap.getNext()) {
-        t.informationRight = Math.max(information(t, direction), t.informationRight);
+        trap.informationRight = Math.max(information(t, direction, trap), t.informationRight);
       }
       trap.informationRight += trap.area();
       for(VerticalTrapezoid t : trap.getPrev()) {
-        information(t, direction);
+        if(!t.equals(previous))
+          information(t, direction, trap);
       }
+      System.out.println(trap.informationRight);
       return trap.informationRight;
     }
 
+  }
+
+  public void ditchInformation(VerticalTrapezoid trap, VerticalTrapezoid prev) {
+    HashSet<VerticalTrapezoid> _next = trap.getNext();
+    HashSet<VerticalTrapezoid> _prev = trap.getPrev();
+    if(_next.size() == 2) {
+      VerticalTrapezoid[] arr = _next.toArray(new VerticalTrapezoid[2]);
+      System.out.println(arr[0].informationRight);
+      if(arr[0].informationRight > arr[1].informationRight) {
+        System.out.println("HALSKDJLAKSJDLKASJDLKAJSDLKJASLKDJ");
+        arr[1].deactivate(1);
+      } else {
+        System.out.println("ABCDEFGHIJKLMNQO");
+        arr[0].deactivate(1);
+      }
+    }
+    if(_prev.size() == 2) {
+      VerticalTrapezoid[] arr = _prev.toArray(new VerticalTrapezoid[2]);
+      if(arr[0].informationLeft > arr[1].informationLeft) {
+        arr[1].deactivate(-1);
+      } else {
+        arr[0].deactivate(-1);
+      }
+    }
+    for(VerticalTrapezoid t : trap.getNext()) {
+      if(!t.equals(prev)) {
+        ditchInformation(t, trap);
+      }
+    }
+    for(VerticalTrapezoid t : trap.getPrev()) {
+      if(!t.equals(prev)) {
+        ditchInformation(t, trap);
+      }
+    }
   }
 
   // public VerticalTrapezoid trimConcave(VerticalTrapezoid head, VerticalTrapezoid trapezoid, double minHeight) {

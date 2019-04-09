@@ -109,6 +109,13 @@ class VerticalTrapezoid {
   public boolean hasNext() {
     return next.size() == 0 ? false : true;
   }
+
+  public boolean hasNextExplicit() {
+    for(VerticalTrapezoid t : next) {
+      if(t.isActive()) return true;
+    }
+    return false;
+  }
   public boolean hasPrev() {
     return prev.size() == 0 ? false : true;
   }
@@ -121,7 +128,17 @@ class VerticalTrapezoid {
     active = true;
   }
 
-  public void deactivate() {
+  public void deactivate(int direction) {
     active = false;
+    if(direction == 1) {
+      for(VerticalTrapezoid t : next) {
+        t.deactivate(direction);
+      }
+    }
+    if(direction == -1) {
+      for(VerticalTrapezoid t : prev) {
+        t.deactivate(direction);
+      }
+    }
   }
 }
