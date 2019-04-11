@@ -550,6 +550,10 @@ class ConvexStrategy implements TextStrategy{
       rightSideTrapezoids.add(newTrapezoid);
     }
 
+    for(int i = 0; i < rightSideTrapezoids.size(); i++) {
+      drawTrapezoid(rightSideTrapezoids.get(i));
+    }
+
     return rightSideTrapezoids;
   }
 

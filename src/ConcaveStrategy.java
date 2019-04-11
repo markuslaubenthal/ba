@@ -30,6 +30,16 @@ class ConcaveStrategy extends ConvexStrategy {
     Random r = new Random();
     try {
       VertexList outline = poly.getDlOutline();
+      double last = 0;
+
+      Vertex v = outline.head();
+      for(int i = 0; i < outline.size(); i++) {
+        if(v.x == last) {
+          v.x += r.nextDouble() * 0.05;
+        }
+        last = v.x;
+        v = outline.getNext(v);
+      }
       Vertex[] orderedVertices = sort(outline);
 
       List<VerticalTrapezoid> trapezoids = getTrapezoidalDecomposition(outline, orderedVertices);
