@@ -1,4 +1,5 @@
 import javafx.scene.shape.Circle;
+import java.util.ArrayList;
 
 /**
  * @author Markus Laubenthal
@@ -10,6 +11,10 @@ public class Vertex {
     public double y;
     public Circle point;
     public Boolean dragged = false;
+    ArrayList<Vertex> neighbours = new ArrayList<Vertex>();
+    Vertex parent = null;
+    double pathLengthEndingHere = 0.0;
+    LineSegment connectedEdge = null;
 
     public Vertex(double x, double y, Circle point) {
         this.x = x;
@@ -21,6 +26,10 @@ public class Vertex {
         this.x = x;
         this.y = y;
         point = null;
+    }
+
+    public void addNeighbour(Vertex v){
+      neighbours.add(v);
     }
 
     public void setPoint(Circle point) {

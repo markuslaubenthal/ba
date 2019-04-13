@@ -4,6 +4,7 @@
 class LineSegment {
   public Vertex start;
   public Vertex end;
+  public double area = 0;
 
 
   public LineSegment(Vertex start, Vertex end) {

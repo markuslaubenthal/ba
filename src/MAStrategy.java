@@ -48,12 +48,12 @@ class MAStrategy implements TextStrategy{
       vnj.setNextEdge(vnjt);
       Q.add(vnjt);
 
-      Line l1 = new Line(wvnj.start.x,wvnj.start.y,wvnj.end.x,wvnj.end.y);
-      l1.setStroke(Color.color(1,0,0,0.3));
-      textLayer.getChildren().add(l1);
-      Line l2 = new Line(vnjt.start.x,vnjt.start.y,vnjt.end.x,vnjt.end.y);
-      l2.setStroke(Color.color(1,0,0,0.3));
-      textLayer.getChildren().add(l2);
+      // Line l1 = new Line(wvnj.start.x,wvnj.start.y,wvnj.end.x,wvnj.end.y);
+      // l1.setStroke(Color.color(1,0,0,0.3));
+      // textLayer.getChildren().add(l1);
+      // Line l2 = new Line(vnjt.start.x,vnjt.start.y,vnjt.end.x,vnjt.end.y);
+      // l2.setStroke(Color.color(1,0,0,0.3));
+      // textLayer.getChildren().add(l2);
 
       j++;
 
@@ -94,7 +94,7 @@ class MAStrategy implements TextStrategy{
 
     for(MALineSegment l : L) {
       Line l1 = new Line(l.start.x,l.start.y,l.end.x,l.end.y);
-      l1.setStroke(Color.color(0,1,0,0.3));
+      l1.setStroke(Color.color(0,0,1,0.7));
       textLayer.getChildren().add(l1);
     }
 
