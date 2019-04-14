@@ -26,7 +26,7 @@ class CenterXStrategy implements TextStrategy{
     // ZENTRALE ACHSE
 
     ArrayList<Vertex> ereignisstruktur = new ArrayList<>();
-    ereignisstruktur.addAll(originalPoly.getOutline());
+    ereignisstruktur.addAll(buildOutlinePointsX(originalPoly));
     ArrayList<LineSegment> outlineSegments = originalPoly.getLineSegments();
     Collections.sort(ereignisstruktur, new VertexXComparator());
     double e = 0.0002;
@@ -73,7 +73,7 @@ class CenterXStrategy implements TextStrategy{
 
     ArrayList<LineSegment> oldBisectorSegments = new ArrayList<LineSegment>();
     oldBisectorSegments.addAll(bisectorSegments);
-    double alpha = 0.45;
+    double alpha = 0.4;
     ArrayList<LineSegment> newBisectorSegments = new ArrayList<LineSegment>();
     while(true) {
 
@@ -295,51 +295,22 @@ class CenterXStrategy implements TextStrategy{
 
     Boolean tooHigh = false;
     for(int i = 0; i < originalPoly.text.length(); i++){
-      tooHigh = zHeights.get(i) * 2 > 1.5 * deltaX * tau * 5;
+      tooHigh = zHeights.get(i) * 2 > 1.5 * deltaX * tau * 2;
       if(tooHigh) break;
     }
-
-    if(!tooHigh) {
-      for(int i = 0; i < originalPoly.text.length(); i++){
-        Vertex z = zentren.get(i);
-        double fontsize = deltaX * tau;
-
-        Font monospacedFont;
-        Text t = new Text();
-        monospacedFont = new Font("Cousine Bold", fontsize);
-
-        String letterI = originalPoly.getText().substring(i, i + 1).toUpperCase();
-        t.setFont(monospacedFont);
-        t.setText(letterI);
-        t.setBoundsType(TextBoundsType.VISUAL);
-
-        Bounds b = t.getLayoutBounds();
-        double height = b.getHeight();
-        double width = b.getWidth();
-        double boundingLeft = b.getMinX();
-        double boundingBot = b.getMaxY();
-
-        t.setX(z.x - width / 2 - boundingLeft);
-        t.setScaleX(1.7);
-        t.setY(z.y + height / 2 - boundingBot);
-
-        if(!letterI.equals("-")) t.setScaleY(2 *0.95* zHeights.get(i)/height);
-
-        textLayer.getChildren().add(t);
-
-      }
-    } else {
+    Boolean foundCut = false;
+    if(tooHigh && originalPoly.text.length() != 1) {
 
       //SPLIT TEXT
 
       String[] textParts = splitText(originalPoly.text);
-      //double upperRatio = (double)textParts[0].length() / originalPoly.text.length();
-      double upperRatio = 0.5;//(double)textParts[1].length() / originalPoly.text.length();
+      double upperRatio = (double)textParts[0].length() / originalPoly.text.length();
+      //double upperRatio = ;//(double)textParts[1].length() / originalPoly.text.length();
 
       //SPLIT POLYGON
 
       ereignisstruktur = new ArrayList<>();
-      ereignisstruktur.addAll(originalPoly.getOutline());
+      ereignisstruktur.addAll(buildOutlinePointsY(originalPoly));
       outlineSegments = originalPoly.getLineSegments();
       Collections.sort(ereignisstruktur, new VertexYComparator());
       e = 0.0002;
@@ -383,15 +354,53 @@ class CenterXStrategy implements TextStrategy{
           lowerP = polygonParts[1];
           double upperArea = upperP.getAreaSize();
           if(Math.abs(upperArea - wantedUpperArea) < originalArea / 95) {
+            foundCut = true;
             break mainloop;
+          } else if (Math.abs(upperArea + areaT - wantedUpperArea) < originalArea / 95) {
+
           }
         }
 
       }
-      upperP.text = textParts[0];
-      lowerP.text = textParts[1];
-      drawText(upperP, textLayer);
-      drawText(lowerP, textLayer);
+      if(foundCut) {
+        upperP.text = textParts[0];
+        lowerP.text = textParts[1];
+        drawText(upperP, textLayer);
+        drawText(lowerP, textLayer);
+      }
+    }
+    if(!foundCut){
+
+      for(int i = 0; i < originalPoly.text.length(); i++){
+        Vertex z = zentren.get(i);
+        double fontsize = deltaX * tau;
+
+        Font monospacedFont;
+        Text t = new Text();
+        monospacedFont = new Font("Cousine Bold", fontsize);
+
+        String letterI = originalPoly.getText().substring(i, i + 1).toUpperCase();
+        t.setFont(monospacedFont);
+        t.setText(letterI);
+        t.setBoundsType(TextBoundsType.VISUAL);
+
+        Bounds b = t.getLayoutBounds();
+        double height = b.getHeight();
+        double width = b.getWidth();
+        double boundingLeft = b.getMinX();
+        double boundingBot = b.getMaxY();
+
+        t.setX(z.x - width / 2 - boundingLeft);
+        t.setScaleX(1.7);
+        t.setY(z.y + height / 2 - boundingBot);
+
+        if(letterI.equals(",") || letterI.equals(".")) t.setY(z.y + 0.80* zHeights.get(i));
+
+        if(!letterI.equals("-") && !letterI.equals(",") && !letterI.equals(".")) t.setScaleY(2 * 0.95 * zHeights.get(i)/height);
+
+        textLayer.getChildren().add(t);
+
+      }
 
 
 
@@ -590,7 +599,39 @@ class CenterXStrategy implements TextStrategy{
     }
   }
 
-
-
+  public ArrayList<Vertex> buildOutlinePointsX(VertexPolygon poly) {
+    ArrayList<Vertex> pointList = new ArrayList<Vertex>();
+    double[] bb = poly.getBoundingBox();
+    double width = Math.abs(bb[0] - bb[1]);
+    for(int i = 0; i < poly.getOutline().size(); i++) {
+      LineSegment edge = poly.getLineSegment(i);
+      pointList.add(edge.end);
+      if(Math.abs(edge.end.x - edge.start.x) > 0.05 * width){
+        Vertex directionV = edge.end.sub(edge.start).mult(1/edge.end.distance(edge.start));
+        for(double j = 0.04 * width; j < Math.abs(edge.end.x - edge.start.x); j += 0.04 * width) {
+          Vertex newPoint = edge.start.add(directionV.mult(j));
+          pointList.add(newPoint);
+        }
+      }
+    }
+    return pointList;
+  }
+  public ArrayList<Vertex> buildOutlinePointsY(VertexPolygon poly) {
+    ArrayList<Vertex> pointList = new ArrayList<Vertex>();
+    double[] bb = poly.getBoundingBox();
+    double width = Math.abs(bb[2] - bb[3]);
+    for(int i = 0; i < poly.getOutline().size(); i++) {
+      LineSegment edge = poly.getLineSegment(i);
+      pointList.add(edge.end);
+      if(Math.abs(edge.end.y - edge.start.y) > 0.03 * width){
+        Vertex directionV = edge.end.sub(edge.start).mult(1/edge.end.distance(edge.start));
+        for(double j = 0.02 * width; j < Math.abs(edge.end.y - edge.start.y); j += 0.02 * width) {
+          Vertex newPoint = edge.start.add(directionV.mult(j));
+          pointList.add(newPoint);
+        }
+      }
+    }
+    return pointList;
+  }
 
 }
