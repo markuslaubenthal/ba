@@ -28,6 +28,9 @@ class LineSegment {
   public double getHeight() {
     return Math.abs(end.y - start.y);
   }
+  public double height() {
+    return getHeight();
+  }
 
   public double getWidth() {
     return Math.abs(end.x - start.x);
@@ -44,7 +47,7 @@ class LineSegment {
       s = (-s1_y * (p0_x - p2_x) + s1_x * (p0_y - p2_y)) / (-s2_x * s1_y + s1_x * s2_y);
       t = ( s2_x * (p0_y - p2_y) - s2_y * (p0_x - p2_x)) / (-s2_x * s1_y + s1_x * s2_y);
 
-      if (s >= 0 && s <= 1 && t >= 0 && t <= 1)
+      if (s > 0 && s < 1 && t > 0 && t < 1)
       {
           // Collision detected
           i.x = p0_x + (t * s1_x);
@@ -55,6 +58,24 @@ class LineSegment {
       return false; // No collision
   }
   public String toString(){
+    if(this.start == null || this.end == null) return "null";
     return "start:x:" + this.start.x + ",y:" + this.start.y + "end:x:" + this.end.x + ",y:" + this.end.y;
+  }
+
+  public double slope() {
+    if(end.x == start.x) {
+      if(start.y > end.y) return -9999999;
+      else return 9999999;
+    }
+    return (start.y - end.y) / (start.x - end.x);
+  }
+
+  public double functionOffset() {
+    return - slope() * start.x + start.y;
+  }
+
+  public boolean contains(Vertex v) {
+    if(start.equals(v) || end.equals(v)) return true;
+    return false;
   }
 }

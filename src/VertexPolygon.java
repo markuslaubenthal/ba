@@ -3,19 +3,23 @@ import javafx.scene.paint.Color;
 import javafx.scene.layout.Pane;
 import javafx.scene.text.*;
 import java.util.Arrays;
+import java.util.LinkedHashSet;
 
 class VertexPolygon {
   protected ArrayList<Vertex> outline;
   protected String text = "";
   protected TextStrategy strategy;
-
+  protected VertexList dlOutline;
 
   public VertexPolygon() {
     outline = new ArrayList<Vertex>();
+    // dlOutline = new LinkedHashSet<Vertex>();
+    dlOutline = new VertexList();
   }
 
   public VertexPolygon(String text) {
     outline = new ArrayList<Vertex>();
+    dlOutline = new VertexList();
     this.text = text;
   }
 
@@ -23,14 +27,19 @@ class VertexPolygon {
     return outline;
   }
 
+  public VertexList getDlOutline() {
+    return dlOutline;
+  }
+
   public void addVertex(Vertex v) {
     if(!this.contains(v)){
       outline.add(v);
+      dlOutline.add(v);
     }
   }
 
   public boolean contains(Vertex v) {
-    return outline.contains(v);
+    return dlOutline.contains(v);
   }
 
   public String getText() {
@@ -187,6 +196,14 @@ class VertexPolygon {
         return false;
     }
     return true;
+  }
+
+  public Boolean isEmpty() {
+    return dlOutline.size() == 0 ? true : false;
+  }
+
+  public Vertex getLastVertex() {
+    return dlOutline.tail();
   }
 
 }

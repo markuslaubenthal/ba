@@ -6,7 +6,11 @@ import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.paint.Color;
-
+import java.io.InputStream;
+import java.io.FileInputStream;
+import com.sun.javafx.tk.FontMetrics;
+import com.sun.javafx.tk.Toolkit;
+import javafx.geometry.Bounds;
 
 class ScanStrategy implements TextStrategy{
   double fontsize;
@@ -23,7 +27,7 @@ class ScanStrategy implements TextStrategy{
     try{
       createRectanglesFromLineSegments(lines, poly);
     } catch (Exception e){
-      System.out.println("catch all exception DEAL WITH IT");
+      System.out.println(e);
     }
   }
 
@@ -83,12 +87,13 @@ class ScanStrategy implements TextStrategy{
   public void createRectanglesFromLineSegments(ArrayList<LineSegment> lines, VertexPolygon p) {
     int letter = 0;
     double minHeight = fontsize * 0.7;
-    double minWidth = fontsize * 0.7;
+    double minWidth = (fontsize * 0.7);
     double usableSpace = calculateUsableSpace(lines, minHeight, minWidth);
     double rectangleWidth = usableSpace / p.getText().length() * 0.9;
 
     int endOffset = 0;
     int startOffset = findFirstUsableLineSegment(lines, 0, minHeight);
+
     while(startOffset < lines.size()) {
       LineSegment start = lines.get(startOffset);
       LineSegment end = null;
@@ -115,23 +120,40 @@ class ScanStrategy implements TextStrategy{
       }
 
       if(end != null) {
-        // top = Math.min(start.end.y, end.end.y);
-        // bot = Math.max(start.start.y, end.start.y);
-
+        Font monospacedFont;
         Text t = new Text();
-        Font monospacedFont = Font.font("Courier New", FontWeight.NORMAL, minWidth);
+        monospacedFont = Font.font("Monospaced", FontWeight.NORMAL, minWidth);
+        if(monospacedFont.getFamily() != "Monospaced") {
+          monospacedFont = Font.font("Courier New", FontWeight.NORMAL, minWidth);
+        }
+
+
+        String myLetter = p.getText().substring(letter, letter + 1);
+        double baseline = top;
+
         t.setFont(monospacedFont);
         t.setText(p.getText().substring(letter, letter + 1));
+        Bounds b = t.getLayoutBounds();
+        double boundingBot = b.getMaxY();
+        double boundingTop = b.getMinY();
+        double ascent = Math.abs(boundingTop);
+        double descent = Math.abs(boundingBot);
+        double middle = Math.abs(boundingTop + boundingBot) / 2;
+
+        t.setY(baseline);
+
         t.setX(start.start.x);
-        t.setY(top);
-        t.setScaleX(2);
-        double scale = Math.abs(top - bot) / minWidth;
-        t.setScaleY(scale * 1.25);
-        t.setTranslateY(-(minWidth * (scale - 1) / 2) - 10);
+        t.setScaleX(1.5);
+
+        double requiredHeight = Math.abs(top - bot);
+        double actualHeight = ascent;
+
+        double scale = requiredHeight / (actualHeight - middle);
+        t.setScaleY(scale);
+        t.setTranslateY( - middle * (scale - 1));
         textLayer.getChildren().add(t);
 
         letter++;
-
       } else {
         startOffset = lines.size();
       }

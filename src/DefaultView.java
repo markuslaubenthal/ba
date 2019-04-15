@@ -198,7 +198,9 @@ class DefaultView {
       "Medial Axis Strategy",
       "Scan Strategy",
       "Graph Strategy",
-      "Graph Split Strategy"
+      "Graph Split Strategy",
+      "Convex",
+      "Concave"
     );
     strategySelector.setValue("Default");
     strategySelector.setOnAction(new EventHandler<ActionEvent>() {
@@ -300,9 +302,9 @@ class DefaultView {
     for(VertexPolygon poly : polygonList) {
       drawPolygon(poly);
       drawUIPolygon(poly);
-      if(poly.isWithinBox(0,0,1000,800) && poly.getAreaSize() > 100) {
+      // if(poly.isWithinBox(0,0,1000,800)) {
         poly.drawText(textLayer);
-      }
+      // }
     }
     for(VertexPolygon poly : polygonList) {
       for(Vertex v : poly.outline){

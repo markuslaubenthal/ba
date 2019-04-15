@@ -15,11 +15,14 @@ public class Vertex {
     Vertex parent = null;
     double pathLengthEndingHere = 0.0;
     LineSegment connectedEdge = null;
+    private String hash = "";
+
+    boolean isRotated = false;
 
     public Vertex(double x, double y, Circle point) {
-        this.x = x;
-        this.y = y;
+        this(x,y);
         this.point = point;
+        hash = toString();
     }
 
     public Vertex(double x, double y) {
@@ -117,6 +120,28 @@ public class Vertex {
 
     public double getAngleInRadians() {
       return Math.atan2(y,x);
+    }
+
+    public void rotateCounterClockwise() {
+      double x = this.x;
+      double y = this.y;
+      this.x = -y;
+      this.y = x;
+      this.x += 1000;
+      isRotated = true;
+    }
+
+    public void rotateClockwise() {
+      this.x -= 1000;
+      double x = this.x;
+      double y = this.y;
+      this.x = y;
+      this.y = -x;
+      isRotated = true;
+    }
+
+    public int hashCode() {
+      return hash.hashCode();
     }
 
 }

@@ -9,6 +9,8 @@ class StrategyFactory {
   public static final String MedialAxis = "Medial Axis Strategy";
   public static final String Default = "Default";
   public static final String GraphSplit = "Graph Split Strategy";
+  public static final String Convex = "Convex";
+  public static final String Concave = "Concave";
 
   public static TextStrategy getStrategy(String name) {
     switch(name) {
@@ -26,6 +28,10 @@ class StrategyFactory {
         return new GraphStrategy();
       case GraphSplit:
         return new GraphSplitStrategy();
+      case Convex:
+        return new ConvexStrategy();
+      case Concave:
+        return new ConcaveStrategy();
       default:
         return new CenterXStrategy();
     }
