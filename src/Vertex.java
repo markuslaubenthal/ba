@@ -120,12 +120,14 @@ public class Vertex {
     public void rotateCounterClockwise() {
       double x = this.x;
       double y = this.y;
-      this.x = -y + 800;
+      this.x = -y;
       this.y = x;
+      this.x += 1000;
       isRotated = true;
     }
 
     public void rotateClockwise() {
+      this.x -= 1000;
       double x = this.x;
       double y = this.y;
       this.x = y;

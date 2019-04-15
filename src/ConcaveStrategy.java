@@ -48,7 +48,7 @@ class ConcaveStrategy extends ConvexStrategy {
       VerticalTrapezoid head = trapezoids.get(0);
       VerticalTrapezoid tail = getTail(head, head, null);
 
-      double m = 10;
+      double m = 0;
       information(head, 1);
       information(head, -1);
       ditchInformation(head, null);
@@ -58,11 +58,18 @@ class ConcaveStrategy extends ConvexStrategy {
       // drawTrapezoid(tail);
 
       // drawTrapezoids(head, null);
-      head = trimConvex(head, head, minHeight);
+      trimFast(head, tail, minHeight);
+      // trimConvex(head, head, minHeight);
+      head = getHead(head, head, null);
+      tail = getTail(tail, tail, null);
       // VertexPolygon _p = _trapezoidToPolygonMonotone(head);
       drawing = true;
-      // lineBreak(_p.getDlOutline(), 2);
-      getRectrangles(head, poly.getText().length(), m);
+      // lineBreak(poly.getDlOutline(), 4);
+      List<BoundingBox> boxes = getRectrangles(head, poly.getText().length(), m);
+
+      for(int i = 0; i < boxes.size(); i++) {
+        placeLetterInBox(boxes.get(i), poly.getText().substring(i, i+1));
+      }
     } catch (Exception e){
       System.out.println("---Exception---");
       e.printStackTrace(new java.io.PrintStream(System.out));

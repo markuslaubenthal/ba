@@ -7,6 +7,7 @@ import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.paint.Color;
+import javafx.geometry.Bounds;
 
 import java.util.TreeSet;
 import java.util.LinkedHashSet;
@@ -48,8 +49,9 @@ class ConvexStrategy implements TextStrategy{
       // VertexPolygon _p = trapezoidsToPolygon(head);
       // lineBreak(_p.getDlOutline(), 2);
 
-      getRectrangles(head, poly.getText().length(), m);
-      m += 2;
+      List<BoundingBox> boxes = getRectrangles(head, poly.getText().length(), m);
+
+      // m += 2;
       drawTrapezoids(head, null);
     } catch (Exception e){
       e.printStackTrace(new java.io.PrintStream(System.out));
@@ -62,6 +64,45 @@ class ConvexStrategy implements TextStrategy{
     return v;
   }
 
+  public void placeLetterInBox(BoundingBox box, String letter) {
+    box.top += 2;
+    box.bot -= 2;
+    Font monospacedFont;
+    Text t = new Text();
+    // monospacedFont = Font.font("Monospaced", FontWeight.NORMAL, box.right - box.left);
+    // if(monospacedFont.getFamily() != "Monospaced") {
+    //   monospacedFont = Font.font("Courier New", FontWeight.NORMAL, box.right - box.left);
+    // }
+
+    monospacedFont = Font.loadFont("file:./ttf/Cousine-Bold.ttf", box.left - box.right);
+    double baseline = box.bot;
+    t.setFont(monospacedFont);
+    t.setText(letter);
+    Bounds b = t.getLayoutBounds();
+    double boundingBot = b.getMaxY();
+    double boundingTop = b.getMinY();
+    double ascent = Math.abs(boundingTop);
+    double descent = Math.abs(boundingBot);
+    double middle = Math.abs(boundingTop + boundingBot) / 2;
+    double boundingRight = b.getMaxX();
+    double boundingLeft = b.getMinX();
+    t.setY(baseline);
+
+    t.setX(box.left);
+
+    double requiredHeight = Math.abs(box.top - box.bot);
+    double requiredWidth = Math.abs(box.left - box.right);
+    double actualHeight = ascent * 1.1;
+    double actualWidth = Math.abs(boundingRight - boundingLeft);
+    t.setScaleX(requiredWidth / actualWidth);
+
+    double scale = requiredHeight / (actualHeight - middle);
+    t.setScaleY(scale);
+    t.setTranslateY( - middle * (scale - 1));
+    t.setTranslateX(((requiredWidth / actualWidth) - 1) * (actualWidth / 2));
+    textLayer.getChildren().add(t);
+  }
+
   /**
    * get Most Left Point, get most Right point, rectwidth = (right - left) / count
    * Sweep über Trapeze maxTop und minBot speichern
@@ -70,7 +111,7 @@ class ConvexStrategy implements TextStrategy{
    * @param  head           [description]
    * @param  count          [description]
    */
-  public void getRectrangles(VerticalTrapezoid head, int count, double margin) {
+  public List<BoundingBox> getRectrangles(VerticalTrapezoid head, int count, double margin) {
     double mostLeftPoint = head.left.start.x;
     double mostRightPoint;
     VerticalTrapezoid rightest = head;
@@ -98,11 +139,11 @@ class ConvexStrategy implements TextStrategy{
     }
 
     for(BoundingBox b : boundingBoxes) {
-      drawRectangle(b);
+      // drawRectangle(b);
       System.out.println(b);
     }
 
-
+    return boundingBoxes;
   }
 
   public void drawRectangle(BoundingBox b) {
@@ -550,9 +591,9 @@ class ConvexStrategy implements TextStrategy{
       rightSideTrapezoids.add(newTrapezoid);
     }
 
-    for(int i = 0; i < rightSideTrapezoids.size(); i++) {
-      drawTrapezoid(rightSideTrapezoids.get(i));
-    }
+    // for(int i = 0; i < rightSideTrapezoids.size(); i++) {
+    //   drawTrapezoid(rightSideTrapezoids.get(i));
+    // }
 
     return rightSideTrapezoids;
   }
@@ -566,13 +607,13 @@ class ConvexStrategy implements TextStrategy{
   // }
 
   public void lineBreak(VertexList outline, int lineCount) {
-    // rotateCounterClockwise(outline);
+    rotateCounterClockwise(outline);
     //Linked List mit konstanter Einfüge Operation
     Vertex[] orderedVertices = sort(outline);
 
-    for(Vertex v : orderedVertices) {
-      drawCircle(v);
-    }
+    // for(Vertex v : orderedVertices) {
+    //   drawCircle(v);
+    // }
 
     LinkedList<VerticalTrapezoid> trapList = (LinkedList<VerticalTrapezoid>)getTrapezoidalDecomposition(outline, orderedVertices);
     double areaPolygon = area(trapList);
@@ -609,12 +650,12 @@ class ConvexStrategy implements TextStrategy{
           //Trapez gefunden
           double Fleft = areaPolygon * counter / (lineCount + 1) - area_last;
           // double x = -((b1 - b2 + Math.sqrt(Math.pow((b1-b2),2) + (2*(b1*s_last-b2*s_last+Fleft)+a1*Math.pow(s_last,2)-a2*Math.pow(s_last,2))*(a1-a2)))/(a1-a2));
-          double x = -((b1 - b2 - Math.sqrt(Math.pow((b1-b2),2) + (2*(b1*s_last-b2*s_last+Fleft)+a1*Math.pow(s_last,2)-a2*Math.pow(s_last,2))*(a1-a2)))/(a1-a2));
+          double x = (-(b1 - b2 - Math.sqrt(Math.pow((b1-b2),2) + (2*(b1*s_last-b2*s_last+Fleft)+a1*Math.pow(s_last,2)-a2*Math.pow(s_last,2))*(a1-a2)))/(a1-a2));
           LineSegment vLine = new LineSegment(new Vertex(x, 0), new Vertex(x, 1000));
-          // vLine.start.rotateClockwise();
-          // vLine.end.rotateClockwise();
+          vLine.start.rotateClockwise();
+          vLine.end.rotateClockwise();
           breakingLines.add(vLine);
-          // drawLineSegment(vLine);
+          drawLineSegment(vLine);
           counter++;
         }
       }
@@ -649,7 +690,7 @@ class ConvexStrategy implements TextStrategy{
 
 
 
-    // rotateClockwise(outline);
+    rotateClockwise(outline);
   }
 
   public void rotateCounterClockwise(VertexList outline) {
@@ -747,6 +788,20 @@ class ConvexStrategy implements TextStrategy{
       if(trapezoid.getNextExplicit() != null) {
         return trimConvex(head, trapezoid.getNextExplicit(), minHeight);
       } else return head;
+    }
+  }
+
+  public void trimFast(VerticalTrapezoid head, VerticalTrapezoid tail, double minHeight) {
+    VerticalTrapezoid t = head;
+    while(t.left.height() < minHeight) {
+      t.deactivate(0);
+      t = t.getNextExplicit();
+    }
+
+    t = tail;
+    while(t.right.height() < minHeight) {
+      t.deactivate(0);
+      t = t.getPrevExplicit();
     }
   }
 

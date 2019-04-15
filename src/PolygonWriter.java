@@ -55,18 +55,21 @@ class PolygonWriter {
     JSONArray polygonObjects = new JSONArray();
 
     for(VertexPolygon p : polygonList) {
-      JSONObject polygon = new JSONObject();
-      JSONArray outline = new JSONArray();
-      for(Vertex v : p.getOutline()) {
-        JSONObject vertex = new JSONObject();
-        vertex.put("x", v.x);
-        vertex.put("y", v.y);
-        outline.put(vertex);
-      }
-      polygon.put("outline", outline);
-      polygon.put("text", p.text);
+      if(p.getText().equals("MECKLENBURG-VORPOMMERN")) {
 
-      polygonObjects.put(polygon);
+        JSONObject polygon = new JSONObject();
+        JSONArray outline = new JSONArray();
+        for(Vertex v : p.getOutline()) {
+          JSONObject vertex = new JSONObject();
+          vertex.put("x", v.x);
+          vertex.put("y", v.y);
+          outline.put(vertex);
+        }
+        polygon.put("outline", outline);
+        polygon.put("text", p.text);
+
+        polygonObjects.put(polygon);
+      }
     }
 
     root.put("polygons", polygonObjects);
