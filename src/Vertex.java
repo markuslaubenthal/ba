@@ -1,4 +1,5 @@
 import javafx.scene.shape.Circle;
+import java.util.ArrayList;
 
 /**
  * @author Markus Laubenthal
@@ -9,11 +10,19 @@ public class Vertex {
     public double x;
     public double y;
     public Circle point;
+    public Boolean dragged = false;
+    ArrayList<Vertex> neighbours = new ArrayList<Vertex>();
+    Vertex parent = null;
+    double pathLengthEndingHere = 0.0;
+    LineSegment connectedEdge = null;
+    private String hash = "";
+
+    boolean isRotated = false;
 
     public Vertex(double x, double y, Circle point) {
-        this.x = x;
-        this.y = y;
+        this(x,y);
         this.point = point;
+        hash = toString();
     }
 
     public Vertex(double x, double y) {
@@ -22,8 +31,17 @@ public class Vertex {
         point = null;
     }
 
+    public void addNeighbour(Vertex v){
+      neighbours.add(v);
+    }
+
     public void setPoint(Circle point) {
       this.point = point;
+    }
+
+    public boolean hasPoint(){
+      if(this.point != null) return true;
+      return false;
     }
 
     /**
@@ -31,8 +49,7 @@ public class Vertex {
      * @method distance
      */
     public double distance(Vertex v) {
-        double dist = sub(v).mag();
-        return dist;
+        return sub(v).mag();
     }
 
     /**
@@ -90,6 +107,41 @@ public class Vertex {
           if(ptr.x == this.x && ptr.y == this.y) return true;
       }
       return false;
+    }
+
+    // @Override
+    public int compareTo(Vertex o) {
+      return Double.compare(x, o.x);
+    }
+
+    public String toString(){
+      return "x:" + this.x + ",y:" + this.y;
+    }
+
+    public double getAngleInRadians() {
+      return Math.atan2(y,x);
+    }
+
+    public void rotateCounterClockwise() {
+      double x = this.x;
+      double y = this.y;
+      this.x = -y;
+      this.y = x;
+      this.x += 1000;
+      isRotated = true;
+    }
+
+    public void rotateClockwise() {
+      this.x -= 1000;
+      double x = this.x;
+      double y = this.y;
+      this.x = y;
+      this.y = -x;
+      isRotated = true;
+    }
+
+    public int hashCode() {
+      return hash.hashCode();
     }
 
 }

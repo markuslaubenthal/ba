@@ -5,6 +5,7 @@ import org.json.JSONException;
 import java.io.PrintWriter;
 import java.io.File;
 import java.io.FileWriter;
+import java.util.Collections;
 
 class PolygonWriter {
 
@@ -54,18 +55,21 @@ class PolygonWriter {
     JSONObject root = new JSONObject();
     JSONArray polygonObjects = new JSONArray();
 
+
     for(VertexPolygon p : polygonList) {
-      JSONArray polygon = new JSONArray();
-      ArrayList<Vertex> outline = p.getOutline();
+      JSONObject polygon = new JSONObject();
+      JSONArray outline = new JSONArray();
 
-      for(int i = 0; i < outline.size(); i++) {
+      for(Vertex v : p.getOutline()) {
         JSONObject vertex = new JSONObject();
-        vertex.put("x", outline.get(i).x);
-        vertex.put("y", outline.get(i).y);
-        polygon.put(vertex);
+        vertex.put("x", v.x);
+        vertex.put("y", v.y);
+        outline.put(vertex);
       }
+      polygon.put("outline", outline);
+      polygon.put("text", p.text);
 
-      polygonObjects.put(polygon);
+        polygonObjects.put(polygon);
     }
 
     root.put("polygons", polygonObjects);
